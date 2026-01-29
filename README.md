@@ -1,24 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Crypto Screener Next
 
-## Getting Started
+## Project Overview
 
-First, run the development server:
+This is a Next.js web application designed to function as a cryptocurrency screener. The primary goal of this application is to provide users with a tool to filter and search for cryptocurrencies based on a variety of criteria, such as market capitalization, price, and trading volume. It aims to present this data in a clear and user-friendly interface.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The project is built with a modern web stack, utilizing:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+*   **Framework:** [Next.js](https://nextjs.org/) (a React framework)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+*   **UI Components:** [HeroUI](https://www.heroui.com/) (v3 beta)
+*   **Icons:** [Heroicons](https://heroicons.com/)
+*   **Linting/Formatting:** [Biome](https://biomejs.dev/)
+*   **Git Hooks:** [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/okonet/lint-staged)
+*   **Package Manager:** [Bun](https://bun.sh/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application architecture follows the standard Next.js App Router paradigm.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Building and Running
+
+### Development
+
+To run the application in a local development environment:
+
+1.  Install dependencies:
+    ```bash
+    bun install
+    ```
+2.  Start the development server:
+    ```bash
+    bun run dev
+    ```
+
+The application will be accessible at `http://localhost:3000` (or another available port).
+
+### Production
+
+To build and run the application in a production environment:
+
+1.  Build the application:
+    ```bash
+    bun run build
+    ```
+2.  Start the production server:
+    ```bash
+    bun run start
+    ```
+
+## Development Conventions
+
+### Linting and Formatting
+
+This project uses [Biome](https://biomejs.dev/) for code linting and formatting to ensure code quality and consistency.
+
+*   To check for linting errors:
+    ```bash
+    bun run lint
+    ```
+*   To automatically format the code:
+    ```bash
+    bun run format
+    ```
+
+It is recommended to run these commands before committing any changes. For automatic enforcement, Git hooks are configured.
+
+### Git Hooks (Husky + lint-staged)
+
+This project uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/okonet/lint-staged) to automate code quality checks before each commit.
+
+*   **`pre-commit` hook:**
+    *   Automatically runs `biome format --write` on staged `.{ts,tsx}` files to fix formatting issues.
+    *   Then, runs `biome check --staged` on staged `.{ts,tsx}` files to check for linting errors.
+
+This ensures that only properly formatted and lint-free code is committed to the repository.
 
 ## Learn More
 
@@ -26,11 +80,3 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
