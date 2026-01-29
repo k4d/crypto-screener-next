@@ -10,6 +10,7 @@
     "format": "biome format --write src"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@heroui/react": "^3.0.0-beta.5",
     "@heroui/styles": "^3.0.0-beta.5",
     "next": "16.1.5",
