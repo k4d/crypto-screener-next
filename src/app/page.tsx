@@ -2,12 +2,10 @@ import CryptoTable from "@/components/CryptoTable";
 
 export default function Home() {
 	return (
-		<div className="container mx-auto p-4 sm:p-6 md:p-8">
-			<div className="flex flex-col items-center gap-4 text-center sm:items-start sm:text-left mb-8">
-				<h1 className="text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-					Hello, Crypto Screener!
-				</h1>
-				<p className="text-lg leading-8 text-zinc-600 dark:text-zinc-400 font-light">
+		<div className="container mx-auto p-4">
+			<div className="mt-8 mb-16">
+				<h1 className="text-3xl">Hello, Crypto Screener!</h1>
+				<p className="text-lg text-zinc-600 font-light">
 					Crypto Screener is a web application that allows users to screen
 					cryptocurrencies based on various criteria such as market
 					capitalization, price, volume, and more. It provides a user-friendly
