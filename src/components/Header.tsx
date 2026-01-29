@@ -9,7 +9,11 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ className }) => {
 	return (
-		<header className={`w-full p-4 shadow-md ${className}`}>
+		<header
+			className={`w-full p-4 shadow-md bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 ${
+				className || ""
+			}`}
+		>
 			<div className="container mx-auto flex justify-between items-center">
 				<Link href="/" className="font-bold">
 					Crypto Screener
