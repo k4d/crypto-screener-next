@@ -13,6 +13,7 @@ The project is built with a modern web stack, utilizing:
 *   **Icons:** [Heroicons](https://heroicons.com/)
 *   **Linting/Formatting:** [Biome](https://biomejs.dev/)
 *   **Git Hooks:** [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/okonet/lint-staged)
+*   **Testing:** [Bun Test](https://bun.sh/docs/test) + [React Testing Library](https://testing-library.com/react) + [Happy DOM](https://github.com/capricorn86/happy-dom)
 *   **Package Manager:** [Bun](https://bun.sh/)
 
 The application architecture follows the standard Next.js App Router paradigm.
@@ -69,10 +70,21 @@ It is recommended to run these commands before committing any changes. For autom
 This project uses [Husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/okonet/lint-staged) to automate code quality checks before each commit.
 
 *   **`pre-commit` hook:**
-    *   Automatically runs `biome format --write` on staged `.{ts,tsx}` files to fix formatting issues.
-    *   Then, runs `biome check --staged` on staged `.{ts,tsx}` files to check for linting errors.
+    *   Automatically runs `biome format --write` on staged `.{ts,tsx,json}` files to fix formatting issues.
+    *   Then, runs `biome check --staged` on staged `.{ts,tsx,json}` files to check for linting errors.
 
 This ensures that only properly formatted and lint-free code is committed to the repository.
+
+### Testing
+
+This project uses [Bun's built-in test runner](https://bun.sh/docs/test) along with [React Testing Library](https://testing-library.com/react) and [Happy DOM](https://github.com/capricorn86/happy-dom) for unit and integration testing.
+
+*   To run all tests:
+    ```bash
+    bun test
+    ```
+
+Tests are configured to use a DOM environment via Happy DOM and provide Jest-compatible matchers through `@testing-library/jest-dom`.
 
 ## Learn More
 
