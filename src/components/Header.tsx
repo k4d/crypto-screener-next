@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
 				<nav className="flex items-center space-x-4">
 					<Button variant="outline">About</Button>
 					<Button>Contact</Button>
-					<Button isIconOnly variant="outline">
+					<Button isIconOnly variant="outline" aria-label="Toggle theme">
 						<SunIcon className="h-6 w-6" />
 					</Button>
 				</nav>

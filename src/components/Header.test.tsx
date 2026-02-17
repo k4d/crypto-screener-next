@@ -35,20 +35,10 @@ describe("Header", () => {
 	});
 
 	it("renders the theme switcher button", () => {
-		// Render the Header component.
 		render(<Header />);
 
-		// Query for all elements with the role "button".
-		// We expect 3 buttons: "About", "Contact", and the theme switcher.
-		const buttons = screen.getAllByRole("button");
+		const themeButton = screen.getByRole("button", { name: /toggle theme/i });
 
-		// The theme switcher button is the third button in the current render order (index 2).
-		// This approach is a bit fragile as order can change, a better approach would be
-		// to add an `aria-label` to the button and query by that.
-		const themeButton = buttons[2];
-
-		// Assert that the theme switcher button is present in the document.
 		expect(themeButton).toBeInTheDocument();
-		// Further checks for icon presence or aria-label can be added here if needed.
 	});
 });

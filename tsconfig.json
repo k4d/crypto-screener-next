@@ -18,8 +18,7 @@
     "jsx": "react-jsx",
     "incremental": true,
     "types": [
-      "bun-types",
-      "jest"
+      "bun-types"
     ],
     "plugins": [
       {
