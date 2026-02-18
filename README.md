@@ -18,6 +18,30 @@ The project is built with a modern web stack, utilizing:
 
 The application architecture follows the standard Next.js App Router paradigm.
 
+## Features
+
+*   **Responsive Header** - Fixed navigation bar with backdrop blur effect
+*   **Search Modal** - Modal dialog for searching cryptocurrencies with blur backdrop
+*   **Theme Toggle** - Light/dark theme switcher
+*   **Cryptocurrency List** - Table view of cryptocurrencies (coming soon)
+*   **Footer** - Sticky footer with copyright information
+
+## Components
+
+### Layout Components
+
+*   **Header** - Fixed header with Logo and HeaderNav
+*   **HeaderNav** - Navigation menu with Search, Coins List, and Theme buttons
+*   **Logo** - Application logo with icon and text
+*   **Footer** - Sticky footer at the bottom of the page
+
+### Feature Components
+
+*   **SearchModal** - Modal dialog for search functionality (HeroUI Modal v3)
+*   **SearchButton** - Button to trigger search modal
+*   **ThemeButton** - Button to toggle light/dark theme
+*   **CryptoTable** - Cryptocurrency table (placeholder)
+
 ## Building and Running
 
 ### Development
