@@ -3,6 +3,17 @@
 import { Square3Stack3DIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
+/**
+ * Logo component - application logo with icon and text.
+ *
+ * Displays the Crypto Screener brand with a cube icon and text.
+ * Links to the home page and supports dark theme.
+ *
+ * @example
+ * ```tsx
+ * <Logo />
+ * ```
+ */
 export const Logo = () => {
 	return (
 		<Link href="/" className="flex items-center gap-2 font-bold">
