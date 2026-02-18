@@ -3,11 +3,9 @@
 
 :root {
 	--background: #ffffff;
+	--background-dark: #0a0a0a;
 	--foreground: #171717;
-
-	--font-inter: var(--font-inter);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
+	--foreground-dark: #ededed;
 }
 
 @theme inline {
@@ -16,17 +14,29 @@
 
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
+	--font-inter: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+html.dark {
+	--background: var(--background-dark);
+	--foreground: var(--foreground-dark);
 }
 
 body {
 	background: var(--background);
 	color: var(--foreground);
 	font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-inter);
+	font-weight: 700;
+	line-height: 1.2;
+	margin-top: 0;
+	margin-bottom: 0;
 }
