@@ -28,19 +28,53 @@ The application architecture follows the standard Next.js App Router paradigm.
 
 ## Components
 
+### Component Structure
+
+```
+src/components/
+├── header/          # Header components
+│   ├── Header.tsx
+│   ├── HeaderNav.tsx
+│   ├── Logo.tsx
+│   ├── SearchButton.tsx
+│   ├── SearchModal.tsx
+│   └── ThemeButton.tsx
+├── footer/          # Footer components
+│   └── Footer.tsx
+└── crypto/          # Cryptocurrency components
+    └── CryptoTable.tsx
+```
+
 ### Layout Components
 
-*   **Header** - Fixed header with Logo and HeaderNav
-*   **HeaderNav** - Navigation menu with Search, Coins List, and Theme buttons
-*   **Logo** - Application logo with icon and text
-*   **Footer** - Sticky footer at the bottom of the page
+*   **Header** (`@/components/header`) - Fixed header with Logo and HeaderNav
+*   **HeaderNav** (`@/components/header`) - Navigation menu with Search, Coins List, and Theme buttons
+*   **Logo** (`@/components/header`) - Application logo with icon and text
+*   **Footer** (`@/components/footer`) - Sticky footer at the bottom of the page
 
 ### Feature Components
 
-*   **SearchModal** - Modal dialog for search functionality (HeroUI Modal v3)
-*   **SearchButton** - Button to trigger search modal
-*   **ThemeButton** - Button to toggle light/dark theme
-*   **CryptoTable** - Cryptocurrency table (placeholder)
+*   **SearchModal** (`@/components/header`) - Modal dialog for search functionality (HeroUI Modal v3)
+*   **SearchButton** (`@/components/header`) - Button to trigger search modal
+*   **ThemeButton** (`@/components/header`) - Button to toggle light/dark theme
+*   **CryptoTable** (`@/components/crypto`) - Cryptocurrency table (placeholder)
+
+### Barrel Exports
+
+Components can be imported using barrel exports:
+
+```tsx
+// Import single component
+import { Header } from "@/components/header";
+
+// Import multiple components
+import { Header, Logo, SearchModal } from "@/components/header";
+
+// Import from different folders
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { CryptoTable } from "@/components/crypto";
+```
 
 ## Building and Running
 
