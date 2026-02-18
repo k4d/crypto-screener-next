@@ -29,13 +29,13 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const className = `${inter.variable} ${geistSans.variable} ${geistMono.variable}`;
+
 	return (
 		<html lang="en">
-			<body
-				className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
-			>
+			<body className={`${className} flex flex-col min-h-screen antialiased`}>
 				<Header />
-				<main className="grow">{children}</main>
+				<main className="pt-24">{children}</main>
 			</body>
 		</html>
 	);

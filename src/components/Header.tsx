@@ -1,31 +1,13 @@
-import { SunIcon } from "@heroicons/react/24/outline";
-import { Button } from "@heroui/react";
-import Link from "next/link";
-import type React from "react";
+"use client";
 
-interface HeaderProps {
-	className?: string;
-}
+import { HeaderNav } from "./HeaderNav";
+import { Logo } from "./Logo";
 
-const Header: React.FC<HeaderProps> = ({ className }) => {
+export const Header = () => {
 	return (
-		<header
-			className={`w-full p-4 shadow-md bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 ${
-				className || ""
-			}`}
-		>
-			<div className="container mx-auto flex justify-between items-center">
-				<Link href="/" className="font-bold">
-					Crypto Screener
-				</Link>
-				<nav className="flex items-center space-x-4">
-					<Button variant="outline">About</Button>
-					<Button>Contact</Button>
-					<Button isIconOnly variant="outline" aria-label="Toggle theme">
-						<SunIcon className="h-6 w-6" />
-					</Button>
-				</nav>
-			</div>
+		<header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full h-24 px-6 bg-white/80 backdrop-blur-md border-b">
+			<Logo />
+			<HeaderNav />
 		</header>
 	);
 };
