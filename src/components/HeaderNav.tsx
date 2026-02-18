@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@heroui/react";
+import { useState } from "react";
 import { SearchButton } from "./SearchButton";
+import SearchModal from "./SearchModal";
 import { ThemeButton } from "./ThemeButton";
 
 /**
@@ -16,9 +18,12 @@ import { ThemeButton } from "./ThemeButton";
  * ```
  */
 export const HeaderNav = () => {
+	const [isOpen, setIsOpen] = useState(false);
+
 	return (
 		<nav className="flex items-center gap-x-2">
-			<SearchButton />
+			<SearchButton onPress={() => setIsOpen(true)} />
+			<SearchModal isOpen={isOpen} onOpenChange={setIsOpen} />
 			<Button variant="ghost" aria-label="Coins List">
 				Coins List
 			</Button>

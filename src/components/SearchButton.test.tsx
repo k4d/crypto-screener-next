@@ -34,4 +34,15 @@ describe("SearchButton", () => {
 
 		expect(searchButton).toHaveAttribute("aria-label", "Search");
 	});
+
+	it("calls onPress when clicked", () => {
+		const onPress = jest.fn();
+		render(<SearchButton onPress={onPress} />);
+
+		const searchButton = screen.getByRole("button", { name: /search/i });
+
+		searchButton.click();
+
+		expect(onPress).toHaveBeenCalledTimes(1);
+	});
 });
