@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { SearchButton } from "./SearchButton";
 
 describe("SearchButton", () => {
@@ -41,7 +41,9 @@ describe("SearchButton", () => {
 
 		const searchButton = screen.getByRole("button", { name: /search/i });
 
-		searchButton.click();
+		act(() => {
+			searchButton.click();
+		});
 
 		expect(onPress).toHaveBeenCalledTimes(1);
 	});
