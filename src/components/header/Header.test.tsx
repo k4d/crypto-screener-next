@@ -19,14 +19,14 @@ describe("Header", () => {
 		expect(searchButton).toBeInTheDocument();
 	});
 
-	it("renders the crypto list button", () => {
+	it("renders the coins button", () => {
 		render(<Header />);
 
-		const cryptoListButton = screen.getByRole("button", {
-			name: /coins list/i,
+		const coinsButton = screen.getByRole("button", {
+			name: /coins/i,
 		});
 
-		expect(cryptoListButton).toBeInTheDocument();
+		expect(coinsButton).toBeInTheDocument();
 	});
 
 	it("renders the theme toggle button", () => {
