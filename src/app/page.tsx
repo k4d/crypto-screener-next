@@ -154,7 +154,7 @@ export default function Dashboard() {
 				</div>
 				<TimeFrameButtons className="flex ml-auto pt-1" />
 			</div>
-			<Card variant="transparent" className="w-1/4 rounded-none p-0">
+			<Card variant="transparent" className="w-1/4 p-0 rounded-none">
 				<Card.Content>
 					<Tabs className="w-full">
 						<Tabs.ListContainer>
