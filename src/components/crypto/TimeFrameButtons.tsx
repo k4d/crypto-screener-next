@@ -1,6 +1,23 @@
 import { Button } from "@heroui/react";
 
-export const TimeFrameButtons = () => {
+interface TimeFrameButtonsProps {
+	/** Additional CSS classes */
+	className?: string;
+}
+
+/**
+ * TimeFrameButtons component displays a row of time frame selector buttons.
+ *
+ * Displays predefined time frames: 5m, 30m, 1h, 4h, 1d.
+ * The 30m button is highlighted as primary by default.
+ *
+ * @example
+ * ```tsx
+ * <TimeFrameButtons />
+ * <TimeFrameButtons className="ml-auto" />
+ * ```
+ */
+export const TimeFrameButtons = ({ className }: TimeFrameButtonsProps) => {
 	interface TimeFrameButton {
 		label: string;
 		variant: "primary" | "outline";
@@ -17,7 +34,7 @@ export const TimeFrameButtons = () => {
 	const buttonClass = "h-6 min-h-6 text-xs px-2";
 
 	return (
-		<>
+		<div className={`flex gap-2 ${className || ""}`}>
 			{timeFrameButtons.map((button) => (
 				<Button
 					key={button.label}
@@ -27,6 +44,6 @@ export const TimeFrameButtons = () => {
 					{button.label}
 				</Button>
 			))}
-		</>
+		</div>
 	);
 };

@@ -49,9 +49,15 @@ export const CoinPriceChange = ({
 		>
 			{showIcon &&
 				(isPositive ? (
-					<ArrowUpRightIcon className={sizeClasses[size].icon} />
+					<ArrowUpRightIcon
+						className={sizeClasses[size].icon}
+						data-testid="arrow-up-icon"
+					/>
 				) : (
-					<ArrowDownRightIcon className={sizeClasses[size].icon} />
+					<ArrowDownRightIcon
+						className={sizeClasses[size].icon}
+						data-testid="arrow-down-icon"
+					/>
 				))}
 			<span className={sizeClasses[size].text}>
 				{isPositive ? "+" : ""}

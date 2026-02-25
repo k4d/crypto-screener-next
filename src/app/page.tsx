@@ -152,9 +152,7 @@ export default function Dashboard() {
 						<CoinPriceChange size="md" change={3.54} showIcon period="24h" />
 					</div>
 				</div>
-				<div className="flex gap-2 ml-auto pt-1">
-					<TimeFrameButtons />
-				</div>
+				<TimeFrameButtons className="flex ml-auto pt-1" />
 			</div>
 			<Card variant="transparent" className="w-1/4 rounded-none p-0">
 				<Card.Content>
