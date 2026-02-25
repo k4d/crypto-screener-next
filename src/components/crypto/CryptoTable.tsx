@@ -1,12 +1,6 @@
-import type React from "react";
-
-interface CryptoTableProps {
-	className?: string;
-}
-
-const CryptoTable: React.FC<CryptoTableProps> = ({ className }) => {
+export const CryptoTable = () => {
 	return (
-		<div className={`w-full ${className}`}>
+		<div className={`w-full`}>
 			<h2 className="text-2xl font-semibold">Cryptocurrency List</h2>
 			<p className="text-lg text-zinc-600  font-light">
 				This is where the cryptocurrency table will be displayed.
