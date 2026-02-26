@@ -25,6 +25,7 @@ describe("SearchButton", () => {
 		const searchText = screen.getByText(/search/i);
 
 		expect(searchText).toBeInTheDocument();
+		expect(searchText).toHaveClass("font-light");
 	});
 
 	it("has correct aria-label", () => {
@@ -46,5 +47,54 @@ describe("SearchButton", () => {
 		});
 
 		expect(onPress).toHaveBeenCalledTimes(1);
+	});
+
+	it("calls onPress when ⌘K is pressed", () => {
+		const onPress = jest.fn();
+		render(<SearchButton onPress={onPress} />);
+
+		act(() => {
+			window.dispatchEvent(
+				new KeyboardEvent("keydown", {
+					key: "k",
+					metaKey: true,
+				}),
+			);
+		});
+
+		expect(onPress).toHaveBeenCalledTimes(1);
+	});
+
+	it("calls onPress when Ctrl+K is pressed", () => {
+		const onPress = jest.fn();
+		render(<SearchButton onPress={onPress} />);
+
+		act(() => {
+			window.dispatchEvent(
+				new KeyboardEvent("keydown", {
+					key: "k",
+					ctrlKey: true,
+				}),
+			);
+		});
+
+		expect(onPress).toHaveBeenCalledTimes(1);
+	});
+
+	it("prevents default behavior when ⌘K is pressed", () => {
+		const onPress = jest.fn();
+		render(<SearchButton onPress={onPress} />);
+
+		const event = new KeyboardEvent("keydown", {
+			key: "k",
+			metaKey: true,
+		});
+		const preventDefaultSpy = jest.spyOn(event, "preventDefault");
+
+		act(() => {
+			window.dispatchEvent(event);
+		});
+
+		expect(preventDefaultSpy).toHaveBeenCalled();
 	});
 });

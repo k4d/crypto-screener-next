@@ -1,18 +1,38 @@
 "use client";
 
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Button, InputGroup, Modal, TextField } from "@heroui/react";
+import {
+	Button,
+	CloseButton,
+	Kbd,
+	Modal,
+	SearchField,
+	Surface,
+} from "@heroui/react";
+import { useState } from "react";
 
 interface SearchModalProps {
 	isOpen: boolean;
 	onOpenChange: (isOpen: boolean) => void;
 }
 
+interface QuickSearchItem {
+	type: "button" | "text";
+	label: string;
+}
+
+const quickSearchItems: QuickSearchItem[] = [
+	{ type: "text", label: "Try searching:" },
+	{ type: "button", label: "Bitcoin" },
+	{ type: "button", label: "Ethereum" },
+	{ type: "text", label: "or" },
+	{ type: "button", label: "XRP" },
+];
+
 /**
  * SearchModal component - displays a modal for searching cryptocurrencies.
  *
- * Features a blurred backdrop, top placement, and a text field with search icon.
- * Closes via close trigger (X button), backdrop click, or ESC key.
+ * Features a search field with clear button and quick access buttons.
+ * Closes via close trigger, backdrop click, or ESC key.
  *
  * @param isOpen - Whether the modal is open
  * @param onOpenChange - Callback when open state changes
@@ -26,30 +46,61 @@ export default function SearchModal({
 	isOpen,
 	onOpenChange,
 }: SearchModalProps) {
+	const [value, setValue] = useState("");
+
+	const handleOpenChange = (open: boolean) => {
+		if (!open) {
+			setValue(""); // Clear search when closing
+		}
+		onOpenChange(open);
+	};
+
 	return (
-		<Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+		<Modal isOpen={isOpen} onOpenChange={handleOpenChange}>
 			<Modal.Backdrop variant="blur">
-				<Modal.Container placement="top" size="lg">
+				<Modal.Container placement="center" size="lg">
 					<Modal.Dialog>
-						<Modal.Header>
-							<Modal.Heading>Search Cryptocurrencies</Modal.Heading>
-							<Modal.CloseTrigger />
-						</Modal.Header>
-						<Modal.Body>
-							<TextField className="w-full" name="search">
-								<InputGroup>
-									<InputGroup.Prefix>
-										<MagnifyingGlassIcon className="h-4 w-4" />
-									</InputGroup.Prefix>
-									<InputGroup.Input
-										className="w-full"
-										placeholder="Search Cryptocurrencies"
+						<Modal.Body className="p-2">
+							<SearchField fullWidth name="search">
+								<SearchField.Group>
+									<SearchField.SearchIcon />
+									<SearchField.Input
+										placeholder="Search coins..."
+										value={value}
+										onChange={(e) => setValue(e.target.value)}
 									/>
-								</InputGroup>
-							</TextField>
+									{value && <CloseButton onPress={() => setValue("")} />}
+									<Kbd className="ml-1 mr-2 p-1 text-xs">
+										<Kbd.Content>Esc</Kbd.Content>
+									</Kbd>
+								</SearchField.Group>
+							</SearchField>
+							<Surface variant="default" className="mt-1 p-4 text-center">
+								<p className="text-zinc-600 font-light text-sm">
+									{value ? `Searching: "${value}"` : "No recent searches"}
+								</p>
+							</Surface>
 						</Modal.Body>
-						<Modal.Footer>
-							<Button variant="primary">Search</Button>
+						<Modal.Footer className="justify-start gap-2">
+							{quickSearchItems.map((item) =>
+								item.type === "button" ? (
+									<Button
+										key={item.label}
+										variant="tertiary"
+										size="sm"
+										onPress={() => setValue(item.label)}
+									>
+										{item.label}
+									</Button>
+								) : (
+									<span
+										key={item.label}
+										className="text-zinc-600 font-light text-sm"
+									>
+										{item.label}
+									</span>
+								),
+							)}
 						</Modal.Footer>
 					</Modal.Dialog>
 				</Modal.Container>
