@@ -10,7 +10,7 @@ import {
 	TimeFrameButtons,
 } from "@/components/crypto";
 
-export default function Dashboard() {
+export default function DashboardPage() {
 	interface TabListItem {
 		id: string;
 		label: string;
@@ -132,8 +132,8 @@ export default function Dashboard() {
 
 	return (
 		<div className="flex gap-8">
-			<div className="w-3/4 flex">
-				<div className="flex gap-2">
+			<div className="w-3/4 flex items-start">
+				<div className="flex items-center gap-2">
 					<CoinAvatar
 						crypto={{
 							id: "bitcoin",

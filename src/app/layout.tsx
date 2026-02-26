@@ -1,34 +1,37 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { DM_Mono, DM_Sans, Manrope } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
 /**
- * Inter font configuration.
- * Used for UI text and headings.
+ * Manrope font configuration.
+ * Modern sans-serif font with excellent readability for numbers.
+ * Used for body text and UI elements.
  */
-const inter = Inter({
-	variable: "--font-inter",
+const manrope = Manrope({
+	variable: "--font-manrope",
 	subsets: ["latin"],
 });
 
 /**
- * Geist Sans font configuration.
- * Modern sans-serif font for body text.
+ * DM Sans font configuration.
+ * Modern sans-serif font for headings.
  */
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+	variable: "--font-dm-sans",
 	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
 });
 
 /**
- * Geist Mono font configuration.
- * Monospace font for code blocks.
+ * DM Mono font configuration.
+ * Monospace font for code and data display.
  */
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const dmMono = DM_Mono({
+	variable: "--font-dm-mono",
 	subsets: ["latin"],
+	weight: ["400", "500"],
 });
 
 /**
@@ -61,7 +64,7 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const className = `${inter.variable} ${geistSans.variable} ${geistMono.variable}`;
+	const className = `${manrope.variable} ${dmSans.variable} ${dmMono.variable}`;
 
 	return (
 		<html lang="en">

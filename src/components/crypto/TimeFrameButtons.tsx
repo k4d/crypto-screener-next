@@ -31,7 +31,7 @@ export const TimeFrameButtons = ({ className }: TimeFrameButtonsProps) => {
 		{ label: "1d", variant: "outline" },
 	];
 
-	const buttonClass = "h-6 min-h-6 text-xs px-2";
+	const buttonClass = "h-6 min-h-6 px-2 text-xs font-normal";
 
 	return (
 		<div className={`flex gap-2 ${className || ""}`}>

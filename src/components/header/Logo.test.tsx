@@ -24,7 +24,7 @@ describe("Logo", () => {
 		const svg = container.querySelector("svg");
 
 		expect(svg).toBeInTheDocument();
-		expect(svg).toHaveAttribute("class", "h-6 w-6 text-blue-800");
+		expect(svg).toHaveAttribute("class", "h-6 w-6 text-indigo-800");
 	});
 
 	it("renders the logo text", () => {
@@ -33,6 +33,6 @@ describe("Logo", () => {
 		const logoText = screen.getByText(/crypto screener/i);
 
 		expect(logoText).toBeInTheDocument();
-		expect(logoText).toHaveClass("font-extrabold", "text-base");
+		expect(logoText).toHaveClass("text-base");
 	});
 });

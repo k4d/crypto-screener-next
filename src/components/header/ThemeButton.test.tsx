@@ -18,7 +18,7 @@ describe("ThemeButton", () => {
 		const svg = container.querySelector("svg");
 
 		expect(svg).toBeInTheDocument();
-		expect(svg).toHaveAttribute("class", "h-6 w-6");
+		expect(svg).toHaveAttribute("class", "h-4 w-4");
 	});
 
 	it("has correct aria-label", () => {

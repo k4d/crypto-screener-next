@@ -5,6 +5,7 @@ import { Button } from "@heroui/react";
 
 interface SearchButtonProps {
 	onPress?: () => void;
+	className?: string;
 }
 
 /**
@@ -14,17 +15,23 @@ interface SearchButtonProps {
  * Uses HeroUI outline button variant.
  *
  * @param onPress - Callback when button is pressed
+ * @param className - Additional CSS classes
  *
  * @example
  * ```tsx
  * <SearchButton onPress={() => setIsOpen(true)} />
  * ```
  */
-export const SearchButton = ({ onPress }: SearchButtonProps) => {
+export const SearchButton = ({ onPress, className }: SearchButtonProps) => {
 	return (
-		<Button variant="outline" aria-label="Search" onPress={onPress}>
+		<Button
+			variant="outline"
+			aria-label="Search"
+			onPress={onPress}
+			className={className}
+		>
 			<MagnifyingGlassIcon className="h-4 w-4" />
-			<span>Search</span>
+			<span className="font-light">Search</span>
 		</Button>
 	);
 };
