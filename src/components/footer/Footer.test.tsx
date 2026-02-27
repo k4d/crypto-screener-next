@@ -24,14 +24,7 @@ describe("Footer", () => {
 		const footer = container.querySelector("footer");
 
 		expect(footer).toBeInTheDocument();
-		expect(footer).toHaveClass(
-			"w-full",
-			"py-8",
-			"mt-auto",
-			"border-t",
-			"border-gray-200",
-			"dark:border-gray-800",
-		);
+		expect(footer).toHaveClass("w-full", "py-8", "mt-auto", "bg-slate-950");
 	});
 
 	it("renders centered text", () => {
@@ -39,14 +32,6 @@ describe("Footer", () => {
 
 		const paragraph = container.querySelector("p");
 
-		expect(paragraph).toHaveClass("text-center");
-	});
-
-	it("supports dark theme", () => {
-		const { container } = render(<Footer />);
-
-		const paragraph = container.querySelector("p");
-
-		expect(paragraph).toHaveClass("text-gray-600", "dark:text-gray-400");
+		expect(paragraph).toHaveClass("text-center", "text-sm", "text-slate-400");
 	});
 });

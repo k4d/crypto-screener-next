@@ -12,9 +12,9 @@
  */
 export default function Footer() {
 	return (
-		<footer className="w-full py-8 mt-auto border-t border-gray-200 dark:border-gray-800">
+		<footer className="w-full py-8 mt-auto bg-slate-950">
 			<div className="container mx-auto px-4">
-				<p className="text-sm text-center text-gray-600 dark:text-gray-400">
+				<p className="text-sm text-center text-slate-400 dark:text-slate-800">
 					© 2026 Crypto Screener
 				</p>
 			</div>

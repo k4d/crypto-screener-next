@@ -16,7 +16,7 @@ import { NavBar } from "./NavBar";
  */
 export const Header = () => {
 	return (
-		<header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between w-full h-24 px-6 bg-white/80 backdrop-blur-md border-b shadow-sm">
+		<header className="w-full h-24 px-6 fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white/80 backdrop-blur-md border-b shadow-xs">
 			<Logo />
 			<NavBar />
 		</header>

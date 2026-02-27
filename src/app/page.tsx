@@ -130,31 +130,35 @@ export default function DashboardPage() {
 		},
 	];
 
+	const selectedCrypto = top10Cryptos[0];
+
 	return (
-		<div className="flex gap-8">
-			<div className="w-3/4 flex items-start">
-				<div className="flex items-center gap-2">
-					<CoinAvatar
-						crypto={{
-							id: "bitcoin",
-							symbol: "BTC",
-							name: "Bitcoin",
-							image:
-								"https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
-						}}
-					/>
-					<div>
-						<CoinName name="Bitcoin" size="md" />
-						<CoinSymbol name="BTC" size="sm" />
+		<div className="flex gap-4">
+			<Card
+				variant="default"
+				className="w-3/4 flex pt-2.5 rounded-2xl bg-linear-to-br from-slate-50 to-white border-t border-l border-white  shadow-xs"
+			>
+				<Card.Header>
+					<div className="flex items-center gap-2">
+						<CoinAvatar crypto={selectedCrypto} />
+						<div>
+							<CoinName name={selectedCrypto.name} size="md" />
+							<CoinSymbol name={selectedCrypto.symbol} size="sm" />
+						</div>
+						<div className="ml-4">
+							<CoinPrice price={63022.79} />
+							<CoinPriceChange size="md" change={3.54} showIcon period="24h" />
+						</div>
+						<TimeFrameButtons className="ml-auto" />
 					</div>
-					<div className="ml-4">
-						<CoinPrice price={63022.79} />
-						<CoinPriceChange size="md" change={3.54} showIcon period="24h" />
-					</div>
-				</div>
-				<TimeFrameButtons className="flex ml-auto pt-1" />
-			</div>
-			<Card variant="transparent" className="w-1/4 p-0 rounded-none">
+				</Card.Header>
+				<Card.Content></Card.Content>
+			</Card>
+
+			<Card
+				variant="default"
+				className="w-1/4 px-2.5 rounded-2xl bg-linear-to-br from-slate-50 to-white border-t border-l border-white  shadow-xs"
+			>
 				<Card.Content>
 					<Tabs className="w-full">
 						<Tabs.ListContainer>
@@ -180,7 +184,7 @@ export default function DashboardPage() {
 									<ListBox.Item
 										key={crypto.id}
 										id={crypto.id}
-										className="pl-3.5 pr-4 py-2  hover:bg-zinc-100"
+										className="pl-3.5 pr-4 py-2 hover:bg-zinc-100"
 									>
 										<CoinAvatar crypto={crypto} size="sm" />
 										<div className="flex flex-col">
