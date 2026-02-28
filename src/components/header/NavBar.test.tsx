@@ -38,4 +38,30 @@ describe("NavBar", () => {
 		expect(nav).toBeInTheDocument();
 		expect(nav).toHaveClass("flex", "items-center", "gap-x-2");
 	});
+
+	it("renders icons for navigation items", () => {
+		render(<NavBar />);
+
+		const dashboardIcon = screen.getByLabelText(/dashboard/i);
+		const coinsIcon = screen.getByLabelText(/coins/i);
+
+		expect(dashboardIcon).toBeInTheDocument();
+		expect(coinsIcon).toBeInTheDocument();
+	});
+
+	it("renders icons before button labels", () => {
+		const { container } = render(<NavBar />);
+
+		const buttons = container.querySelectorAll("button");
+
+		buttons.forEach((button) => {
+			const icon = button.querySelector("svg");
+			const label = button.textContent;
+
+			if (icon && label) {
+				expect(button).toContainElement(icon);
+				expect(button).toHaveTextContent(label);
+			}
+		});
+	});
 });

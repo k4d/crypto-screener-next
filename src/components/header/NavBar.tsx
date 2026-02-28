@@ -1,5 +1,6 @@
 "use client";
 
+import { QueueListIcon, RectangleGroupIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,16 +12,26 @@ import { ThemeButton } from "./ThemeButton";
 interface NavBarItems {
 	label: string;
 	href: string;
+	icon?: React.ReactNode;
 }
 
+/** Icon class for navigation items */
+const iconClass = "h-4 w-4";
+
+/**
+ * Navigation items for the header navigation bar.
+ * Each item includes a label, href, and optional icon.
+ */
 const navBarItems: NavBarItems[] = [
 	{
 		label: "Dashboard",
 		href: "/",
+		icon: <RectangleGroupIcon className={iconClass} />,
 	},
 	{
 		label: "Coins",
 		href: "/coins",
+		icon: <QueueListIcon className={iconClass} />,
 	},
 ];
 
@@ -50,6 +61,7 @@ export const NavBar = () => {
 						aria-label={item.label}
 						className="focus:outline-none focus:ring-0 focus:ring-offset-0 data-focus-visible:outline-none data-focus-visible:ring-0"
 					>
+						{item.icon && <span className="mr-0.5">{item.icon}</span>}
 						{item.label}
 					</Button>
 				</Link>
