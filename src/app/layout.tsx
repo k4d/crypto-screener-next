@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Manrope } from "next/font/google";
+import { ViewTransition } from "react";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
@@ -69,11 +70,13 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${className}  flex flex-col min-h-screen antialiased`}>
-				<Header />
-				<main className="flex-1 mt-24 px-6 py-8 bg-linear-to-b from-slate-200 to-slate-100">
-					{children}
-				</main>
-				<Footer />
+				<ViewTransition>
+					<Header />
+					<main className="flex-1 mt-24 p-6 bg-linear-to-b from-slate-200 to-slate-100">
+						{children}
+					</main>
+					<Footer />
+				</ViewTransition>
 			</body>
 		</html>
 	);
