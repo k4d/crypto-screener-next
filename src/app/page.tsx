@@ -146,8 +146,13 @@ export default function DashboardPage() {
 							<CoinSymbol name={selectedCrypto.symbol} size="sm" />
 						</div>
 						<div className="ml-4">
-							<CoinPrice price={63022.79} />
-							<CoinPriceChange size="md" change={3.54} showIcon period="24h" />
+							<CoinPrice price={selectedCrypto.price} />
+							<CoinPriceChange
+								size="md"
+								change={selectedCrypto.change24h}
+								showIcon
+								period="24h"
+							/>
 						</div>
 						<TimeFrameButtons className="ml-auto" />
 					</div>

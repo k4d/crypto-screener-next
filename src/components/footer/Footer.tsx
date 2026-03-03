@@ -14,7 +14,7 @@ export default function Footer() {
 	return (
 		<footer className="w-full py-8 mt-auto bg-slate-950">
 			<div className="container mx-auto px-4">
-				<p className="text-sm text-center text-slate-400 dark:text-slate-800">
+				<p className="text-sm text-center text-slate-400 dark:text-slate-200">
 					© 2026 Crypto Screener
 				</p>
 			</div>

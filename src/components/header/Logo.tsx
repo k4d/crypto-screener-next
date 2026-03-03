@@ -18,7 +18,7 @@ export const Logo = () => {
 	return (
 		<Link href="/" className="flex items-center gap-2">
 			<Square3Stack3DIcon className="h-6 w-6 text-indigo-800" />
-			<span className="font-medium text-base text-zink-800 dark:text-gray-200 tracking-tighter">
+			<span className="font-medium text-base text-zinc-800 dark:text-gray-200 tracking-tighter">
 				Crypto Screener
 			</span>
 		</Link>
