@@ -1,7 +1,7 @@
 "use client";
 
-import { QueueListIcon, RectangleGroupIcon } from "@heroicons/react/24/outline";
 import { Button } from "@heroui/react";
+import { LayoutDashboard, LayoutList } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -15,9 +15,6 @@ interface NavBarItems {
 	icon?: React.ReactNode;
 }
 
-/** Icon class for navigation items */
-const iconClass = "h-4 w-4";
-
 /**
  * Navigation items for the header navigation bar.
  * Each item includes a label, href, and optional icon.
@@ -26,12 +23,12 @@ const navBarItems: NavBarItems[] = [
 	{
 		label: "Dashboard",
 		href: "/",
-		icon: <RectangleGroupIcon className={iconClass} />,
+		icon: <LayoutDashboard size={16} strokeWidth={1.5} />,
 	},
 	{
 		label: "Coins",
 		href: "/coins",
-		icon: <QueueListIcon className={iconClass} />,
+		icon: <LayoutList size={16} strokeWidth={1.5} />,
 	},
 ];
 

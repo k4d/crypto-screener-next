@@ -1,7 +1,7 @@
 "use client";
 
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Button, Kbd } from "@heroui/react";
+import { Search } from "lucide-react";
 import { useEffect } from "react";
 
 interface SearchButtonProps {
@@ -12,7 +12,7 @@ interface SearchButtonProps {
 /**
  * SearchButton component - button to trigger search functionality.
  *
- * Displays a magnifying glass icon with "Search" text and keyboard shortcut (⌘K).
+ * Displays a search icon with "Search" text and keyboard shortcut (⌘K).
  * Uses HeroUI outline button variant.
  *
  * @param onPress - Callback when button is pressed
@@ -44,7 +44,7 @@ export const SearchButton = ({ onPress, className }: SearchButtonProps) => {
 			onPress={onPress}
 			className={className}
 		>
-			<MagnifyingGlassIcon className="h-4 w-4" />
+			<Search size={16} strokeWidth={1.5} />
 			<span className="font-light">Search</span>
 			<Kbd className="p-1 text-xs">
 				<Kbd.Abbr keyValue="command" title="Command" />

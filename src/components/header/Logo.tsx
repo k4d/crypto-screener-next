@@ -1,13 +1,13 @@
 "use client";
 
-import { Square3Stack3DIcon } from "@heroicons/react/24/outline";
+import { Activity } from "lucide-react";
 import Link from "next/link";
 
 /**
  * Logo component - application logo with icon and text.
  *
- * Displays the Crypto Screener brand with a stacked squares icon and text.
- * Links to the home page and supports dark theme.
+ * Displays the Crypto Screener brand with an activity icon and text.
+ * Links to the home page.
  *
  * @example
  * ```tsx
@@ -17,10 +17,17 @@ import Link from "next/link";
 export const Logo = () => {
 	return (
 		<Link href="/" className="flex items-center gap-2">
-			<Square3Stack3DIcon className="h-6 w-6 text-indigo-800" />
-			<span className="font-medium text-base text-zinc-800 dark:text-gray-200 tracking-tighter">
-				Crypto Screener
-			</span>
+			<div className="flex shrink-0 h-8 w-8 items-center justify-center rounded-md bg-indigo-600">
+				<Activity size={16} className="text-white" />
+			</div>
+			<div className="flex flex-col gap-0.5">
+				<span className="leading-none font-semibold text-base text-zinc-800 dark:text-gray-200 tracking-tighter">
+					Crypto Screener
+				</span>
+				<span className="font-normal text-xs text-zinc-500">
+					Real-time asset monitoring
+				</span>
+			</div>
 		</Link>
 	);
 };

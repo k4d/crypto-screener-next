@@ -10,13 +10,15 @@ describe("SearchButton", () => {
 		expect(searchButton).toBeInTheDocument();
 	});
 
-	it("renders the search icon", () => {
+	it("renders the search icon from lucide-react", () => {
 		const { container } = render(<SearchButton />);
 
 		const svg = container.querySelector("svg");
 
 		expect(svg).toBeInTheDocument();
-		expect(svg).toHaveAttribute("class", "h-4 w-4");
+		// Lucide icons have width/height attributes
+		expect(svg).toHaveAttribute("width", "16");
+		expect(svg).toHaveAttribute("height", "16");
 	});
 
 	it("renders the search text", () => {

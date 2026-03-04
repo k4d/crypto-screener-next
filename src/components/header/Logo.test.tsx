@@ -18,13 +18,15 @@ describe("Logo", () => {
 		expect(logoLink).toHaveAttribute("href", "/");
 	});
 
-	it("renders the logo icon", () => {
+	it("renders the logo icon from lucide-react", () => {
 		const { container } = render(<Logo />);
 
 		const svg = container.querySelector("svg");
 
 		expect(svg).toBeInTheDocument();
-		expect(svg).toHaveAttribute("class", "h-6 w-6 text-indigo-800");
+		// Lucide icons rendered with size prop may not have explicit width/height
+		// Check for the icon class instead
+		expect(svg).toHaveClass("text-white");
 	});
 
 	it("renders the logo text", () => {
@@ -34,5 +36,21 @@ describe("Logo", () => {
 
 		expect(logoText).toBeInTheDocument();
 		expect(logoText).toHaveClass("text-base");
+	});
+
+	it("has violet background color", () => {
+		const { container } = render(<Logo />);
+
+		const iconContainer = container.querySelector(".bg-indigo-600");
+
+		expect(iconContainer).toBeInTheDocument();
+	});
+
+	it("has white icon", () => {
+		const { container } = render(<Logo />);
+
+		const icon = container.querySelector(".text-white");
+
+		expect(icon).toBeInTheDocument();
 	});
 });

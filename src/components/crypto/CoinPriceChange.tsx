@@ -1,7 +1,4 @@
-import {
-	ArrowDownRightIcon,
-	ArrowUpRightIcon,
-} from "@heroicons/react/24/outline";
+import { MoveDownRight, MoveUpRight } from "lucide-react";
 
 interface CoinPriceChangeProps {
 	/** Price change percentage (e.g., 4.91 for +4.91% or -2.34 for -2.34%) */
@@ -38,9 +35,9 @@ export const CoinPriceChange = ({
 	const colorClass = isPositive ? "text-green-600" : "text-red-600";
 
 	const sizeClasses = {
-		sm: { text: "text-xs", icon: "h-2.5 w-2.5" },
-		md: { text: "text-sm", icon: "h-3 w-3" },
-		lg: { text: "text-base", icon: "h-4 w-4" },
+		sm: { text: "text-xs", icon: 10 },
+		md: { text: "text-sm", icon: 12 },
+		lg: { text: "text-base", icon: 16 },
 	};
 
 	return (
@@ -49,13 +46,15 @@ export const CoinPriceChange = ({
 		>
 			{showIcon &&
 				(isPositive ? (
-					<ArrowUpRightIcon
-						className={sizeClasses[size].icon}
+					<MoveUpRight
+						size={sizeClasses[size].icon}
+						strokeWidth={1.5}
 						data-testid="arrow-up-icon"
 					/>
 				) : (
-					<ArrowDownRightIcon
-						className={sizeClasses[size].icon}
+					<MoveDownRight
+						size={sizeClasses[size].icon}
+						strokeWidth={1.5}
 						data-testid="arrow-down-icon"
 					/>
 				))}
