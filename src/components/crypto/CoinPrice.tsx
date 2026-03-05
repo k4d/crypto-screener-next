@@ -38,12 +38,12 @@ export const CoinPrice = ({
 				? price.toLocaleString("en-US", {
 						style: "currency",
 						currency,
-						minimumFractionDigits: price < 1 ? 4 : 2,
-						maximumFractionDigits: price < 1 ? 4 : 2,
+						minimumFractionDigits: price < 1 ? 4 : price < 10 ? 2 : 0,
+						maximumFractionDigits: price < 10 ? 4 : 2,
 					})
 				: `${price.toLocaleString("en-US", {
-						minimumFractionDigits: price < 1 ? 4 : 2,
-						maximumFractionDigits: price < 1 ? 4 : 2,
+						minimumFractionDigits: price < 1 ? 4 : price < 10 ? 2 : 0,
+						maximumFractionDigits: price < 10 ? 4 : 2,
 					})} ${currency}`
 			: price;
 

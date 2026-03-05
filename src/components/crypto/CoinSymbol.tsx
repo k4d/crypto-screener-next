@@ -9,11 +9,12 @@ interface CoinSymbolProps {
 
 /**
  * CoinSymbol component displays cryptocurrency symbol (ticker) with configurable size.
+ * Automatically converts symbol to uppercase for consistent display.
  *
  * @example
  * ```tsx
- * <CoinSymbol name="BTC" size="sm" />
- * <CoinSymbol name="ETH" className="font-medium" />
+ * <CoinSymbol name="btc" size="sm" />  ← Displays "BTC"
+ * <CoinSymbol name="eth" className="font-medium" />  ← Displays "ETH"
  * ```
  */
 export const CoinSymbol = ({
@@ -30,5 +31,5 @@ export const CoinSymbol = ({
 
 	const cssClasses = `${sizeClasses[size]} text-gray-600 font-light ${className || ""}`;
 
-	return <h4 className={cssClasses}>{name}</h4>;
+	return <h4 className={cssClasses}>{name.toUpperCase()}</h4>;
 };
