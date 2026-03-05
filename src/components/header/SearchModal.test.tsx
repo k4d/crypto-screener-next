@@ -1,8 +1,12 @@
-import { render, screen } from "@testing-library/react";
+/// <reference types="../../../jest-dom" />
+
+import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { fireEvent, render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import SearchModal from "./SearchModal";
 
 describe("SearchModal", () => {
-	const mockOnOpenChange = jest.fn();
+	const mockOnOpenChange = mock(() => {});
 
 	beforeEach(() => {
 		mockOnOpenChange.mockClear();
@@ -55,7 +59,7 @@ describe("SearchModal", () => {
 		expect(orElements).toHaveLength(1);
 	});
 
-	it("calls onOpenChange when modal is closed", () => {
+	it("calls onOpenChange when CloseButton is clicked", () => {
 		render(<SearchModal isOpen={true} onOpenChange={mockOnOpenChange} />);
 
 		const closeButton = screen.getByRole("button", { name: /dismiss/i });
@@ -65,9 +69,45 @@ describe("SearchModal", () => {
 		expect(mockOnOpenChange).toHaveBeenCalledWith(false);
 	});
 
+	it("calls onOpenChange when Kbd Esc is clicked", () => {
+		render(<SearchModal isOpen={true} onOpenChange={mockOnOpenChange} />);
+
+		const kbdElement = screen.getByText("Esc");
+
+		kbdElement.click();
+
+		expect(mockOnOpenChange).toHaveBeenCalledWith(false);
+	});
+
 	it("displays 'No recent searches' when search is empty", () => {
 		render(<SearchModal isOpen={true} onOpenChange={mockOnOpenChange} />);
 
 		expect(screen.getByText("No recent searches")).toBeInTheDocument();
+	});
+
+	it("displays search query when typing", () => {
+		render(<SearchModal isOpen={true} onOpenChange={mockOnOpenChange} />);
+
+		const searchInput = screen.getByPlaceholderText(/search coins/i);
+
+		fireEvent.change(searchInput, { target: { value: "Bitcoin" } });
+
+		expect(screen.getByText('Searching: "Bitcoin"')).toBeInTheDocument();
+	});
+
+	it("clears search value when closing modal", () => {
+		render(<SearchModal isOpen={true} onOpenChange={mockOnOpenChange} />);
+
+		const searchInput = screen.getByPlaceholderText(/search coins/i);
+
+		fireEvent.change(searchInput, { target: { value: "Bitcoin" } });
+
+		expect(screen.getByText('Searching: "Bitcoin"')).toBeInTheDocument();
+
+		// Close modal
+		const closeButton = screen.getByRole("button", { name: /dismiss/i });
+		fireEvent.click(closeButton);
+
+		expect(mockOnOpenChange).toHaveBeenCalledWith(false);
 	});
 });

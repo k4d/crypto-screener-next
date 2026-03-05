@@ -70,7 +70,10 @@ export default function SearchModal({
 										onChange={(e) => setValue(e.target.value)}
 									/>
 									{value && <CloseButton onPress={() => setValue("")} />}
-									<Kbd className="ml-1 mr-2 p-1 text-xs">
+									<Kbd
+										className="ml-1 mr-2 p-1 text-xs cursor-pointer"
+										onClick={() => handleOpenChange(false)}
+									>
 										<Kbd.Content>Esc</Kbd.Content>
 									</Kbd>
 								</SearchField.Group>
