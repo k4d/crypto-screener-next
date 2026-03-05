@@ -1,136 +1,42 @@
-"use client";
-
-import { Card, ListBox, Tabs } from "@heroui/react";
+import { Card, Tabs } from "@heroui/react";
+import { getCryptoList } from "@/api/coingecko";
 import {
 	CoinAvatar,
 	CoinName,
 	CoinPrice,
 	CoinPriceChange,
 	CoinSymbol,
+	CryptoListBox,
 	TimeFrameButtons,
 } from "@/components/crypto";
 
-export default function DashboardPage() {
-	interface TabListItem {
-		id: string;
-		label: string;
-	}
+interface TabListItem {
+	id: string;
+	label: string;
+}
 
-	const tabListItems: TabListItem[] = [
-		{
-			id: "top-10",
-			label: "Top 10",
-		},
-		{
-			id: "trending",
-			label: "Trending",
-		},
-		{
-			id: "watchlist",
-			label: "Watchlist",
-		},
-	];
+const tabListItems: TabListItem[] = [
+	{
+		id: "top-10",
+		label: "Top 10",
+	},
+	{
+		id: "trending",
+		label: "Trending",
+	},
+	{
+		id: "watchlist",
+		label: "Watchlist",
+	},
+];
 
-	const tabListClass =
-		"w-fit *:h-6 *:w-fit *:px-3 *:text-xs *:font-normal *:data-[selected=true]:text-accent-foreground bg-zinc-100";
+const tabListClass =
+	"w-fit *:h-6 *:w-fit *:px-3 *:text-xs *:font-normal *:data-[selected=true]:text-accent-foreground bg-zinc-100";
 
-	interface CryptoData {
-		id: string;
-		symbol: string;
-		name: string;
-		image: string;
-		price: string;
-		change24h: number;
-	}
-
-	const top10Cryptos: CryptoData[] = [
-		{
-			id: "bitcoin",
-			symbol: "BTC",
-			name: "Bitcoin",
-			image: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
-			price: "$63,022.79",
-			change24h: -4.91,
-		},
-		{
-			id: "ethereum",
-			symbol: "ETH",
-			name: "Ethereum",
-			image: "https://assets.coingecko.com/coins/images/279/small/ethereum.png",
-			price: "$3,456.12",
-			change24h: 2.34,
-		},
-		{
-			id: "tether",
-			symbol: "USDT",
-			name: "Tether",
-			image: "https://assets.coingecko.com/coins/images/325/small/Tether.png",
-			price: "$1.00",
-			change24h: 0.01,
-		},
-		{
-			id: "binancecoin",
-			symbol: "BNB",
-			name: "BNB",
-			image:
-				"https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png",
-			price: "$589.45",
-			change24h: -1.23,
-		},
-		{
-			id: "solana",
-			symbol: "SOL",
-			name: "Solana",
-			image: "https://assets.coingecko.com/coins/images/4128/small/solana.png",
-			price: "$178.92",
-			change24h: 5.67,
-		},
-		{
-			id: "ripple",
-			symbol: "XRP",
-			name: "XRP",
-			image:
-				"https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png",
-			price: "$0.62",
-			change24h: -0.89,
-		},
-		{
-			id: "cardano",
-			symbol: "ADA",
-			name: "Cardano",
-			image: "https://assets.coingecko.com/coins/images/975/small/cardano.png",
-			price: "$0.58",
-			change24h: 1.45,
-		},
-		{
-			id: "dogecoin",
-			symbol: "DOGE",
-			name: "Dogecoin",
-			image: "https://assets.coingecko.com/coins/images/5/small/dogecoin.png",
-			price: "$0.16",
-			change24h: -2.34,
-		},
-		{
-			id: "avalanche",
-			symbol: "AVAX",
-			name: "Avalanche",
-			image:
-				"https://assets.coingecko.com/coins/images/12559/small/coin-round-red.png",
-			price: "$45.67",
-			change24h: 3.21,
-		},
-		{
-			id: "polkadot",
-			symbol: "DOT",
-			name: "Polkadot",
-			image:
-				"https://assets.coingecko.com/coins/images/12171/small/polkadot.png",
-			price: "$8.92",
-			change24h: -1.56,
-		},
-	];
-
-	const selectedCrypto = top10Cryptos[0];
+export default async function DashboardPage() {
+	const getCoins = await getCryptoList("usd", 10);
+	const dataCoins = getCoins;
+	const selectedCoin = dataCoins[0];
 
 	return (
 		<div className="flex gap-4">
@@ -140,16 +46,16 @@ export default function DashboardPage() {
 			>
 				<Card.Header>
 					<div className="flex items-center gap-2">
-						<CoinAvatar crypto={selectedCrypto} />
+						<CoinAvatar crypto={selectedCoin} />
 						<div>
-							<CoinName name={selectedCrypto.name} size="md" />
-							<CoinSymbol name={selectedCrypto.symbol} size="sm" />
+							<CoinName name={selectedCoin.name} size="md" />
+							<CoinSymbol name={selectedCoin.symbol} size="sm" />
 						</div>
 						<div className="ml-4">
-							<CoinPrice price={selectedCrypto.price} />
+							<CoinPrice price={selectedCoin.current_price} />
 							<CoinPriceChange
 								size="md"
-								change={selectedCrypto.change24h}
+								change={selectedCoin.price_change_percentage_24h}
 								showIcon
 								period="24h"
 							/>
@@ -177,36 +83,7 @@ export default function DashboardPage() {
 							</Tabs.List>
 						</Tabs.ListContainer>
 						<Tabs.Panel id="top-10" className="p-0.5">
-							<ListBox
-								aria-label="Crypto"
-								items={top10Cryptos}
-								renderEmptyState={() => (
-									<p className="text-zinc-500">No cryptocurrencies found</p>
-								)}
-								className="p-0"
-							>
-								{(crypto) => (
-									<ListBox.Item
-										key={crypto.id}
-										id={crypto.id}
-										className="pl-3.5 pr-4 py-2 hover:bg-zinc-100"
-									>
-										<CoinAvatar crypto={crypto} size="sm" />
-										<div className="flex flex-col">
-											<CoinName name={crypto.name} size="sm" />
-											<CoinSymbol name={crypto.symbol} size="xs" />
-										</div>
-										<div className="flex flex-col text-right ml-auto">
-											<CoinPrice price={crypto.price} size="sm" />
-											<CoinPriceChange
-												className="justify-end"
-												change={crypto.change24h}
-												size="sm"
-											/>
-										</div>
-									</ListBox.Item>
-								)}
-							</ListBox>
+							<CryptoListBox coins={dataCoins} className="p-0" />
 						</Tabs.Panel>
 						<Tabs.Panel id="trending" className="pt-4">
 							Trending coins last 24 hours.
