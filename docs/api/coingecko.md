@@ -88,10 +88,20 @@ export default async function Dashboard() {
   current_price: 63022.79,
   market_cap: 1234567890,
   market_cap_rank: 1,
-  price_change_percentage_24h: 2.5,
+  price_change_percentage_24h: 2.5,  // Может быть null
+  high_24h: 64000,                   // Может быть null
+  low_24h: 62000,                    // Может быть null
+  price_change_24h: 1000,            // Может быть null
+  market_cap_change_24h: 10000000,   // Может быть null
+  market_cap_change_percentage_24h: 0.8, // Может быть null
+  fully_diluted_valuation: null,     // Может быть null
+  total_supply: null,                // Может быть null
+  max_supply: null,                  // Может быть null
   // ... ещё 20+ полей
 }
 ```
+
+**Примечание:** Некоторые поля могут быть `null` если данные недоступны (например, `high_24h`, `low_24h`, `price_change_24h`).
 
 ---
 

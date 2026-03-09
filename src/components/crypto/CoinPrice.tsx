@@ -1,6 +1,6 @@
 interface CoinPriceProps {
 	/** Price value (number for auto-formatting or pre-formatted string) */
-	price: number | string;
+	price: number | string | null;
 	/** Additional CSS classes */
 	className?: string;
 	/** Text size (default: "md") */
@@ -31,6 +31,17 @@ export const CoinPrice = ({
 		md: "text-base",
 		lg: "text-lg",
 	};
+
+	// Handle null case
+	if (price === null) {
+		return (
+			<span
+				className={`${sizeClasses[size]} text-gray-400 font-bold ${className || ""}`}
+			>
+				N/A
+			</span>
+		);
+	}
 
 	const formattedPrice =
 		typeof price === "number"

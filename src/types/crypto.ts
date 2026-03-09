@@ -23,18 +23,18 @@ export const CryptoSchema = z.object({
 	fully_diluted_valuation: z.number().nullable(),
 	/** Total trading volume in the last 24 hours (must be non-negative) */
 	total_volume: z.number().nonnegative(),
-	/** Highest price in the last 24 hours (must be positive) */
-	high_24h: z.number().positive(),
-	/** Lowest price in the last 24 hours (must be positive) */
-	low_24h: z.number().positive(),
-	/** Price change in the last 24 hours (can be negative) */
-	price_change_24h: z.number(),
-	/** Price change percentage in the last 24 hours */
-	price_change_percentage_24h: z.number(),
-	/** Market cap change in the last 24 hours */
-	market_cap_change_24h: z.number(),
-	/** Market cap change percentage in the last 24 hours */
-	market_cap_change_percentage_24h: z.number(),
+	/** Highest price in the last 24 hours (null if not available) */
+	high_24h: z.number().positive().nullable(),
+	/** Lowest price in the last 24 hours (null if not available) */
+	low_24h: z.number().positive().nullable(),
+	/** Price change in the last 24 hours (null if not available) */
+	price_change_24h: z.number().nullable(),
+	/** Price change percentage in the last 24 hours (null if not available) */
+	price_change_percentage_24h: z.number().nullable(),
+	/** Market cap change in the last 24 hours (null if not available) */
+	market_cap_change_24h: z.number().nullable(),
+	/** Market cap change percentage in the last 24 hours (null if not available) */
+	market_cap_change_percentage_24h: z.number().nullable(),
 	/** Circulating supply (must be non-negative) */
 	circulating_supply: z.number().nonnegative(),
 	/** Total supply (null if not available) */

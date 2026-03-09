@@ -2,7 +2,7 @@ import { MoveDownRight, MoveUpRight } from "lucide-react";
 
 interface CoinPriceChangeProps {
 	/** Price change percentage (e.g., 4.91 for +4.91% or -2.34 for -2.34%) */
-	change: number;
+	change: number | null;
 	/** Additional CSS classes */
 	className?: string;
 	/** Show up/down arrow icon (default: false) */
@@ -31,14 +31,25 @@ export const CoinPriceChange = ({
 	period,
 	size = "md",
 }: CoinPriceChangeProps) => {
-	const isPositive = change >= 0;
-	const colorClass = isPositive ? "text-green-600" : "text-red-600";
-
 	const sizeClasses = {
 		sm: { text: "text-xs", icon: 10 },
 		md: { text: "text-sm", icon: 12 },
 		lg: { text: "text-base", icon: 16 },
 	};
+
+	// Handle null case
+	if (change === null) {
+		return (
+			<span
+				className={`flex items-center gap-1 font-light text-gray-400 ${className || ""}`}
+			>
+				<span className={sizeClasses[size].text}>N/A</span>
+			</span>
+		);
+	}
+
+	const isPositive = change >= 0;
+	const colorClass = isPositive ? "text-green-600" : "text-red-600";
 
 	return (
 		<span
