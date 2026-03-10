@@ -11,10 +11,14 @@ interface ListProps {
 	divided?: boolean;
 	/** Show border around list */
 	bordered?: boolean;
-	/** Show hover effect on list items */
+	/** Alternating item colors */
+	striped?: boolean;
+	/** Compact item height */
+	compact?: boolean;
+	/** Hover effect on items */
 	hover?: boolean;
-	/** Empty state message */
-	emptyMessage?: string;
+	/** Empty state text */
+	emptyText?: string;
 	/** Custom children (overrides items) */
 	children?: ReactNode;
 }
@@ -28,6 +32,8 @@ interface ListItemProps {
 	className?: string;
 	/** Show hover effect on list item */
 	hover?: boolean;
+	/** Compact item height */
+	compact?: boolean;
 }
 
 /**
@@ -63,10 +69,13 @@ export const ListItem = ({
 	className,
 	as = "li",
 	hover,
+	compact,
 }: ListItemProps) => {
 	const Component = as;
 
-	const baseClasses = "px-4 py-2";
+	const baseClasses = compact
+		? "p-2 text-sm font-medium text-gray-600"
+		: "p-4 text-sm font-medium text-gray-600";
 	const hoverClasses = hover ? "hover:bg-gray-100 cursor-pointer" : "";
 
 	// Combined classes for the list item
@@ -80,29 +89,44 @@ export const ListItem = ({
 /**
  * List component - flexible unordered or ordered list.
  *
- * Supports divided items, borders, hover effects, empty state, and custom children.
+ * Supports divided items, borders, striped rows, hover effects, empty state, and custom children.
  * Items can be strings, numbers, or ReactNode.
  * Uses combined classes approach for consistent styling.
  *
+ * @param props - Component props
+ * @param props.items - Array of items to render (strings, numbers, or ReactNodes)
+ * @param props.className - Additional CSS classes
+ * @param props.as - HTML element type: "ul", "ol", or "div" (default: "ul")
+ * @param props.divided - Show dividers between items (default: false)
+ * @param props.bordered - Show border around list (default: false)
+ * @param props.striped - Alternating item colors (default: false)
+ * @param props.compact - Compact item height (default: false)
+ * @param props.hover - Hover effect on items (default: false)
+ * @param props.emptyText - Empty state message (default: "No items")
+ * @param props.children - Custom children (overrides items)
+ *
  * @example
  * ```tsx
- * // Simple list with strings (ul)
- * <List items={['Item 1', 'Item 2']} divided bordered />
+ * // Simple list with strings
+ * <List
+ *   items={['Item 1', 'Item 2', 'Item 3']}
+ *   divided
+ *   bordered
+ * />
  *
- * // Ordered list (ol)
- * <List as="ol" items={['First', 'Second', 'Third']} divided />
+ * // Ordered list
+ * <List
+ *   as="ol"
+ *   items={['First', 'Second', 'Third']}
+ *   divided
+ * />
  *
- * // Div list (for non-semantic lists)
- * <List as="div" items={['A', 'B', 'C']} divided bordered hover />
- *
- * // List with hover effect
- * <List items={['A', 'B', 'C']} hover />
- *
- * // List with List.Item
- * <List divided hover>
- *   <List.Item>Item 1</List.Item>
- *   <List.Item>Item 2</List.Item>
- * </List>
+ * // Striped list with hover
+ * <List
+ *   items={['A', 'B', 'C']}
+ *   striped
+ *   hover
+ * />
  *
  * // List with custom children
  * <List divided>
@@ -111,7 +135,13 @@ export const ListItem = ({
  * </List>
  *
  * // Empty state
- * <List items={[]} emptyMessage="No items" />
+ * <List items={[]} emptyText="No items found" />
+ *
+ * // Using List.Item compound component
+ * <List divided hover>
+ *   <List.Item>Item 1</List.Item>
+ *   <List.Item>Item 2</List.Item>
+ * </List>
  * ```
  */
 export function List({
@@ -120,8 +150,10 @@ export function List({
 	as = "ul",
 	divided = false,
 	bordered = false,
+	striped = false,
+	compact = false,
 	hover = false,
-	emptyMessage = "No items",
+	emptyText = "No items",
 	children,
 }: ListProps) {
 	const Component = as;
@@ -129,8 +161,8 @@ export function List({
 	const baseClasses = "text-gray-700 rounded-lg";
 	const dividedClasses = divided ? "divide-y divide-gray-200" : "";
 	const borderClasses = bordered ? "border border-gray-200" : "";
-	const emptyItemClasses = emptyMessage
-		? "px-4 py-2 text-center text-gray-500"
+	const emptyItemClasses = emptyText
+		? "p-4 text-center text-sm font-medium text-gray-500"
 		: "";
 
 	// Combined classes for the list container
@@ -148,9 +180,23 @@ export function List({
 		.filter(Boolean)
 		.join(" ");
 
+	// Item classes with striped support
+	const getItemClasses = (itemIndex: number) => {
+		const classes = [
+			striped && itemIndex % 2 === 1 ? "bg-gray-50" : "bg-white",
+			hover && "hover:bg-gray-100",
+			hover && "transition-colors",
+			hover && "duration-150",
+		]
+			.filter(Boolean)
+			.join(" ");
+
+		return classes;
+	};
+
 	// Empty state
 	if ((!items || items.length === 0) && !children) {
-		return <p className={emptyClasses}>{emptyMessage}</p>;
+		return <p className={emptyClasses}>{emptyText}</p>;
 	}
 
 	const itemTag = as === "ul" || as === "ol" ? "li" : "div";
@@ -162,7 +208,9 @@ export function List({
 					<List.Item
 						as={itemTag}
 						hover={hover}
-						key={index as unknown as string}
+						compact={compact}
+						className={getItemClasses(index)}
+						key={index}
 					>
 						{item}
 					</List.Item>
