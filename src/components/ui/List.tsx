@@ -101,7 +101,7 @@ export const ListItem = ({
  * @param props.bordered - Show border around list (default: false)
  * @param props.striped - Alternating item colors (default: false)
  * @param props.compact - Compact item height (default: false)
- * @param props.hover - Hover effect on items (default: false)
+ * @param props.hover - Hover effect on items (default: false). For plain lists (without divided/bordered/striped), adds rounded corners on hover.
  * @param props.emptyText - Empty state message (default: "No items")
  * @param props.children - Custom children (overrides items)
  *
@@ -182,11 +182,16 @@ export function List({
 
 	// Item classes with striped support
 	const getItemClasses = (itemIndex: number) => {
+		// Check if it's a plain list (no dividers, borders, or stripes)
+		const isPlainList = !divided && !bordered && !striped;
+
 		const classes = [
-			striped && itemIndex % 2 === 1 ? "bg-gray-50" : "bg-white",
-			hover && "hover:bg-gray-100",
-			hover && "transition-colors",
-			hover && "duration-150",
+			// Striped background
+			striped && itemIndex % 2 === 1 ? "bg-gray-50" : "",
+			// Hover without border radius for styled lists
+			hover && "hover:bg-gray-50 transition-colors duration-150",
+			// Hover with border radius for plain lists
+			hover && isPlainList && "hover:rounded-lg",
 		]
 			.filter(Boolean)
 			.join(" ");

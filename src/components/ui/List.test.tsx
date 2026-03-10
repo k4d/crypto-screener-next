@@ -67,9 +67,10 @@ describe("List", () => {
 
 		const listItems = screen.getAllByRole("listitem");
 
-		expect(listItems[0]).toHaveClass("bg-white");
+		// Odd rows have bg-gray-50, even rows are transparent (no bg-white)
+		expect(listItems[0]).not.toHaveClass("bg-gray-50");
 		expect(listItems[1]).toHaveClass("bg-gray-50");
-		expect(listItems[2]).toHaveClass("bg-white");
+		expect(listItems[2]).not.toHaveClass("bg-gray-50");
 	});
 
 	it("applies hover classes to items", () => {
@@ -118,6 +119,44 @@ describe("List", () => {
 		expect(listItems[0]).not.toHaveClass("p-4");
 		expect(listItems[1]).toHaveClass("p-2");
 		expect(listItems[1]).not.toHaveClass("p-4");
+	});
+
+	it("applies hover with rounded corners for plain lists", () => {
+		render(<List items={["A", "B"]} hover />);
+
+		const listItem = screen.getByText("A").closest("li");
+
+		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).toHaveClass("hover:rounded-lg");
+		expect(listItem).toHaveClass("transition-colors");
+		expect(listItem).toHaveClass("duration-150");
+	});
+
+	it("applies hover without rounded corners for divided lists", () => {
+		render(<List items={["A", "B"]} divided hover />);
+
+		const listItem = screen.getByText("A").closest("li");
+
+		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).not.toHaveClass("hover:rounded-lg");
+	});
+
+	it("applies hover without rounded corners for bordered lists", () => {
+		render(<List items={["A", "B"]} bordered hover />);
+
+		const listItem = screen.getByText("A").closest("li");
+
+		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).not.toHaveClass("hover:rounded-lg");
+	});
+
+	it("applies hover without rounded corners for striped lists", () => {
+		render(<List items={["A", "B", "C"]} striped hover />);
+
+		const listItem = screen.getByText("A").closest("li");
+
+		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).not.toHaveClass("hover:rounded-lg");
 	});
 });
 
