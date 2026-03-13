@@ -28,7 +28,7 @@ describe("Table", () => {
 	});
 
 	it("renders empty state when rows is empty", () => {
-		render(<Table headers={headers} rows={[]} emptyText="No data" />);
+		render(<Table headers={headers} rows={[]} emptyContent="No data" />);
 
 		expect(screen.getByText("No data")).toBeInTheDocument();
 	});
@@ -90,11 +90,23 @@ describe("Table", () => {
 
 	it("renders caption for accessibility", () => {
 		render(
-			<Table headers={headers} rows={rows} caption="Cryptocurrency prices" />,
+			<Table
+				headers={headers}
+				rows={rows}
+				captionContent="Cryptocurrency prices"
+			/>,
 		);
 
 		const caption = screen.getByText("Cryptocurrency prices");
 		expect(caption).toHaveClass("sr-only");
+	});
+
+	it("renders footer with footerContent", () => {
+		render(
+			<Table headers={headers} rows={rows} footerContent="Total: 3 coins" />,
+		);
+
+		expect(screen.getByText("Total: 3 coins")).toBeInTheDocument();
 	});
 
 	it("renders correct number of columns", () => {
@@ -109,7 +121,7 @@ describe("Table", () => {
 
 	it("renders empty state with correct colspan", () => {
 		const { container } = render(
-			<Table headers={headers} rows={[]} emptyText="No data" />,
+			<Table headers={headers} rows={[]} emptyContent="No data" />,
 		);
 
 		const emptyCell = container.querySelector("td");
