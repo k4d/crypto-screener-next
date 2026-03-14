@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { ListItem } from "./ListItem";
+import { listClasses as cls } from "./styleClasses";
 
 interface ListProps {
 	/** Array of items to render (strings, numbers, or ReactNode) */
@@ -23,69 +25,6 @@ interface ListProps {
 	children?: ReactNode;
 }
 
-interface ListItemProps {
-	/** HTML element type (default: "li", supports "div") */
-	as?: "li" | "div";
-	/** Content of the list item */
-	children: ReactNode;
-	/** Additional CSS classes */
-	className?: string;
-	/** Show hover effect on list item */
-	hover?: boolean;
-	/** Compact item height */
-	compact?: boolean;
-}
-
-/**
- * List Item component - individual list item.
- *
- * Can be used as a standalone component or as List.Item.
- * Supports dynamic element type (li or div).
- * Uses combined classes approach for consistent styling.
- *
- * @example
- * ```tsx
- * // Standalone with li (default)
- * <ListItem hover>Item</ListItem>
- *
- * // Standalone with div
- * <ListItem as="div" hover>Item</ListItem>
- *
- * // As List.Item
- * <List hover>
- *   <List.Item>Item 1</List.Item>
- *   <List.Item>Item 2</List.Item>
- * </List>
- *
- * // As List.Item with div
- * <List as="div" hover>
- *   <List.Item>Item 1</List.Item>
- *   <List.Item>Item 2</List.Item>
- * </List>
- * ```
- */
-export const ListItem = ({
-	children,
-	className,
-	as = "li",
-	hover,
-	compact,
-}: ListItemProps) => {
-	const Component = as;
-
-	const baseClasses = compact
-		? "p-2 text-sm font-medium text-gray-600"
-		: "p-4 text-sm font-medium text-gray-600";
-	const hoverClasses = hover ? "hover:bg-gray-100 cursor-pointer" : "";
-
-	// Combined classes for the list item
-	const itemClasses = [baseClasses, className, hoverClasses]
-		.filter(Boolean)
-		.join(" ");
-
-	return <Component className={itemClasses}>{children}</Component>;
-};
-
 /**
  * List component - flexible unordered or ordered list.
  *
@@ -95,7 +34,7 @@ export const ListItem = ({
  *
  * @param props - Component props
  * @param props.items - Array of items to render (strings, numbers, or ReactNodes)
- * @param props.className - Additional CSS classes
+ * @param props.className - Additional CSS classes for styling
  * @param props.as - HTML element type: "ul", "ol", or "div" (default: "ul")
  * @param props.divided - Show dividers between items (default: false)
  * @param props.bordered - Show border around list (default: false)
@@ -142,6 +81,18 @@ export const ListItem = ({
  *   <List.Item>Item 1</List.Item>
  *   <List.Item>Item 2</List.Item>
  * </List>
+ *
+ * // Compact mode
+ * <List items={['A', 'B', 'C']} compact />
+ *
+ * // Plain list with hover (rounded corners)
+ * <List items={['A', 'B', 'C']} hover />
+ *
+ * // Mixed: some items with hover
+ * <List divided>
+ *   <List.Item hover>Hoverable Item</List.Item>
+ *   <List.Item>Static Item</List.Item>
+ * </List>
  * ```
  */
 export function List({
@@ -158,25 +109,18 @@ export function List({
 }: ListProps) {
 	const Component = as;
 
-	const baseClasses = "text-gray-700 rounded-lg";
-	const dividedClasses = divided ? "divide-y divide-gray-200" : "";
-	const borderClasses = bordered ? "border border-gray-200" : "";
-	const emptyItemClasses = emptyText
-		? "p-4 text-center text-sm font-medium text-gray-500"
-		: "";
+	// Classes for the List component
+	const dividedClass = divided ? cls.divided : "";
+	const borderedClass = bordered ? cls.bordered : "";
+	const emptyClass = emptyText ? cls.itemEmpty : "";
 
 	// Combined classes for the list container
-	const containerClasses = [
-		className,
-		baseClasses,
-		dividedClasses,
-		borderClasses,
-	]
+	const listClasses = [cls.list, dividedClass, borderedClass, className]
 		.filter(Boolean)
 		.join(" ");
 
 	// Combined classes for empty state
-	const emptyClasses = [className, baseClasses, borderClasses, emptyItemClasses]
+	const emptyStateClasses = [cls.list, borderedClass, emptyClass, className]
 		.filter(Boolean)
 		.join(" ");
 
@@ -186,12 +130,13 @@ export function List({
 		const isPlainList = !divided && !bordered && !striped;
 
 		const classes = [
+			cls.itemText,
 			// Striped background
-			striped && itemIndex % 2 === 1 ? "bg-gray-50" : "",
-			// Hover without border radius for styled lists
-			hover && "hover:bg-gray-50 transition-colors duration-150",
+			striped && itemIndex % 2 === 1 ? cls.itemStriped : "",
+			// Hover transition
+			hover && cls.itemHoverTransition,
 			// Hover with border radius for plain lists
-			hover && isPlainList && "hover:rounded-lg",
+			hover && isPlainList && cls.itemHoverRounded,
 		]
 			.filter(Boolean)
 			.join(" ");
@@ -201,26 +146,28 @@ export function List({
 
 	// Empty state
 	if ((!items || items.length === 0) && !children) {
-		return <p className={emptyClasses}>{emptyText}</p>;
+		return <p className={emptyStateClasses}>{emptyText}</p>;
 	}
 
 	const itemTag = as === "ul" || as === "ol" ? "li" : "div";
 
 	return (
-		<Component className={containerClasses}>
-			{children ??
-				items?.map((item, index) => (
-					<List.Item
-						as={itemTag}
-						hover={hover}
-						compact={compact}
-						className={getItemClasses(index)}
-						key={index}
-					>
-						{item}
-					</List.Item>
-				))}
-		</Component>
+		<div className={cls.container}>
+			<Component className={listClasses}>
+				{children ??
+					items?.map((item, index) => (
+						<List.Item
+							as={itemTag}
+							hover={hover}
+							compact={compact}
+							className={getItemClasses(index)}
+							key={index}
+						>
+							{item}
+						</List.Item>
+					))}
+			</Component>
+		</div>
 	);
 }
 

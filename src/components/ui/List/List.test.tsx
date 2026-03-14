@@ -21,15 +21,18 @@ describe("List", () => {
 	it("renders with as='ul' (default)", () => {
 		const { container } = render(<List items={["A", "B"]} />);
 
-		const list = container.firstChild as Element;
-		expect(list?.tagName).toBe("UL");
+		// List is wrapped in a div, so we check the second child
+		const list = container.querySelector("ul");
+		expect(list).toBeInTheDocument();
+		expect(list).toHaveClass("rounded-lg");
 	});
 
 	it("renders with as='ol'", () => {
 		const { container } = render(<List as="ol" items={["A", "B"]} />);
 
-		const list = container.firstChild as Element;
-		expect(list?.tagName).toBe("OL");
+		const list = container.querySelector("ol");
+		expect(list).toBeInTheDocument();
+		expect(list).toHaveClass("rounded-lg");
 	});
 
 	it("renders empty state when items is empty", () => {
@@ -51,14 +54,14 @@ describe("List", () => {
 	it("applies divided classes", () => {
 		const { container } = render(<List items={["A"]} divided />);
 
-		const list = container.firstChild as Element;
+		const list = container.querySelector("ul");
 		expect(list).toHaveClass("divide-y");
 	});
 
 	it("applies bordered classes", () => {
 		const { container } = render(<List items={["A"]} bordered />);
 
-		const list = container.firstChild as Element;
+		const list = container.querySelector("ul");
 		expect(list).toHaveClass("border");
 	});
 
@@ -86,7 +89,7 @@ describe("List", () => {
 			<List items={["A"]} className="custom-class" />,
 		);
 
-		const list = container.firstChild as Element;
+		const list = container.querySelector("ul");
 		expect(list).toHaveClass("custom-class");
 	});
 
@@ -106,8 +109,8 @@ describe("List", () => {
 		const emptyState = screen.getByText("No items");
 
 		expect(emptyState).toHaveClass("text-sm");
-		expect(emptyState).toHaveClass("font-medium");
 		expect(emptyState).toHaveClass("text-gray-500");
+		expect(emptyState).toHaveClass("text-center");
 	});
 
 	it("applies compact classes to items", () => {
@@ -115,10 +118,10 @@ describe("List", () => {
 
 		const listItems = screen.getAllByRole("listitem");
 
-		expect(listItems[0]).toHaveClass("p-2");
-		expect(listItems[0]).not.toHaveClass("p-4");
-		expect(listItems[1]).toHaveClass("p-2");
-		expect(listItems[1]).not.toHaveClass("p-4");
+		expect(listItems[0]).toHaveClass("px-2");
+		expect(listItems[0]).toHaveClass("py-1");
+		expect(listItems[1]).toHaveClass("px-2");
+		expect(listItems[1]).toHaveClass("py-1");
 	});
 
 	it("applies hover with rounded corners for plain lists", () => {
@@ -126,7 +129,7 @@ describe("List", () => {
 
 		const listItem = screen.getByText("A").closest("li");
 
-		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).toHaveClass("hover:bg-gray-100");
 		expect(listItem).toHaveClass("hover:rounded-lg");
 		expect(listItem).toHaveClass("transition-colors");
 		expect(listItem).toHaveClass("duration-150");
@@ -137,7 +140,7 @@ describe("List", () => {
 
 		const listItem = screen.getByText("A").closest("li");
 
-		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).toHaveClass("hover:bg-gray-100");
 		expect(listItem).not.toHaveClass("hover:rounded-lg");
 	});
 
@@ -146,7 +149,7 @@ describe("List", () => {
 
 		const listItem = screen.getByText("A").closest("li");
 
-		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).toHaveClass("hover:bg-gray-100");
 		expect(listItem).not.toHaveClass("hover:rounded-lg");
 	});
 
@@ -155,7 +158,7 @@ describe("List", () => {
 
 		const listItem = screen.getByText("A").closest("li");
 
-		expect(listItem).toHaveClass("hover:bg-gray-50");
+		expect(listItem).toHaveClass("hover:bg-gray-100");
 		expect(listItem).not.toHaveClass("hover:rounded-lg");
 	});
 });
@@ -199,9 +202,9 @@ describe("List.Item", () => {
 	});
 
 	it("applies typography classes", () => {
-		const { container } = render(<List.Item>Item</List.Item>);
+		render(<List items={["Item"]} />);
 
-		const item = container.firstChild as Element;
+		const item = screen.getByText("Item").closest("li");
 
 		expect(item).toHaveClass("text-sm");
 		expect(item).toHaveClass("font-medium");
@@ -213,7 +216,8 @@ describe("List.Item", () => {
 
 		const item = container.firstChild as Element;
 
-		expect(item).toHaveClass("p-2");
+		expect(item).toHaveClass("px-2");
+		expect(item).toHaveClass("py-1");
 		expect(item).not.toHaveClass("p-4");
 	});
 });

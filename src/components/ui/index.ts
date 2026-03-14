@@ -1,10 +1,12 @@
-export { List, ListItem } from "./List";
+export { List, ListItem, listClasses } from "./List";
 export {
 	Table,
 	TableBody,
 	TableCaption,
+	TableCell,
 	TableColumn,
 	TableEmpty,
 	TableFooter,
 	TableHead,
+	TableRow,
 } from "./Table";
