@@ -37,8 +37,8 @@ interface TableHeadProps {
  *
  * // Advanced mode with TableColumn
  * <TableHead>
- *   <TableColumn key="name" align="left">Name</TableColumn>
- *   <TableColumn key="price" align="right">Price</TableColumn>
+ *   <TableColumn columnKey="name" align="left">Name</TableColumn>
+ *   <TableColumn columnKey="price" align="right">Price</TableColumn>
  * </TableHead>
  *
  * // With compound components
@@ -49,8 +49,8 @@ interface TableHeadProps {
  * // Advanced mode with custom columns
  * <Table>
  *   <Table.Head>
- *     <Table.Column key="name" align="left">Name</Table.Column>
- *     <Table.Column key="price" align="right">Price</Table.Column>
+ *     <Table.Column columnKey="name" align="left">Name</Table.Column>
+ *     <Table.Column columnKey="price" align="right">Price</Table.Column>
  *   </Table.Head>
  * </Table>
  * ```
@@ -68,6 +68,7 @@ export const TableHead = ({
 					columns.map((column, index) => (
 						<TableHead.Column
 							key={`column-${index}`}
+							columnKey={`column-${index}`}
 							className={columnClassName}
 						>
 							{column}

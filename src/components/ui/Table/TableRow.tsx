@@ -4,7 +4,7 @@ export interface TableRowProps {
 	/** Row index (for striped rows) */
 	index?: number;
 	/** Unique key for the row */
-	key?: string;
+	rowKey?: string;
 	/** Enable striped rows (alternating colors) */
 	striped?: boolean;
 	/** Enable hover effect */
@@ -23,7 +23,7 @@ export interface TableRowProps {
  *
  * @param props - Component props
  * @param props.index - Row index (for striped rows)
- * @param props.key - Unique key for the row
+ * @param props.rowKey - Unique key for the row
  * @param props.striped - Enable striped rows (alternating colors) (default: false)
  * @param props.hoverable - Enable hover effect (default: false)
  * @param props.className - Custom class name for styling
@@ -32,32 +32,32 @@ export interface TableRowProps {
  * @example
  * ```tsx
  * // Basic usage
- * <TableRow>
+ * <TableRow rowKey="bitcoin">
  *   <TableCell>Bitcoin</TableCell>
  *   <TableCell>$63,022</TableCell>
  * </TableRow>
  *
  * // With striped rows
- * <TableRow index={0} striped>
+ * <TableRow rowKey="1" index={0} striped>
  *   <TableCell>Bitcoin</TableCell>
  *   <TableCell>$63,022</TableCell>
  * </TableRow>
  *
  * // With hover effect
- * <TableRow hoverable>
+ * <TableRow rowKey="bitcoin" hoverable>
  *   <TableCell>Bitcoin</TableCell>
  *   <TableCell>$63,022</TableCell>
  * </TableRow>
  *
  * // With custom styling
- * <TableRow className="hover:bg-blue-50">
+ * <TableRow rowKey="bitcoin" className="hover:bg-blue-50">
  *   <TableCell className="font-semibold">Bitcoin</TableCell>
  *   <TableCell>$63,022</TableCell>
  * </TableRow>
  *
  * // With compound components
  * <TableBody>
- *   <TableBody.Row index={0} striped hoverable>
+ *   <TableBody.Row rowKey="1" index={0} striped hoverable>
  *     <TableBody.Cell>Bitcoin</TableBody.Cell>
  *     <TableBody.Cell>$63,022</TableBody.Cell>
  *   </TableBody.Row>
@@ -66,7 +66,7 @@ export interface TableRowProps {
  * // With Table component
  * <Table>
  *   <Table.Body>
- *     <Table.Row>
+ *     <Table.Row rowKey="bitcoin">
  *       <Table.Cell>Bitcoin</Table.Cell>
  *       <Table.Cell>$63,022</Table.Cell>
  *     </Table.Row>
@@ -76,7 +76,7 @@ export interface TableRowProps {
  */
 export const TableRow = ({
 	index,
-	key,
+	rowKey,
 	striped = false,
 	hoverable = false,
 	className,
@@ -93,7 +93,7 @@ export const TableRow = ({
 		.join(" ");
 
 	return (
-		<tr key={key} className={rowClasses}>
+		<tr key={rowKey} className={rowClasses}>
 			{children}
 		</tr>
 	);

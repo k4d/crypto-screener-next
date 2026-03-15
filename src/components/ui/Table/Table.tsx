@@ -89,17 +89,17 @@ interface TableProps {
  * <Table>
  *   <Table.Caption>Cryptocurrency prices</Table.Caption>
  *   <Table.Head>
- *     <TableColumn key="name">Name</TableColumn>
- *     <TableColumn key="price">Price</TableColumn>
+ *     <TableColumn columnKey="name">Name</TableColumn>
+ *     <TableColumn columnKey="price">Price</TableColumn>
  *   </Table.Head>
  *   <Table.Body>
- *     <TableRow>
+ *     <TableRow rowKey="1">
  *       <TableCell>Bitcoin</TableCell>
  *       <TableCell>$63,022</TableCell>
  *     </TableRow>
  *   </Table.Body>
  *   <Table.Footer>
- *     <TableRow>
+ *     <TableRow rowKey="footer">
  *       <TableCell colSpan={2}>Total: $63,022</TableCell>
  *     </TableRow>
  *   </Table.Footer>

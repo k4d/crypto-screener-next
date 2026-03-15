@@ -61,7 +61,7 @@ interface TableBodyProps {
  * // Advanced mode with children
  * <TableBody>
  *   {rows.map((row, index) => (
- *     <TableRow key={index} index={index} striped>
+ *     <TableRow rowKey={index} index={index} striped>
  *       <TableCell>{row.name}</TableCell>
  *       <TableCell align="right">{row.price}</TableCell>
  *     </TableRow>
