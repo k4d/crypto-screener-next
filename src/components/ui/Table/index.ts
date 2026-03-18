@@ -1,3 +1,4 @@
+export { type TableClasses, tableClasses } from "./styleClasses";
 export { Table } from "./Table";
 export { TableBody } from "./TableBody";
 export { TableCaption } from "./TableCaption";

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { tableClasses as cls } from "./styleClasses";
 
 export interface TableRowProps {
 	/** Row index (for striped rows) */
@@ -84,9 +85,9 @@ export const TableRow = ({
 }: TableRowProps) => {
 	const rowClasses = [
 		striped && index !== undefined && index % 2 === 1
-			? "bg-gray-50"
-			: "bg-white",
-		hoverable && "hover:bg-gray-100 transition-colors duration-150",
+			? cls.rowStriped
+			: cls.row,
+		hoverable && `${cls.rowHover} ${cls.rowHoverTransition}`,
 		className,
 	]
 		.filter(Boolean)

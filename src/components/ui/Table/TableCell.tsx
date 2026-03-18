@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { tableClasses as cls } from "./styleClasses";
 
 export interface TableCellProps {
 	/** Text alignment */
@@ -6,7 +6,7 @@ export interface TableCellProps {
 	/** Custom class name */
 	className?: string;
 	/** Cell content */
-	children: ReactNode;
+	children: React.ReactNode;
 }
 
 /**
@@ -55,13 +55,12 @@ export const TableCell = ({
 	className,
 	children,
 }: TableCellProps) => {
-	const alignClasses = {
-		left: "text-left",
-		center: "text-center",
-		right: "text-right",
-	};
+	const alignClass =
+		align === "center"
+			? cls.cellAlignCenter
+			: align === "right"
+				? cls.cellAlignRight
+				: cls.cellAlignLeft;
 
-	return (
-		<td className={`${alignClasses[align]} ${className ?? ""}`}>{children}</td>
-	);
+	return <td className={`${alignClass} ${className ?? ""}`}>{children}</td>;
 };

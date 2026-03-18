@@ -9,4 +9,5 @@ export {
 	TableFooter,
 	TableHead,
 	TableRow,
+	tableClasses,
 } from "./Table";

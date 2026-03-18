@@ -1,3 +1,5 @@
+import { tableClasses as cls } from "./styleClasses";
+
 interface TableColumnProps {
 	/** Unique key for the column (required for dynamic columns) */
 	columnKey: string;
@@ -68,17 +70,18 @@ export const TableColumn = ({
 	children,
 	align = "left",
 }: TableColumnProps) => {
-	const alignClasses = {
-		left: "text-left",
-		center: "text-center",
-		right: "text-right",
-	};
+	const alignClass =
+		align === "center"
+			? cls.cellAlignCenter
+			: align === "right"
+				? cls.cellAlignRight
+				: cls.cellAlignLeft;
 
 	return (
 		<th
 			scope="col"
 			key={columnKey}
-			className={`${alignClasses[align]} ${className ?? ""}`}
+			className={`${alignClass} ${className ?? ""}`}
 		>
 			{children}
 		</th>

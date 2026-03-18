@@ -5,9 +5,9 @@ import { TableRow } from "./TableRow";
 
 interface TableBodyProps {
 	/** Array of rows, each row is an array of cells (2D array) */
-	items?: ReactNode[][];
-	/** Class name for each item cell */
-	itemClassName?: string;
+	rows?: ReactNode[][];
+	/** Class name for each cell */
+	cellClassName?: string;
 	/** Enable striped rows (alternating colors) */
 	striped?: boolean;
 	/** Enable hover effect on rows */
@@ -30,7 +30,7 @@ interface TableBodyProps {
  *
  * @param props - Component props
  * @param props.items - Array of rows, each row is an array of cells (2D array)
- * @param props.itemClassName - Class name for each item cell
+ * @param props.cellClassName - Class name for each cell
  * @param props.striped - Enable striped rows (alternating colors) (default: false)
  * @param props.hoverable - Enable hover effect on rows (default: false)
  * @param props.emptyContent - Empty state content (renders when items is empty)
@@ -40,20 +40,20 @@ interface TableBodyProps {
  *
  * @example
  * ```tsx
- * // Simple mode with items
- * <TableBody items={rows} striped hoverable />
+ * // Simple mode with rows
+ * <TableBody rows={rows} striped hoverable />
  *
  * // Simple mode with custom cell styles
  * <TableBody
- *   items={rows}
- *   itemClassName="px-4 py-2 text-sm"
+ *   rows={rows}
+ *   cellClassName="px-4 py-2 text-sm"
  *   striped
  *   hoverable
  * />
  *
  * // With empty state
  * <TableBody
- *   items={[]}
+ *   rows={[]}
  *   emptyContent="No data found"
  *   emptyColSpan={4}
  * />
@@ -79,8 +79,8 @@ interface TableBodyProps {
  * ```
  */
 export const TableBody = ({
-	items,
-	itemClassName,
+	rows,
+	cellClassName,
 	className,
 	striped = false,
 	hoverable = false,
@@ -91,8 +91,8 @@ export const TableBody = ({
 	return (
 		<tbody className={className}>
 			{children ??
-				(items && items.length > 0
-					? items.map((row, rowIndex) => (
+				(rows && rows.length > 0
+					? rows.map((row, rowIndex) => (
 							<TableBody.Row
 								key={`row-${rowIndex}`}
 								index={rowIndex}
@@ -102,7 +102,7 @@ export const TableBody = ({
 								{row.map((cell, cellIndex) => (
 									<TableBody.Cell
 										key={`cell-${rowIndex}-${cellIndex}`}
-										className={itemClassName}
+										className={cellClassName}
 									>
 										{cell}
 									</TableBody.Cell>

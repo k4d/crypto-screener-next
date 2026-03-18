@@ -1,3 +1,5 @@
+import { tableClasses as cls } from "./styleClasses";
+
 interface TableCaptionProps {
 	/** Caption content text */
 	captionContent: string;
@@ -24,5 +26,5 @@ interface TableCaptionProps {
  * ```
  */
 export const TableCaption = ({ captionContent }: TableCaptionProps) => {
-	return <caption className="sr-only">{captionContent}</caption>;
+	return <caption className={cls.caption}>{captionContent}</caption>;
 };

@@ -1,3 +1,4 @@
+import { tableClasses as cls } from "./styleClasses";
 import { TableBody } from "./TableBody";
 import { TableCaption } from "./TableCaption";
 import { TableFooter } from "./TableFooter";
@@ -119,33 +120,24 @@ export function Table({
 	footerContent,
 	children,
 }: TableProps) {
-	// Typography classes
-	const typoCellClasses = "text-sm font-medium text-gray-600",
-		typoHeaderClasses =
-			"text-left text-xs font-medium text-gray-400 uppercase tracking-wider";
-
-	// Container classes
-	const containerClasses = "overflow-x-auto";
-
 	// Base table classes
-	const tableClasses =
-		`min-w-full divide-y divide-gray-200 ${bordered ? "border" : ""} ${className ?? ""}`.trim();
+	const tableClass =
+		`${cls.table} ${bordered ? cls.tableBordered : ""} ${className ?? ""}`.trim();
 
 	// Header classes
-	const headerCellClasses = `bg-gray-50 p-4 ${typoHeaderClasses}`;
+	const headerCellClass = `${cls.header} ${cls.headerCell} ${cls.headerCellText}`;
 
 	// Cell classes
-	const cellClasses =
-		`px-4 ${compact ? "py-2" : "py-4"} whitespace-nowrap ${typoCellClasses} ${bordered ? "border" : ""}`.trim();
+	const cellClass =
+		`${cls.cell} ${compact ? cls.cellCompact : cls.cellDefault} ${cls.cellText} ${bordered ? cls.cellBordered : ""}`.trim();
 
 	// Footer cell classes (without uppercase)
-	const footerCellClasses =
-		`px-4 ${compact ? "py-2" : "py-4"} whitespace-nowrap ${typoCellClasses} ${bordered ? "border" : ""}`.trim();
+	const footerCellClass = cellClass;
 
 	return (
-		<div className={containerClasses}>
+		<div className={cls.container}>
 			<table
-				className={tableClasses}
+				className={tableClass}
 				aria-label={captionContent}
 				data-stripped={striped || undefined}
 				data-compact={compact || undefined}
@@ -158,13 +150,13 @@ export function Table({
 							<Table.Caption captionContent={captionContent} />
 						)}
 						{/* Head component */}
-						<Table.Head columns={headers} columnClassName={headerCellClasses} />
+						<Table.Head columns={headers} columnClassName={headerCellClass} />
 						{/* Body component */}
 						<Table.Body
-							items={rows}
+							rows={rows}
 							striped={striped}
 							hoverable={hoverable}
-							itemClassName={cellClasses}
+							cellClassName={cellClass}
 							emptyContent={emptyContent}
 							emptyColSpan={headers.length}
 						/>
@@ -172,7 +164,7 @@ export function Table({
 						{footerContent && (
 							<Table.Footer
 								colSpan={headers.length}
-								className={footerCellClasses}
+								className={footerCellClass}
 								footerContent={footerContent}
 							/>
 						)}

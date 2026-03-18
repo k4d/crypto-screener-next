@@ -1,3 +1,5 @@
+import { tableClasses as cls } from "./styleClasses";
+
 interface TableEmptyProps {
 	/** Number of columns to span (colSpan) */
 	colSpan?: number;
@@ -60,11 +62,12 @@ export const TableEmpty = ({
 	className,
 	emptyContent,
 }: TableEmptyProps) => {
-	const baseClasses = "text-center text-sm text-gray-500 p-4";
-
 	return (
 		<tr>
-			<td colSpan={colSpan} className={`${baseClasses} ${className}`}>
+			<td
+				colSpan={colSpan}
+				className={`${cls.cellEmpty} ${cls.cellEmptyText} ${className}`}
+			>
 				{emptyContent}
 			</td>
 		</tr>
