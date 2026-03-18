@@ -106,13 +106,30 @@ crypto-screener-next/
 │   │   │   └── ...
 │   │   ├── footer/
 │   │   ├── header/
-│   │   └── ...
+│   │   └── ui/                ← UI компоненты
+│   │       ├── List/          ← List компоненты
+│   │       │   ├── List.tsx
+│   │       │   ├── ListItem.tsx
+│   │       │   └── styleClasses.ts
+│   │       └── Table/         ← Table компоненты
+│   │           ├── Table.tsx
+│   │           ├── TableHead.tsx
+│   │           ├── TableBody.tsx
+│   │           ├── TableRow.tsx
+│   │           ├── TableCell.tsx
+│   │           ├── TableColumn.tsx
+│   │           ├── TableFooter.tsx
+│   │           ├── TableCaption.tsx
+│   │           ├── TableEmpty.tsx
+│   │           └── styleClasses.ts
 │   ├── layouts/               ← Layout компоненты
 │   │   └── RootLayout.tsx
 │   ├── styles/                ← Глобальные стили
 │   │   └── globals.css
-│   └── types/                 ← TypeScript типы + Zod схемы
-│       └── crypto.ts
+│   ├── types/                 ← TypeScript типы + Zod схемы
+│   │   └── crypto.ts
+│   └── utils/                 ← Утилиты
+│       └── cn.ts              ← cn() утилита для классов
 ├── test/                      ← Тестовые утилиты
 ├── public/                    ← Статические файлы
 │   └── favicon.svg
@@ -173,6 +190,36 @@ bun run dev
 ---
 
 ## 🧩 Компоненты
+
+### UI Components:
+
+| Компонент    | Описание                           | Путь                         |
+| ------------ | ---------------------------------- | ---------------------------- |
+| **List**     | Гибкий список (ul, ol, div)        | `@/components/ui/List`       |
+| **ListItem** | Элемент списка                     | `@/components/ui/List`       |
+| **Table**    | Таблица данных                     | `@/components/ui/Table`      |
+| **TableHead** | Заголовок таблицы                 | `@/components/ui/Table`      |
+| **TableBody** | Тело таблицы                      | `@/components/ui/Table`      |
+| **TableRow**  | Строка таблицы                    | `@/components/ui/Table`      |
+| **TableCell** | Ячейка таблицы                    | `@/components/ui/Table`      |
+| **TableColumn** | Колонка таблицы                 | `@/components/ui/Table`      |
+| **TableFooter** | Подвал таблицы                  | `@/components/ui/Table`      |
+| **TableCaption** | Заголовок таблицы (accessibility) | `@/components/ui/Table`   |
+| **TableEmpty** | Пустое состояние таблицы         | `@/components/ui/Table`      |
+
+### Утилиты:
+
+| Утилита        | Описание                          | Путь                    |
+| -------------- | --------------------------------- | ----------------------- |
+| **cn()**       | Объединение классов               | `@/utils/cn`            |
+| **mergeClasses()** | Алиас для cn()                | `@/utils/cn`            |
+
+### Style Classes:
+
+| Компонент | Описание                    | П путь                              |
+| --------- | --------------------------- | ----------------------------------- |
+| **listClasses** | Классы для List     | `@/components/ui/List/styleClasses` |
+| **tableClasses** | Классы для Table   | `@/components/ui/Table/styleClasses` |
 
 ### Основные компоненты:
 
@@ -257,15 +304,19 @@ bun test src/components/crypto/CoinPrice.test.tsx
 
 ### Покрытие тестами:
 
-| Компонент       | Тестов | Статус |
-| --------------- | ------ | ------ |
-| CoinPrice       | 10     | ✅     |
-| CoinPriceChange | 11     | ✅     |
-| SearchModal     | 12     | ✅     |
-| Logo            | 6      | ✅     |
-| Header          | 4      | ✅     |
-| NavBar          | 6      | ✅     |
-| CoinGecko API   | 24     | ✅     |
+| Компонент         | Тестов | Статус |
+| ----------------- | ------ | ------ |
+| CoinPrice         | 10     | ✅     |
+| CoinPriceChange   | 11     | ✅     |
+| SearchModal       | 12     | ✅     |
+| Logo              | 6      | ✅     |
+| Header            | 4      | ✅     |
+| NavBar            | 6      | ✅     |
+| CoinGecko API     | 24     | ✅     |
+| List              | 25     | ✅     |
+| Table             | 14     | ✅     |
+
+**Примечание:** ListItem тестируется вместе с List (входит в 25 тестов).
 
 ---
 
