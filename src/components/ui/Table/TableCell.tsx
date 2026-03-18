@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
 export interface TableCellProps {
@@ -62,5 +63,5 @@ export const TableCell = ({
 				? cls.cellAlignRight
 				: cls.cellAlignLeft;
 
-	return <td className={`${alignClass} ${className ?? ""}`}>{children}</td>;
+	return <td className={cn(alignClass, className)}>{children}</td>;
 };

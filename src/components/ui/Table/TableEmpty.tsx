@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
 interface TableEmptyProps {
@@ -66,7 +67,7 @@ export const TableEmpty = ({
 		<tr>
 			<td
 				colSpan={colSpan}
-				className={`${cls.cellEmpty} ${cls.cellEmptyText} ${className}`}
+				className={cn(cls.cellEmpty, cls.cellEmptyText, className)}
 			>
 				{emptyContent}
 			</td>

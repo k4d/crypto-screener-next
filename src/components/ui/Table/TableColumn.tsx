@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
 interface TableColumnProps {
@@ -78,11 +79,7 @@ export const TableColumn = ({
 				: cls.cellAlignLeft;
 
 	return (
-		<th
-			scope="col"
-			key={columnKey}
-			className={`${alignClass} ${className ?? ""}`}
-		>
+		<th scope="col" key={columnKey} className={cn(alignClass, className)}>
 			{children}
 		</th>
 	);

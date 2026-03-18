@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 import { TableBody } from "./TableBody";
 import { TableCaption } from "./TableCaption";
@@ -121,15 +122,18 @@ export function Table({
 	children,
 }: TableProps) {
 	// Base table classes
-	const tableClass =
-		`${cls.table} ${bordered ? cls.tableBordered : ""} ${className ?? ""}`.trim();
+	const tableClass = cn(cls.table, bordered && cls.tableBordered, className);
 
 	// Header classes
-	const headerCellClass = `${cls.header} ${cls.headerCell} ${cls.headerCellText}`;
+	const headerCellClass = cn(cls.header, cls.headerCell, cls.headerCellText);
 
 	// Cell classes
-	const cellClass =
-		`${cls.cell} ${compact ? cls.cellCompact : cls.cellDefault} ${cls.cellText} ${bordered ? cls.cellBordered : ""}`.trim();
+	const cellClass = cn(
+		cls.cell,
+		cls.cellText,
+		compact ? cls.cellCompact : cls.cellDefault,
+		bordered && cls.cellBordered,
+	);
 
 	// Footer cell classes (without uppercase)
 	const footerCellClass = cellClass;

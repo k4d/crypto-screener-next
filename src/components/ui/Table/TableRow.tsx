@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
 export interface TableRowProps {
@@ -13,7 +13,7 @@ export interface TableRowProps {
 	/** Custom class name */
 	className?: string;
 	/** Row content (TableCell components) */
-	children: ReactNode;
+	children: React.ReactNode;
 }
 
 /**
@@ -83,15 +83,14 @@ export const TableRow = ({
 	className,
 	children,
 }: TableRowProps) => {
-	const rowClasses = [
+	const rowClasses = cn(
 		striped && index !== undefined && index % 2 === 1
 			? cls.rowStriped
 			: cls.row,
-		hoverable && `${cls.rowHover} ${cls.rowHoverTransition}`,
+		hoverable && cls.rowHover,
+		hoverable && cls.rowHoverTransition,
 		className,
-	]
-		.filter(Boolean)
-		.join(" ");
+	);
 
 	return (
 		<tr key={rowKey} className={rowClasses}>
