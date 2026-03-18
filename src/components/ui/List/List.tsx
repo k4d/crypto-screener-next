@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
+import { cn } from "@/utils/cn";
 import { ListItem } from "./ListItem";
 import { listClasses as cls } from "./styleClasses";
 
 interface ListProps {
 	/** Array of items to render (strings, numbers, or ReactNode) */
-	items?: ReactNode[];
+	items?: React.ReactNode[];
 	/** Additional CSS classes */
 	className?: string;
 	/** HTML element type (default: "ul", supports "ol" or "div") */
@@ -22,7 +22,7 @@ interface ListProps {
 	/** Empty state text */
 	emptyText?: string;
 	/** Custom children (overrides items) */
-	children?: ReactNode;
+	children?: React.ReactNode;
 }
 
 /**
@@ -115,33 +115,25 @@ export function List({
 	const emptyClass = emptyText ? cls.itemEmpty : "";
 
 	// Combined classes for the list container
-	const listClasses = [cls.list, dividedClass, borderedClass, className]
-		.filter(Boolean)
-		.join(" ");
+	const listClasses = cn(cls.list, dividedClass, borderedClass, className);
 
 	// Combined classes for empty state
-	const emptyStateClasses = [cls.list, borderedClass, emptyClass, className]
-		.filter(Boolean)
-		.join(" ");
+	const emptyStateClasses = cn(cls.list, borderedClass, emptyClass, className);
 
 	// Item classes with striped support
 	const getItemClasses = (itemIndex: number) => {
 		// Check if it's a plain list (no dividers, borders, or stripes)
 		const isPlainList = !divided && !bordered && !striped;
 
-		const classes = [
+		return cn(
 			cls.itemText,
 			// Striped background
-			striped && itemIndex % 2 === 1 ? cls.itemStriped : "",
+			striped && itemIndex % 2 === 1 && cls.itemStriped,
 			// Hover transition
 			hover && cls.itemHoverTransition,
 			// Hover with border radius for plain lists
 			hover && isPlainList && cls.itemHoverRounded,
-		]
-			.filter(Boolean)
-			.join(" ");
-
-		return classes;
+		);
 	};
 
 	// Empty state

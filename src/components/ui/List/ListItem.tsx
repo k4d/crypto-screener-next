@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import { cn } from "@/utils/cn";
 import { listClasses as cls } from "./styleClasses";
 
 interface ListItemProps {
 	/** HTML element type (default: "li", supports "div") */
 	as?: "li" | "div";
 	/** Content of the list item */
-	children: ReactNode;
+	children: React.ReactNode;
 	/** Additional CSS classes */
 	className?: string;
 	/** Show hover effect on list item */
@@ -73,7 +73,7 @@ export const ListItem = ({
 	const hoverClass = hover ? cls.itemHover : "";
 
 	// Combined classes for the list item
-	const classes = [itemClass, hoverClass, className].filter(Boolean).join(" ");
+	const classes = cn(itemClass, hoverClass, className);
 
 	return <Component className={classes}>{children}</Component>;
 };

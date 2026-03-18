@@ -1,4 +1,3 @@
 export { List } from "./List";
 export { ListItem } from "./ListItem";
-export type { ListClasses } from "./styleClasses";
-export { listClasses } from "./styleClasses";
+export { type ListClasses, listClasses } from "./styleClasses";
