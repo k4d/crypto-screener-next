@@ -1,6 +1,3 @@
-import { cn } from "@/utils/cn";
-import { tableClasses as cls } from "./styleClasses";
-
 export interface TableCellProps {
 	/** Text alignment */
 	align?: "left" | "center" | "right";
@@ -51,17 +48,6 @@ export interface TableCellProps {
  * </TableBody>
  * ```
  */
-export const TableCell = ({
-	align = "left",
-	className,
-	children,
-}: TableCellProps) => {
-	const alignClass =
-		align === "center"
-			? cls.cellAlignCenter
-			: align === "right"
-				? cls.cellAlignRight
-				: cls.cellAlignLeft;
-
-	return <td className={cn(alignClass, className)}>{children}</td>;
+export const TableCell = ({ className, children }: TableCellProps) => {
+	return <td className={className}>{children}</td>;
 };

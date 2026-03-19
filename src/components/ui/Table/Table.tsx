@@ -4,6 +4,7 @@ import { TableBody } from "./TableBody";
 import { TableCaption } from "./TableCaption";
 import { TableFooter } from "./TableFooter";
 import { TableHead } from "./TableHead";
+import { getCellClasses, getTableClasses } from "./utils";
 
 type TableCell = string | number | React.ReactNode;
 type TableRow = TableCell[];
@@ -122,18 +123,19 @@ export function Table({
 	children,
 }: TableProps) {
 	// Base table classes
-	const tableClass = cn(cls.table, bordered && cls.tableBordered, className);
+	const tableClass = getTableClasses({
+		bordered,
+		className,
+	});
 
 	// Header classes
 	const headerCellClass = cn(cls.header, cls.headerCell, cls.headerCellText);
 
 	// Cell classes
-	const cellClass = cn(
-		cls.cell,
-		cls.cellText,
-		compact ? cls.cellCompact : cls.cellDefault,
-		bordered && cls.cellBordered,
-	);
+	const cellClass = getCellClasses({
+		compact,
+		bordered,
+	});
 
 	// Footer cell classes (without uppercase)
 	const footerCellClass = cellClass;

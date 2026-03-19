@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
 import { TableCell } from "./TableCell";
 import { TableEmpty } from "./TableEmpty";
 import { TableRow } from "./TableRow";
+import { getRowClasses } from "./utils";
 
 interface TableBodyProps {
 	/** Array of rows, each row is an array of cells (2D array) */
-	rows?: ReactNode[][];
+	rows?: React.ReactNode[][];
 	/** Class name for each cell */
 	cellClassName?: string;
 	/** Enable striped rows (alternating colors) */
@@ -61,7 +61,7 @@ interface TableBodyProps {
  * // Advanced mode with children
  * <TableBody>
  *   {rows.map((row, index) => (
- *     <TableRow rowKey={index} index={index} striped>
+ *     <TableRow rowKey={index} className="bg-gray-50">
  *       <TableCell>{row.name}</TableCell>
  *       <TableCell align="right">{row.price}</TableCell>
  *     </TableRow>
@@ -95,9 +95,11 @@ export const TableBody = ({
 					? rows.map((row, rowIndex) => (
 							<TableBody.Row
 								key={`row-${rowIndex}`}
-								index={rowIndex}
-								striped={striped}
-								hoverable={hoverable}
+								className={getRowClasses({
+									index: rowIndex,
+									striped,
+									hoverable,
+								})}
 							>
 								{row.map((cell, cellIndex) => (
 									<TableBody.Cell

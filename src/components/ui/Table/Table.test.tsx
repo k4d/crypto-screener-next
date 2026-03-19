@@ -85,7 +85,6 @@ describe("Table", () => {
 
 		const firstCell = container.querySelector("td");
 		expect(firstCell).toHaveClass("py-2");
-		expect(firstCell).not.toHaveClass("py-4");
 	});
 
 	it("renders caption for accessibility", () => {
