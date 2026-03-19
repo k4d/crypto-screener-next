@@ -2,13 +2,47 @@ import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
 /**
+ * Options for generating row classes.
+ */
+export interface GetRowClassesOptions {
+	/** Row index (for striped rows) */
+	index?: number;
+	/** Enable striped rows (alternating colors) */
+	striped?: boolean;
+	/** Enable hover effect on rows */
+	hoverable?: boolean;
+	/** Additional CSS classes */
+	className?: string;
+}
+
+/**
+ * Options for generating cell classes.
+ */
+export interface GetCellClassesOptions {
+	/** Compact row height */
+	compact?: boolean;
+	/** Border around table and cells */
+	bordered?: boolean;
+	/** Text alignment (default: "left") */
+	align?: "left" | "center" | "right";
+	/** Additional CSS classes */
+	className?: string;
+}
+
+/**
+ * Options for generating table classes.
+ */
+export interface GetTableClassesOptions {
+	/** Border around table and cells */
+	bordered?: boolean;
+	/** Additional CSS classes */
+	className?: string;
+}
+
+/**
  * Get row classes with dynamic options.
  *
  * @param options - Row options
- * @param options.index - Row index (for striped rows)
- * @param options.striped - Enable striped rows (alternating colors)
- * @param options.hoverable - Enable hover effect on rows
- * @param options.className - Additional CSS classes
  * @returns Merged class names for the row
  *
  * @example
@@ -20,12 +54,7 @@ import { tableClasses as cls } from "./styleClasses";
  * });
  * ```
  */
-export function getRowClasses(options: {
-	index?: number;
-	striped?: boolean;
-	hoverable?: boolean;
-	className?: string;
-}): string {
+export function getRowClasses(options: GetRowClassesOptions): string {
 	return cn(
 		options.striped && options.index !== undefined && options.index % 2 === 1
 			? cls.rowStriped
@@ -40,10 +69,6 @@ export function getRowClasses(options: {
  * Get cell classes with dynamic options.
  *
  * @param options - Cell options
- * @param options.compact - Compact row height
- * @param options.bordered - Border around table and cells
- * @param options.align - Text alignment (default: "left")
- * @param options.className - Additional CSS classes
  * @returns Merged class names for the cell
  *
  * @example
@@ -55,12 +80,7 @@ export function getRowClasses(options: {
  * });
  * ```
  */
-export function getCellClasses(options: {
-	compact?: boolean;
-	bordered?: boolean;
-	align?: "left" | "center" | "right";
-	className?: string;
-}): string {
+export function getCellClasses(options: GetCellClassesOptions): string {
 	return cn(
 		cls.cell,
 		cls.cellText,
@@ -76,8 +96,6 @@ export function getCellClasses(options: {
  * Get table classes with dynamic options.
  *
  * @param options - Table options
- * @param options.bordered - Border around table and cells
- * @param options.className - Additional CSS classes
  * @returns Merged class names for the table
  *
  * @example
@@ -88,10 +106,7 @@ export function getCellClasses(options: {
  * });
  * ```
  */
-export function getTableClasses(options: {
-	bordered?: boolean;
-	className?: string;
-}): string {
+export function getTableClasses(options: GetTableClassesOptions): string {
 	return cn(
 		cls.table,
 		options.bordered && cls.tableBordered,
