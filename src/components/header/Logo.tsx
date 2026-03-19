@@ -21,8 +21,9 @@ export const Logo = () => {
 				<Activity size={16} className="text-white" />
 			</div>
 			<div className="flex flex-col gap-0.5">
-				<span className="leading-none font-semibold text-base text-zinc-800 dark:text-gray-200 tracking-tighter">
-					Crypto Screener
+				<span className="leading-none text-base text-zinc-800 dark:text-gray-200 tracking-tighter">
+					<span className="font-extrabold">Crypto</span>
+					<span className="font-medium">Screener</span>
 				</span>
 				<span className="font-normal text-xs text-zinc-500">
 					Real-time asset monitoring
