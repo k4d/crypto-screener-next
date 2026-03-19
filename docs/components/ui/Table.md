@@ -67,6 +67,7 @@ import { Table } from "@/components/ui";
 
 ```tsx
 import { Table } from "@/components/ui";
+import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 
 <Table>
   <Table.Caption>Cryptocurrency prices</Table.Caption>
@@ -75,10 +76,23 @@ import { Table } from "@/components/ui";
     <TableColumn columnKey="price" align="right">Price</TableColumn>
   </Table.Head>
   <Table.Body>
-    <TableRow rowKey="1">
-      <TableCell>Bitcoin</TableCell>
-      <TableCell align="right">$63,022</TableCell>
-    </TableRow>
+    {rows.map((row, index) => (
+      <TableRow
+        rowKey={row.id}
+        className={getRowClasses({
+          index,
+          striped: true,
+          hoverable: true,
+        })}
+      >
+        <TableCell className={getCellClasses({ align: "left" })}>
+          {row.name}
+        </TableCell>
+        <TableCell className={getCellClasses({ align: "right" })}>
+          {row.price}
+        </TableCell>
+      </TableRow>
+    ))}
   </Table.Body>
   <Table.Footer>
     <TableRow rowKey="footer">
@@ -132,14 +146,11 @@ import { Table } from "@/components/ui";
 
 ### TableRow
 
-| Prop        | Тип       | По умолчанию | Описание                    |
-| ----------- | --------- | ------------ | --------------------------- |
-| **index**   | `number`  | —            | Индекс строки (для striped) |
-| **rowKey**  | `string`  | —            | Уникальный ключ строки      |
-| **striped** | `boolean` | `false`      | Полосатая строка            |
-| **hoverable** | `boolean` | `false`    | Hover эффект                |
-| **className** | `string`  | —          | Дополнительные классы       |
-| **children**  | `ReactNode` | —        | Содержимое строки (TableCell) |
+| Prop          | Тип           | По умолчанию | Описание                          |
+| ------------- | ------------- | ------------ | --------------------------------- |
+| **rowKey**    | `string`      | —            | Уникальный ключ строки            |
+| **className** | `string`      | —            | Классы от getRowClasses()         |
+| **children**  | `ReactNode`   | —            | Содержимое строки (TableCell)     |
 
 ### TableCell
 
@@ -252,21 +263,31 @@ tableClasses.caption           // Заголовок (accessibility)
 />
 ```
 
-### Advanced Table with Custom Alignment
+### Advanced Table with Utilities
 
 ```tsx
+import { Table } from "@/components/ui";
+import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
+
 <Table>
   <Table.Head>
     <TableColumn columnKey="name" align="left">Name</TableColumn>
     <TableColumn columnKey="price" align="right">Price</TableColumn>
-    <TableColumn columnKey="change" align="right">24h Change</TableColumn>
   </Table.Head>
   <Table.Body>
-    <TableRow rowKey="1">
-      <TableCell>Bitcoin</TableCell>
-      <TableCell align="right">$63,022</TableCell>
-      <TableCell align="right" className="text-green-600">+2.5%</TableCell>
-    </TableRow>
+    {rows.map((row, i) => (
+      <TableRow
+        rowKey={row.id}
+        className={getRowClasses({ index: i, striped: true })}
+      >
+        <TableCell className={getCellClasses({ align: "left" })}>
+          {row.name}
+        </TableCell>
+        <TableCell className={getCellClasses({ align: "right" })}>
+          {row.price}
+        </TableCell>
+      </TableRow>
+    ))}
   </Table.Body>
 </Table>
 ```
@@ -274,6 +295,53 @@ tableClasses.caption           // Заголовок (accessibility)
 ---
 
 ## 🔧 Утилиты
+
+### getRowClasses()
+
+Генерация классов для строки с учётом striped, hover:
+
+```tsx
+import { getRowClasses } from "@/components/ui/Table/utils";
+
+const rowClasses = getRowClasses({
+  index: 0,
+  striped: true,
+  hoverable: true,
+});
+
+// Returns: "bg-gray-50 hover:bg-gray-100 transition-colors duration-150"
+```
+
+### getCellClasses()
+
+Генерация классов для ячейки с учётом compact, bordered, align:
+
+```tsx
+import { getCellClasses } from "@/components/ui/Table/utils";
+
+const cellClass = getCellClasses({
+  compact: true,
+  bordered: false,
+  align: "right",
+});
+
+// Returns: "px-4 whitespace-nowrap text-sm font-medium text-gray-600 py-2 text-right"
+```
+
+### getTableClasses()
+
+Генерация классов для таблицы:
+
+```tsx
+import { getTableClasses } from "@/components/ui/Table/utils";
+
+const tableClass = getTableClasses({
+  bordered: true,
+  className: "custom-class",
+});
+
+// Returns: "min-w-full divide-y divide-gray-200 border custom-class"
+```
 
 ### cn()
 
