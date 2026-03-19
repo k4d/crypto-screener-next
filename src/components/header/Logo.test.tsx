@@ -32,10 +32,14 @@ describe("Logo", () => {
 	it("renders the logo text", () => {
 		render(<Logo />);
 
-		const logoText = screen.getByText(/crypto screener/i);
+		// Text is split into two spans: "Crypto" and "Screener"
+		const cryptoText = screen.getByText(/crypto/i);
+		const screenerText = screen.getByText(/screener/i);
 
-		expect(logoText).toBeInTheDocument();
-		expect(logoText).toHaveClass("text-base");
+		expect(cryptoText).toBeInTheDocument();
+		expect(screenerText).toBeInTheDocument();
+		expect(cryptoText).toHaveClass("font-extrabold");
+		expect(screenerText).toHaveClass("font-medium");
 	});
 
 	it("has violet background color", () => {
