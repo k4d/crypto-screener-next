@@ -148,4 +148,115 @@ describe("Table", () => {
 		expect(firstHeader).toHaveClass("uppercase");
 		expect(firstHeader).toHaveClass("tracking-wider");
 	});
+
+	// Hybrid Mode Tests
+	it("renders custom Footer in hybrid mode", () => {
+		render(
+			<Table headers={headers} rows={rows} striped>
+				<Table.Footer colSpan={3}>Custom Footer</Table.Footer>
+			</Table>,
+		);
+
+		expect(screen.getByText("Custom Footer")).toBeInTheDocument();
+		expect(screen.getByText("Bitcoin")).toBeInTheDocument();
+	});
+
+	it("renders custom Head in hybrid mode", () => {
+		render(
+			<Table rows={rows} striped>
+				<Table.Head>
+					<Table.Column columnKey="coin">Coin</Table.Column>
+					<Table.Column columnKey="price">Price</Table.Column>
+				</Table.Head>
+			</Table>,
+		);
+
+		expect(screen.getByText("Coin")).toBeInTheDocument();
+		expect(screen.getByText("Price")).toBeInTheDocument();
+		expect(screen.getByText("Bitcoin")).toBeInTheDocument();
+	});
+
+	it("renders custom Empty when rows is empty", () => {
+		render(
+			<Table headers={headers} rows={[]} striped>
+				<Table.Empty colSpan={3}>Custom Empty</Table.Empty>
+			</Table>,
+		);
+
+		expect(screen.getByText("Custom Empty")).toBeInTheDocument();
+	});
+
+	it("ignores Empty when rows has data", () => {
+		render(
+			<Table headers={headers} rows={rows} striped>
+				<Table.Empty colSpan={3}>Should Not Render</Table.Empty>
+			</Table>,
+		);
+
+		expect(screen.queryByText("Should Not Render")).not.toBeInTheDocument();
+		expect(screen.getByText("Bitcoin")).toBeInTheDocument();
+	});
+
+	it("renders custom Head and Footer together", () => {
+		render(
+			<Table rows={rows} striped>
+				<Table.Head>
+					<Table.Column columnKey="name">Custom Name</Table.Column>
+				</Table.Head>
+				<Table.Footer colSpan={1}>Custom Footer</Table.Footer>
+			</Table>,
+		);
+
+		expect(screen.getByText("Custom Name")).toBeInTheDocument();
+		expect(screen.getByText("Custom Footer")).toBeInTheDocument();
+	});
+
+	// Optional Headers Tests
+	it("renders without headers (optional headers)", () => {
+		render(
+			<Table rows={rows} striped>
+				<Table.Head>
+					<Table.Column columnKey="name">Only Custom</Table.Column>
+				</Table.Head>
+			</Table>,
+		);
+
+		expect(screen.getByText("Only Custom")).toBeInTheDocument();
+		expect(screen.getByText("Bitcoin")).toBeInTheDocument();
+	});
+
+	// data-row-key Tests
+	it("adds data-row-key attribute to rows", () => {
+		const { container } = render(<Table headers={headers} rows={rows} />);
+
+		const firstRow = container.querySelector("tbody tr");
+		expect(firstRow?.getAttribute("data-row-key")).toBe("Bitcoin");
+	});
+
+	// Caption Tests
+	it("renders custom Caption in hybrid mode", () => {
+		render(
+			<Table rows={rows}>
+				<Table.Caption>Custom Caption</Table.Caption>
+			</Table>,
+		);
+
+		const caption = screen.getByText("Custom Caption");
+		expect(caption).toBeInTheDocument();
+		expect(caption.tagName).toBe("CAPTION");
+	});
+
+	it("prioritizes custom Caption over captionContent", () => {
+		render(
+			<Table captionContent="Auto Caption">
+				<Table.Caption>Custom Caption</Table.Caption>
+				<Table.Head>
+					<Table.Column columnKey="name">Name</Table.Column>
+				</Table.Head>
+			</Table>,
+		);
+
+		expect(screen.getByText("Custom Caption")).toBeInTheDocument();
+		expect(screen.queryByText("Auto Caption")).not.toBeInTheDocument();
+	});
 });

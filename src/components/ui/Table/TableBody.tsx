@@ -102,6 +102,7 @@ export const TableBody = ({
 							return (
 								<TableBody.Row
 									key={rowKey}
+									rowKey={rowKey}
 									className={getRowClasses({
 										index: rowIndex,
 										striped,
