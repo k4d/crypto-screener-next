@@ -147,17 +147,23 @@ export function List({
 		<div className={cls.container}>
 			<Component className={listClasses}>
 				{children ??
-					items?.map((item, index) => (
-						<List.Item
-							as={itemTag}
-							hover={hover}
-							compact={compact}
-							className={getItemClasses(index)}
-							key={index}
-						>
-							{item}
-						</List.Item>
-					))}
+					items?.map((item, index) => {
+						const key =
+							typeof item === "string" || typeof item === "number"
+								? String(item)
+								: `item-${index}`;
+						return (
+							<List.Item
+								as={itemTag}
+								hover={hover}
+								compact={compact}
+								className={getItemClasses(index)}
+								key={key}
+							>
+								{item}
+							</List.Item>
+						);
+					})}
 			</Component>
 		</div>
 	);
