@@ -1,13 +1,15 @@
 import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
-interface TableEmptyProps {
+export interface TableEmptyProps {
 	/** Number of columns to span (colSpan) */
 	colSpan?: number;
 	/** Custom class name for styling */
 	className?: string;
 	/** Empty state content (text or ReactNode) */
-	emptyContent: React.ReactNode;
+	emptyContent?: React.ReactNode;
+	/** Empty state children (overrides emptyContent) */
+	children?: React.ReactNode;
 }
 
 /**
@@ -62,6 +64,7 @@ export const TableEmpty = ({
 	colSpan = 1,
 	className,
 	emptyContent,
+	children,
 }: TableEmptyProps) => {
 	return (
 		<tr>
@@ -69,7 +72,7 @@ export const TableEmpty = ({
 				colSpan={colSpan}
 				className={cn(cls.cellEmpty, cls.cellEmptyText, className)}
 			>
-				{emptyContent}
+				{children ?? emptyContent}
 			</td>
 		</tr>
 	);

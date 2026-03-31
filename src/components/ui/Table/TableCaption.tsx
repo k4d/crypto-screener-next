@@ -1,8 +1,10 @@
 import { tableClasses as cls } from "./styleClasses";
 
-interface TableCaptionProps {
+export interface TableCaptionProps {
 	/** Caption content text */
-	captionContent: string;
+	captionContent?: string;
+	/** Caption children */
+	children?: React.ReactNode;
 }
 
 /**
@@ -13,6 +15,7 @@ interface TableCaptionProps {
  *
  * @param props - Component props
  * @param props.captionContent - Caption content text for accessibility
+ * @param props.children - Caption children (overrides captionContent)
  *
  * @example
  * ```tsx
@@ -23,8 +26,18 @@ interface TableCaptionProps {
  * <Table>
  *   <Table.Caption captionContent="Cryptocurrency prices" />
  * </Table>
+ *
+ * // With children
+ * <Table>
+ *   <Table.Caption>My caption</Table.Caption>
+ * </Table>
  * ```
  */
-export const TableCaption = ({ captionContent }: TableCaptionProps) => {
-	return <caption className={cls.caption}>{captionContent}</caption>;
+export const TableCaption = ({
+	captionContent,
+	children,
+}: TableCaptionProps) => {
+	return (
+		<caption className={cls.caption}>{children ?? captionContent}</caption>
+	);
 };

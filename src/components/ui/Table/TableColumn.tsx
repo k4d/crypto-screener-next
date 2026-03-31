@@ -1,7 +1,7 @@
 import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 
-interface TableColumnProps {
+export interface TableColumnProps {
 	/** Unique key for the column (required for dynamic columns) */
 	columnKey: string;
 	/** Text alignment */

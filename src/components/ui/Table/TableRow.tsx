@@ -37,7 +37,7 @@ export interface TableRowProps {
  */
 export const TableRow = ({ rowKey, className, children }: TableRowProps) => {
 	return (
-		<tr key={rowKey} className={className}>
+		<tr key={rowKey} data-row-key={rowKey} className={className}>
 			{children}
 		</tr>
 	);

@@ -1,7 +1,9 @@
+import { Children, isValidElement } from "react";
 import { cn } from "@/utils/cn";
 import { tableClasses as cls } from "./styleClasses";
 import { TableBody } from "./TableBody";
 import { TableCaption } from "./TableCaption";
+import { TableEmpty } from "./TableEmpty";
 import { TableFooter } from "./TableFooter";
 import { TableHead } from "./TableHead";
 import { getCellClasses, getTableClasses } from "./utils";
@@ -11,7 +13,7 @@ type TableRow = TableCell[];
 
 interface TableProps {
 	/** Table headers */
-	headers: TableCell[];
+	headers?: TableCell[];
 	/** Table rows (array of arrays) */
 	rows: TableRow[];
 	/** Additional CSS classes */
@@ -51,61 +53,51 @@ interface TableProps {
  * @param props.compact - Compact row height (default: false)
  * @param props.captionContent - Table caption for accessibility (default: undefined)
  * @param props.footerContent - Table footer content (default: undefined)
- * @param props.children - Custom children for advanced mode (default: undefined)
+ * @param props.children - Custom children for hybrid/advanced mode (default: undefined)
  *
  * @example
  * ```tsx
- * // Basic table
- * <Table
- *   headers={['Coin', 'Price', '24h %']}
- *   rows={[
- *     ['Bitcoin', '$63,022', '+2.5%'],
- *     ['Ethereum', '$3,456', '+1.8%'],
- *   ]}
- * />
- *
- * // Striped table with hover
+ * // Basic mode (auto-generation)
  * <Table
  *   headers={['Coin', 'Price']}
- *   rows={[...]}
+ *   rows={[['Bitcoin', '$63,022']]}
  *   striped
- *   hoverable
  * />
  *
- * // Compact bordered table with caption
+ * // Hybrid mode (auto + custom Footer)
  * <Table
  *   headers={['Coin', 'Price']}
- *   rows={[...]}
- *   compact
- *   bordered
- *   captionContent="Cryptocurrency prices"
- * />
+ *   rows={[['Bitcoin', '$63,022']]}
+ *   striped
+ * >
+ *   <Table.Footer colSpan={2}>
+ *     <div className="font-bold">Total: $63,022</div>
+ *   </Table.Footer>
+ * </Table>
  *
- * // Table with footer
+ * // Hybrid mode (auto + custom Head + Footer)
  * <Table
  *   headers={['Coin', 'Price']}
- *   rows={[...]}
- *   footerContent="Total: 2 coins"
- * />
+ *   rows={[['Bitcoin', '$63,022']]}
+ *   striped
+ * >
+ *   <Table.Head>
+ *     <Table.Column columnKey="name">Custom Name</Table.Column>
+ *   </Table.Head>
+ *   <Table.Footer colSpan={2}>Custom Footer</Table.Footer>
+ * </Table>
  *
- * // Advanced mode with custom components
+ * // Advanced mode (fully custom)
  * <Table>
  *   <Table.Caption>Cryptocurrency prices</Table.Caption>
  *   <Table.Head>
- *     <TableColumn columnKey="name">Name</TableColumn>
- *     <TableColumn columnKey="price">Price</TableColumn>
+ *     <Table.Column columnKey="name">Name</Table.Column>
  *   </Table.Head>
  *   <Table.Body>
- *     <TableRow rowKey="1">
- *       <TableCell>Bitcoin</TableCell>
- *       <TableCell>$63,022</TableCell>
- *     </TableRow>
+ *     <Table.Row>
+ *       <Table.Cell>Bitcoin</Table.Cell>
+ *     </Table.Row>
  *   </Table.Body>
- *   <Table.Footer>
- *     <TableRow rowKey="footer">
- *       <TableCell colSpan={2}>Total: $63,022</TableCell>
- *     </TableRow>
- *   </Table.Footer>
  * </Table>
  * ```
  */
@@ -137,8 +129,43 @@ export function Table({
 		bordered,
 	});
 
-	// Footer cell classes (without uppercase)
+	// Footer cell classes
 	const footerCellClass = cellClass;
+
+	// Filter children once (Hybrid mode)
+	const childrenArray = Children.toArray(children);
+	const filteredCaption = childrenArray.filter(
+		(child) =>
+			isValidElement(child) &&
+			(child.type === TableCaption || child.type === Table.Caption),
+	);
+	const filteredHead = childrenArray.filter(
+		(child) =>
+			isValidElement(child) &&
+			(child.type === TableHead || child.type === Table.Head),
+	);
+	const filteredBody = childrenArray.filter(
+		(child) =>
+			isValidElement(child) &&
+			(child.type === TableBody || child.type === Table.Body),
+	);
+	const filteredFooter = childrenArray.filter(
+		(child) =>
+			isValidElement(child) &&
+			(child.type === TableFooter || child.type === Table.Footer),
+	);
+	const filteredEmpty = childrenArray.filter(
+		(child) =>
+			isValidElement(child) &&
+			(child.type === TableEmpty || child.type === TableBody.Empty),
+	);
+
+	// Check which components exist
+	const hasCaption = filteredCaption.length > 0;
+	const hasHead = filteredHead.length > 0;
+	const hasBody = filteredBody.length > 0;
+	const hasFooter = filteredFooter.length > 0;
+	const hasEmpty = filteredEmpty.length > 0;
 
 	return (
 		<div className={cls.container}>
@@ -149,32 +176,64 @@ export function Table({
 				data-compact={compact || undefined}
 				data-bordered={bordered || undefined}
 			>
-				{children ?? (
-					<>
-						{/* Caption component */}
-						{captionContent && (
-							<Table.Caption captionContent={captionContent} />
-						)}
-						{/* Head component */}
-						<Table.Head columns={headers} columnClassName={headerCellClass} />
-						{/* Body component */}
-						<Table.Body
-							rows={rows}
-							striped={striped}
-							hoverable={hoverable}
-							cellClassName={cellClass}
-							emptyContent={emptyContent}
-							emptyColSpan={headers.length}
-						/>
-						{/* Footer component */}
-						{footerContent && (
-							<Table.Footer
-								colSpan={headers.length}
-								className={footerCellClass}
-								footerContent={footerContent}
-							/>
-						)}
-					</>
+				{/* Custom Caption → render if present */}
+				{hasCaption && filteredCaption}
+
+				{/* Caption: Auto */}
+				{!hasCaption && captionContent && (
+					<Table.Caption captionContent={captionContent} />
+				)}
+
+				{/* Custom Head → render if present */}
+				{hasHead && filteredHead}
+
+				{/* Head: Auto */}
+				{!hasHead && headers && headers.length > 0 && (
+					<Table.Head columns={headers} columnClassName={headerCellClass} />
+				)}
+
+				{/* If Table.Empty exists AND no rows → render Empty in tbody */}
+				{hasEmpty && rows.length === 0 && !hasBody && (
+					<tbody>{filteredEmpty}</tbody>
+				)}
+
+				{/* If no Empty and no Body → auto-generate Body */}
+				{!hasBody && !hasEmpty && (
+					<Table.Body
+						rows={rows}
+						striped={striped}
+						hoverable={hoverable}
+						cellClassName={cellClass}
+						emptyContent={emptyContent}
+						emptyColSpan={headers?.length ?? 1}
+					/>
+				)}
+
+				{/* Custom Body → only if has rows */}
+				{hasBody && rows.length > 0 && children}
+
+				{/* Auto Body when Empty exists but has rows → render rows */}
+				{hasEmpty && rows.length > 0 && !hasBody && (
+					<Table.Body
+						rows={rows}
+						striped={striped}
+						hoverable={hoverable}
+						cellClassName={cellClass}
+						emptyContent={emptyContent}
+						emptyColSpan={headers?.length ?? 1}
+					/>
+				)}
+
+				{/* Custom Footer → render if present */}
+				{hasFooter && filteredFooter}
+
+				{/* Footer: Auto */}
+				{!hasFooter && !hasEmpty && footerContent && (
+					<Table.Footer
+						colSpan={headers?.length ?? 1}
+						className={footerCellClass}
+						footerContent={footerContent}
+					/>
 				)}
 			</table>
 		</div>
@@ -189,5 +248,15 @@ Table.Row = TableBody.Row;
 Table.Cell = TableBody.Cell;
 Table.Empty = TableBody.Empty;
 Table.Footer = TableFooter;
+
+export type { TableProps };
+export type { TableBodyProps } from "./TableBody";
+export type { TableCaptionProps } from "./TableCaption";
+export type { TableCellProps } from "./TableCell";
+export type { TableColumnProps } from "./TableColumn";
+export type { TableEmptyProps } from "./TableEmpty";
+export type { TableFooterProps } from "./TableFooter";
+export type { TableHeadProps } from "./TableHead";
+export type { TableRowProps } from "./TableRow";
 
 export default Table;

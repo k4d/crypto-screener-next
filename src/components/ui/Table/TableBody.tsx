@@ -3,9 +3,11 @@ import { TableEmpty } from "./TableEmpty";
 import { TableRow } from "./TableRow";
 import { getRowClasses } from "./utils";
 
-interface TableBodyProps {
+type TableRowType = React.ReactNode[];
+
+export interface TableBodyProps {
 	/** Array of rows, each row is an array of cells (2D array) */
-	rows?: React.ReactNode[][];
+	rows?: TableRowType[];
 	/** Class name for each cell */
 	cellClassName?: string;
 	/** Enable striped rows (alternating colors) */
@@ -29,7 +31,7 @@ interface TableBodyProps {
  * Use with TableRow and TableCell for advanced mode.
  *
  * @param props - Component props
- * @param props.items - Array of rows, each row is an array of cells (2D array)
+ * @param props.rows - Array of rows, each row is an array of cells (2D array)
  * @param props.cellClassName - Class name for each cell
  * @param props.striped - Enable striped rows (alternating colors) (default: false)
  * @param props.hoverable - Enable hover effect on rows (default: false)
@@ -91,29 +93,39 @@ export const TableBody = ({
 	return (
 		<tbody className={className}>
 			{children ??
-				(rows && rows.length > 0
-					? rows.map((row, rowIndex) => (
-							<TableBody.Row
-								key={`row-${rowIndex}`}
-								className={getRowClasses({
-									index: rowIndex,
-									striped,
-									hoverable,
-								})}
-							>
-								{row.map((cell, cellIndex) => (
-									<TableBody.Cell
-										key={`cell-${rowIndex}-${cellIndex}`}
-										className={cellClassName}
-									>
-										{cell}
-									</TableBody.Cell>
-								))}
-							</TableBody.Row>
-						))
+				(rows?.length
+					? rows.map((row, rowIndex) => {
+							const rowKey =
+								row[0] !== undefined && row[0] !== null
+									? String(row[0])
+									: `row-${rowIndex}`;
+							return (
+								<TableBody.Row
+									key={rowKey}
+									className={getRowClasses({
+										index: rowIndex,
+										striped,
+										hoverable,
+									})}
+								>
+									{row.map((cell, cellIndex) => {
+										const cellKey = `${rowKey}-cell-${cellIndex}`;
+										return (
+											<TableBody.Cell key={cellKey} className={cellClassName}>
+												{cell}
+											</TableBody.Cell>
+										);
+									})}
+								</TableBody.Row>
+							);
+						})
 					: emptyContent && (
 							<TableBody.Empty
-								colSpan={emptyColSpan}
+								colSpan={
+									emptyColSpan !== undefined && emptyColSpan > 0
+										? emptyColSpan
+										: 1
+								}
 								emptyContent={emptyContent}
 							/>
 						))}

@@ -1,8 +1,8 @@
 import { TableColumn } from "./TableColumn";
 
-interface TableHeadProps {
+export interface TableHeadProps {
 	/** Array of column headers (strings, numbers, or ReactNodes) */
-	columns: React.ReactNode[];
+	columns?: React.ReactNode[];
 	/** Common class name for all column cells */
 	columnClassName?: string;
 	/** Class name for thead element */
@@ -65,10 +65,10 @@ export const TableHead = ({
 		<thead className={className}>
 			<tr>
 				{children ??
-					columns.map((column, index) => (
+					columns?.map((column, index) => (
 						<TableHead.Column
-							key={`column-${index}`}
-							columnKey={`column-${index}`}
+							key={`column-${String(column)}-${index}`}
+							columnKey={String(column)}
 							className={columnClassName}
 						>
 							{column}
