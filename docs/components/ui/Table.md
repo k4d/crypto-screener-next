@@ -63,43 +63,88 @@ import { Table } from "@/components/ui";
 />
 ```
 
-### Продвинутый режим
+### Гибридный режим (Hybrid Mode)
+
+Table поддерживает **гибридный режим** — комбинация auto-генерации и кастомных компонентов:
+
+```tsx
+// Hybrid: Auto Header + Auto Body + Custom Footer
+<Table
+  headers={['Coin', 'Price']}
+  rows={[['Bitcoin', '$63,022']]}
+  striped
+>
+  <Table.Footer colSpan={2}>
+    <div className="font-bold">Total: $63,022</div>
+  </Table.Footer>
+</Table>
+
+// Hybrid: Custom Header + Auto Body + Custom Footer
+<Table
+  headers={['Coin', 'Price']}
+  rows={[['Bitcoin', '$63,022']]}
+  striped
+>
+  <Table.Head>
+    <Table.Column columnKey="name" align="left">Custom Name</Table.Column>
+    <Table.Column columnKey="price" align="right">Custom Price</Table.Column>
+  </Table.Head>
+  <Table.Footer colSpan={2}>Custom Footer</Table.Footer>
+</Table>
+
+// Hybrid: Auto Header + Custom Empty + Auto Footer
+<Table
+  headers={['Coin', 'Price']}
+  rows={[]}  // ← Пустые данные
+  striped
+>
+  <Table.Empty colSpan={2}>
+    <div className="flex flex-col items-center gap-2">
+      <span className="text-4xl">😔</span>
+      <p>No cryptocurrencies found</p>
+    </div>
+  </Table.Empty>
+  <Table.Footer colSpan={2}>Footer content</Table.Footer>
+</Table>
+```
+
+**Важно:** 
+- `<Table.Empty>` рендерится **только когда `rows.length === 0`**
+- Если `rows` с данными, Empty игнорируется, рендерятся данные
+- `headers` **опционально** — можно использовать только кастомный `<Table.Head>`
+
+### Продвинутый режим (Advanced Mode)
+
+Полностью кастомная таблица с compound компонентами:
 
 ```tsx
 import { Table } from "@/components/ui";
-import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 
 <Table>
   <Table.Caption>Cryptocurrency prices</Table.Caption>
   <Table.Head>
-    <TableColumn columnKey="name">Name</TableColumn>
-    <TableColumn columnKey="price" align="right">Price</TableColumn>
+    <Table.Column columnKey="name" align="left">Name</Table.Column>
+    <Table.Column columnKey="price" align="right">Price</Table.Column>
   </Table.Head>
   <Table.Body>
-    {rows.map((row, index) => (
-      <TableRow
-        rowKey={row.id}
-        className={getRowClasses({
-          index,
-          striped: true,
-          hoverable: true,
-        })}
-      >
-        <TableCell className={getCellClasses({ align: "left" })}>
-          {row.name}
-        </TableCell>
-        <TableCell className={getCellClasses({ align: "right" })}>
-          {row.price}
-        </TableCell>
-      </TableRow>
+    {rows.map((row) => (
+      <Table.Row rowKey={row.id}>
+        <Table.Cell align="left">{row.name}</Table.Cell>
+        <Table.Cell align="right">{row.price}</Table.Cell>
+      </Table.Row>
     ))}
   </Table.Body>
-  <Table.Footer>
-    <TableRow rowKey="footer">
-      <TableCell colSpan={2}>Total: $63,022</TableCell>
-    </TableRow>
+  <Table.Footer colSpan={2}>
+    <div className="font-bold">Total: $63,022</div>
   </Table.Footer>
 </Table>
+```
+
+**Для тестирования:** используйте `data-row-key` для селекта строк:
+
+```tsx
+// В тестах
+const row = screen.getByTestId('row-bitcoin'); // или [data-row-key="bitcoin"]
 ```
 
 ---
@@ -110,7 +155,7 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 
 | Prop               | Тип                  | По умолчанию | Описание                                      |
 | ------------------ | -------------------- | ------------ | --------------------------------------------- |
-| **headers**        | `TableCell[]`        | —            | Заголовки таблицы (массив строк/чисел)        |
+| **headers**        | `TableCell[]`        | —            | Заголовки таблицы (массив строк/чисел). **Опционально** (можно использовать только кастомный `<Table.Head>`) |
 | **rows**           | `TableRow[]`         | —            | Строки таблицы (массив массивов)              |
 | **className**      | `string`             | —            | Дополнительные CSS классы                     |
 | **emptyContent**   | `string`             | `"No data"`  | Текст для пустого состояния                   |
@@ -119,8 +164,8 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 | **bordered**       | `boolean`            | `false`      | Рамка вокруг таблицы и ячеек                  |
 | **compact**        | `boolean`            | `false`      | Компактный режим (уменьшенные отступы)        |
 | **captionContent** | `string`             | —            | Заголовок таблицы (accessibility)             |
-| **footerContent**  | `ReactNode`          | —            | Содержимое подвала таблицы                    |
-| **children**       | `ReactNode`          | —            | Кастомные дети (продвинутый режим)            |
+| **footerContent**  | `ReactNode`          | —            | Содержимое подвала таблицы (auto-режим)       |
+| **children**       | `ReactNode`          | —            | Кастомные дети (продвинутый/гибридный режим)  |
 
 ### TableHead
 
@@ -129,28 +174,28 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 | **columns**         | `ReactNode[]`   | —            | Массив заголовков колонок         |
 | **columnClassName** | `string`        | —            | Класс для всех ячеек заголовка    |
 | **className**       | `string`        | —            | Класс для thead элемента          |
-| **children**        | `ReactNode`     | —            | Кастомные дети (TableColumn)      |
+| **children**        | `ReactNode`     | —            | Кастомные дети (`<Table.Column>`) |
 
 ### TableBody
 
 | Prop            | Тип             | По умолчанию | Описание                          |
 | --------------- | --------------- | ------------ | --------------------------------- |
-| **rows**        | `ReactNode[][]` | —            | Массив строк (2D массив)          |
+| **rows**        | `TableRowType[]` | —            | Массив строк (2D массив)          |
 | **cellClassName** | `string`      | —            | Класс для каждой ячейки           |
 | **striped**     | `boolean`       | `false`      | Полосатые строки                  |
 | **hoverable**   | `boolean`       | `false`      | Hover эффект                      |
 | **emptyContent** | `ReactNode`    | —            | Пустое состояние                  |
 | **emptyColSpan** | `number`       | —            | ColSpan для пустого состояния     |
 | **className**   | `string`        | —            | Класс для tbody элемента          |
-| **children**    | `ReactNode`     | —            | Кастомные дети (TableRow)         |
+| **children**    | `ReactNode`     | —            | Кастомные дети (`<Table.Row>`)    |
 
 ### TableRow
 
 | Prop          | Тип           | По умолчанию | Описание                          |
 | ------------- | ------------- | ------------ | --------------------------------- |
-| **rowKey**    | `string`      | —            | Уникальный ключ строки            |
-| **className** | `string`      | —            | Классы от getRowClasses()         |
-| **children**  | `ReactNode`   | —            | Содержимое строки (TableCell)     |
+| **rowKey**    | `string`      | —            | Уникальный ключ строки (используется как `key` и `data-row-key`) |
+| **className** | `string`      | —            | Классы от `getRowClasses()`       |
+| **children**  | `ReactNode`   | —            | Содержимое строки (`<TableCell>`) |
 
 ### TableCell
 
@@ -173,7 +218,7 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 
 | Prop            | Тип             | По умолчанию | Описание                          |
 | --------------- | --------------- | ------------ | --------------------------------- |
-| **colSpan**     | `number`        | —            | Количество колонок (обязательно)  |
+| **colSpan**     | `number`        | `1`          | Количество колонок (**опционально**) |
 | **footerContent** | `ReactNode`   | —            | Содержимое подвала                |
 | **className**   | `string`        | —            | Дополнительные классы             |
 | **children**    | `ReactNode`     | —            | Кастомные дети (переопределяет footerContent) |
@@ -183,6 +228,7 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 | Prop             | Тип       | По умолчанию | Описание                    |
 | ---------------- | --------- | ------------ | --------------------------- |
 | **captionContent** | `string` | —            | Текст заголовка таблицы     |
+| **children**       | `ReactNode` | —         | Кастомные дети (переопределяет captionContent) |
 
 ### TableEmpty
 
@@ -191,6 +237,7 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 | **colSpan**     | `number`        | `1`          | Количество колонок                |
 | **className**   | `string`        | —            | Дополнительные классы             |
 | **emptyContent** | `ReactNode`    | —            | Содержимое пустого состояния      |
+| **children**    | `ReactNode`     | —            | Кастомные дети (переопределяет emptyContent) |
 
 ---
 
@@ -263,7 +310,55 @@ tableClasses.caption           // Заголовок (accessibility)
 />
 ```
 
-### Advanced Table with Utilities
+### Hybrid Mode: Custom Footer
+
+```tsx
+<Table
+  headers={['Coin', 'Price']}
+  rows={[['Bitcoin', '$63,022']]}
+  striped
+>
+  <Table.Footer colSpan={2}>
+    <div className="flex items-center gap-2 font-bold">
+      <span>Total:</span>
+      <span className="text-green-600">$63,022</span>
+    </div>
+  </Table.Footer>
+</Table>
+```
+
+### Hybrid Mode: Custom Header
+
+```tsx
+<Table
+  rows={[['Bitcoin', '$63,022']]}
+  striped
+>
+  <Table.Head>
+    <Table.Column columnKey="coin" align="left">Coin</Table.Column>
+    <Table.Column columnKey="price" align="right">Price</Table.Column>
+  </Table.Head>
+</Table>
+```
+
+### Hybrid Mode: Custom Empty State
+
+```tsx
+<Table
+  headers={['Coin', 'Price']}
+  rows={[]}  // ← Пустые данные
+  striped
+>
+  <Table.Empty colSpan={2}>
+    <div className="flex flex-col items-center gap-2 py-8">
+      <span className="text-4xl">😔</span>
+      <p className="text-gray-500">No cryptocurrencies found</p>
+    </div>
+  </Table.Empty>
+</Table>
+```
+
+### Advanced Mode: Custom Body с утилитами
 
 ```tsx
 import { Table } from "@/components/ui";
@@ -271,22 +366,19 @@ import { getRowClasses, getCellClasses } from "@/components/ui/Table/utils";
 
 <Table>
   <Table.Head>
-    <TableColumn columnKey="name" align="left">Name</TableColumn>
-    <TableColumn columnKey="price" align="right">Price</TableColumn>
+    <Table.Column columnKey="name" align="left">Name</Table.Column>
+    <Table.Column columnKey="price" align="right">Price</Table.Column>
   </Table.Head>
   <Table.Body>
     {rows.map((row, i) => (
-      <TableRow
-        rowKey={row.id}
-        className={getRowClasses({ index: i, striped: true })}
-      >
-        <TableCell className={getCellClasses({ align: "left" })}>
+      <Table.Row rowKey={row.id}>
+        <Table.Cell className={getCellClasses({ align: "left" })}>
           {row.name}
-        </TableCell>
-        <TableCell className={getCellClasses({ align: "right" })}>
+        </Table.Cell>
+        <Table.Cell className={getCellClasses({ align: "right" })}>
           {row.price}
-        </TableCell>
-      </TableRow>
+        </Table.Cell>
+      </Table.Row>
     ))}
   </Table.Body>
 </Table>
@@ -381,18 +473,19 @@ Table компонент имеет **14 тестов** с полным покр
 
 | Файл                          | Описание                    |
 | ----------------------------- | --------------------------- |
-| `Table.tsx`                   | Основной компонент          |
-| `TableHead.tsx`               | Заголовок таблицы           |
-| `TableBody.tsx`               | Тело таблицы                |
-| `TableRow.tsx`                | Строка таблицы              |
-| `TableCell.tsx`               | Ячейка таблицы              |
-| `TableColumn.tsx`             | Колонка таблицы             |
-| `TableFooter.tsx`             | Подвал таблицы              |
-| `TableCaption.tsx`            | Заголовок (accessibility)   |
-| `TableEmpty.tsx`              | Пустое состояние            |
-| `styleClasses.ts`             | Централизованные стили      |
-| `Table.test.tsx`              | Тесты                       |
-| `index.ts`                    | Экспорты                    |
+| `Table.tsx`                   | Основной компонент (263 строки) |
+| `TableHead.tsx`               | Заголовок таблицы (83 строки) |
+| `TableBody.tsx`               | Тело таблицы (139 строк) |
+| `TableRow.tsx`                | Строка таблицы (45 строк) |
+| `TableCell.tsx`               | Ячейка таблицы (54 строки) |
+| `TableColumn.tsx`             | Колонка таблицы (87 строк) |
+| `TableFooter.tsx`             | Подвал таблицы (70 строк) |
+| `TableCaption.tsx`            | Заголовок (accessibility) (44 строки) |
+| `TableEmpty.tsx`              | Пустое состояние (80 строк) |
+| `styleClasses.ts`             | Централизованные стили (81 строка) |
+| `utils.ts`                    | Утилиты для классов (68 строк) |
+| `Table.test.tsx`              | Тесты (14 тестов) |
+| `index.ts`                    | Экспорты компонентов |
 
 ---
 
@@ -403,5 +496,6 @@ Table компонент имеет **14 тестов** с полным покр
 
 ---
 
-**Дата:** 2025-03-02  
-**Версия:** 1.0.0
+**Дата:** 2026-03-23  
+**Версия:** 1.1.0  
+**Статус:** ✅ Production Ready
