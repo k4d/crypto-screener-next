@@ -30,8 +30,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-GEMINI.md
-
 # env files (can opt-in for committing if needed)
 .env*
 env.local
@@ -45,3 +43,7 @@ next-env.d.ts
 
 # Zed
 .zed
+
+# AI
+GEMINI.md
+QWEN.md
