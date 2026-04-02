@@ -39,6 +39,7 @@ export function CryptoListBox({ coins, className }: CryptoListBoxProps) {
 				<ListBox.Item
 					key={coin.id}
 					id={coin.id}
+					textValue={`${coin.name} ${coin.symbol} ${coin.current_price}`}
 					className="pl-3.5 pr-4 py-2 hover:bg-zinc-100"
 				>
 					<CoinAvatar crypto={coin} size="sm" />
