@@ -48,7 +48,13 @@ const chartData = [
 	{ time: "2024-12-10", open: 88500, high: 93000, low: 88000, close: 92000 },
 	{ time: "2024-12-15", open: 92000, high: 96500, low: 91500, close: 95500 },
 	{ time: "2024-12-20", open: 95500, high: 99000, low: 95000, close: 98200 },
-	{ time: "2024-12-25", open: 98200, high: 102000, low: 97800, close: 101000 },
+	{
+		time: "2024-12-25",
+		open: 98200,
+		high: 102000,
+		low: 97800,
+		close: 101000,
+	},
 	{
 		time: "2024-12-30",
 		open: 101000,
@@ -148,7 +154,7 @@ export default async function DashboardPage() {
 						</div>
 					</Card.Header>
 					<Card.Content>
-						<Chart data={chartData} />
+						<Chart data={chartData} title="Bitcoin Price Chart" showVolume />
 					</Card.Content>
 				</Card>
 
