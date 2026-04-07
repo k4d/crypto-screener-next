@@ -3,11 +3,13 @@ import type {
 	Crypto,
 	CryptoHistory,
 	CryptoListResponse,
+	CryptoOHLCResponse,
 	CryptoSearchResult,
 } from "@/types/crypto";
 import {
 	CryptoHistorySchema,
 	CryptoListResponseSchema,
+	CryptoOHLCResponseSchema,
 	CryptoSchema,
 	CryptoSearchResultsSchema,
 } from "@/types/crypto";
@@ -231,5 +233,40 @@ export async function getCryptoHistory(
 			throw error;
 		}
 		throw new ApiError(500, `Failed to fetch price history for: ${id}`);
+	}
+}
+
+/**
+ * Get cryptocurrency OHLC (Open, High, Low, Close) data from CoinGecko.
+ * @param id - CoinGecko cryptocurrency ID (e.g., "bitcoin")
+ * @param days - Number of days of history (default: 30)
+ * @returns OHLC data array for candlestick charts
+ * @throws {ApiError} If API request fails
+ * @throws {ValidationError} If response data is invalid
+ *
+ * @example
+ * ```tsx
+ * const ohlc = await getCryptoOHLC("bitcoin", 30);
+ * ```
+ */
+export async function getCryptoOHLC(
+	id: string,
+	days = 30,
+): Promise<CryptoOHLCResponse> {
+	const url = `${BASE_URL}/coins/${id}/ohlc?vs_currency=usd&days=${days}`;
+
+	try {
+		const response = await fetch(url, {
+			headers: getHeaders(),
+			next: { revalidate: 300 },
+		});
+
+		return handleResponse(response, CryptoOHLCResponseSchema);
+	} catch (error) {
+		console.error("getCryptoOHLC error:", error);
+		if (error instanceof ApiError || error instanceof ValidationError) {
+			throw error;
+		}
+		throw new ApiError(500, `Failed to fetch OHLC data for: ${id}`);
 	}
 }

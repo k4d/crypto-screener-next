@@ -100,6 +100,20 @@ export const CryptoHistorySchema = z.object({
 });
 
 /**
+ * Zod schema for cryptocurrency OHLC (Open, High, Low, Close) response.
+ * Returns an array of [timestamp, open, high, low, close] tuples.
+ */
+export const CryptoOHLCResponseSchema = z.array(
+	z.tuple([
+		z.number(), // timestamp
+		z.number(), // open
+		z.number(), // high
+		z.number(), // low
+		z.number(), // close
+	]),
+);
+
+/**
  * TypeScript types inferred from Zod schemas.
  * These types are automatically generated and stay in sync with schemas.
  */
@@ -115,3 +129,6 @@ export type CryptoSearchResult = z.infer<typeof CryptoSearchResultSchema>;
 
 /** Price history data with timestamps */
 export type CryptoHistory = z.infer<typeof CryptoHistorySchema>;
+
+/** OHLC data array for candlestick charts */
+export type CryptoOHLCResponse = z.infer<typeof CryptoOHLCResponseSchema>;
