@@ -1,18 +1,18 @@
 # Chart Component
 
-Интерактивный компонент графика для отображения финансовых данных (свечной график).
+Интерактивный компонент графика для отображения финансовых данных.
 
 ---
 
 ## 📖 Обзор
 
-**Chart** — это компонент для визуализации биржевых данных (OHLC) с использованием библиотеки **Lightweight Charts**. Поддерживает свечной график, гистограмму объема, адаптивный размер и кастомизацию сетки.
+**Chart** — это компонент для визуализации биржевых данных с использованием библиотеки **Lightweight Charts**. Поддерживает различные типы графиков (свечи, линия, область и др.), гистограмму объема и адаптивный размер.
 
 ---
 
 ## 🚀 Использование
 
-### Базовый пример
+### Базовый пример (Линейный график)
 
 ```tsx
 import { Chart } from "@/components/ui";
@@ -23,44 +23,48 @@ const data = [
   // ...
 ];
 
+// По умолчанию используется тип "line"
 <Chart data={data} />
 ```
 
-### График с заголовком и размерами
+### Свечной график (Candlestick)
 
 ```tsx
 <Chart
   data={data}
+  type="candlestick"
   title="Bitcoin / USD"
-  width={800}
-  height={400}
-/>
-```
-
-### С гистограммой объема
-
-```tsx
-<Chart
-  data={data}
   showVolume
 />
 ```
 
-### Без сетки
+### График с областью (Area)
 
 ```tsx
 <Chart
   data={data}
-  showGrid={false}
+  type="area"
+  title="Portfolio Growth"
 />
 ```
 
-### С кастомными стилями
+### Другие типы
+
+```tsx
+// Бары (OHLC)
+<Chart data={data} type="bar" />
+
+// Базовая линия (показывает отклонение от первой точки)
+<Chart data={data} type="baseline" />
+```
+
+### Минималистичный график (без осей)
 
 ```tsx
 <Chart
   data={data}
-  className="rounded-xl shadow-lg border border-gray-200"
+  showPriceAxis={false}
+  showTimeAxis={false}
 />
 ```
 
@@ -73,12 +77,15 @@ const data = [
 | Prop          | Тип                  | По умолчанию | Описание                                      |
 | ------------- | -------------------- | ------------ | --------------------------------------------- |
 | **data**      | `CandlestickData[]`  | —            | Массив данных OHLC (обязательно)              |
+| **type**      | `ChartType`          | `"line"`     | Тип графика (`candlestick`, `bar`, `line`, `area`, `baseline`) |
 | **title**     | `string`             | —            | Заголовок графика (опционально)               |
 | **width**     | `number`             | `100%`       | Ширина графика в пикселях                     |
 | **height**    | `number`             | `300`        | Высота графика в пикселях                     |
 | **timeframe** | `string`             | `"30m"`      | Таймфрейм (используется для атрибуции)        |
 | **showGrid**  | `boolean`            | `true`       | Показать сетку                                |
 | **showVolume**| `boolean`            | `false`      | Показать гистограмму объема                   |
+| **showPriceAxis** | `boolean`        | `true`       | Показать шкалу цен (справа)                   |
+| **showTimeAxis**  | `boolean`        | `true`       | Показать шкалу времени (снизу)                |
 | **className** | `string`             | —            | Дополнительные CSS классы для обертки         |
 
 ---
@@ -100,6 +107,7 @@ interface CandlestickData {
 **Важно:**
 - Данные должны быть **отсортированы по времени** (по возрастанию).
 - Временные метки должны быть **уникальными**.
+- Для типов `line`, `area`, `baseline` компонент автоматически использует цену `close`.
 
 ---
 
@@ -108,9 +116,9 @@ interface CandlestickData {
 Компонент принимает проп `className`, который применяется к внешней обертке (включая заголовок).
 
 ```tsx
-<Chart 
-  data={data} 
-  className="my-custom-chart-class" 
+<Chart
+  data={data}
+  className="rounded-xl shadow-lg border border-gray-200"
 />
 ```
 
@@ -134,5 +142,5 @@ interface CandlestickData {
 ---
 
 **Дата:** 2026-04-01
-**Версия:** 1.0.0
+**Версия:** 1.2.0
 **Статус:** ✅ Production Ready

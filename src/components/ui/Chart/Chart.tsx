@@ -40,6 +40,10 @@ interface ChartProps {
 	showGrid?: boolean;
 	/** Show volume histogram (default: false) */
 	showVolume?: boolean;
+	/** Show price axis (right side) (default: true) */
+	showPriceAxis?: boolean;
+	/** Show time axis (bottom) (default: true) */
+	showTimeAxis?: boolean;
 	/** Additional CSS classes for the chart container */
 	className?: string;
 }
@@ -60,6 +64,8 @@ interface ChartProps {
  * @param props.timeframe - Timeframe for the chart (default: "30m")
  * @param props.showGrid - Show grid lines (default: true)
  * @param props.showVolume - Show volume histogram (default: false)
+ * @param props.showPriceAxis - Show price axis (right side) (default: true)
+ * @param props.showTimeAxis - Show time axis (bottom) (default: true)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
  * @example
@@ -83,6 +89,8 @@ export const Chart = ({
 	timeframe = "30m",
 	showGrid = true,
 	showVolume = false,
+	showPriceAxis = true,
+	showTimeAxis = true,
 	className,
 }: ChartProps) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -112,6 +120,12 @@ export const Chart = ({
 					visible: showGrid,
 					color: "rgba(42, 46, 57, 0.06)",
 				},
+			},
+			rightPriceScale: {
+				visible: showPriceAxis,
+			},
+			timeScale: {
+				visible: showTimeAxis,
 			},
 		});
 
@@ -217,7 +231,16 @@ export const Chart = ({
 			resizeObserver.disconnect();
 			chart.remove();
 		};
-	}, [width, height, data, showGrid, showVolume, type]);
+	}, [
+		width,
+		height,
+		data,
+		showGrid,
+		showVolume,
+		type,
+		showPriceAxis,
+		showTimeAxis,
+	]);
 
 	// Update data when data prop changes
 	useEffect(() => {
