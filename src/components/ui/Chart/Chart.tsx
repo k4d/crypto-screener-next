@@ -34,7 +34,7 @@ interface ChartProps {
 }
 
 /**
- * CryptoChart component - displays candlestick price chart using Lightweight Charts.
+ * Chart component - displays candlestick price chart using Lightweight Charts.
  *
  * Renders an interactive financial chart with OHLC data (Open, High, Low, Close).
  * Supports adaptive width, custom height, timeframe, grid toggle, and volume histogram.
@@ -123,7 +123,7 @@ export const Chart = ({
 				priceFormat: {
 					type: "volume",
 				},
-				priceScaleId: "", // Overlay mode (без оси справа)
+				priceScaleId: "", // Overlay mode (no right axis)
 			});
 
 			// Configure volume scale margins (bottom 30%)

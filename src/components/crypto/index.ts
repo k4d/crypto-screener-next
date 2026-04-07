@@ -1,4 +1,3 @@
-export { Chart } from "./Chart";
 export { CoinAvatar } from "./CoinAvatar";
 export { CoinName } from "./CoinName";
 export { CoinPrice } from "./CoinPrice";

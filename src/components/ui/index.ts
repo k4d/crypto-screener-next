@@ -1,3 +1,4 @@
+export { Chart } from "./Chart";
 export { List, ListItem, listClasses } from "./List";
 export {
 	Table,
