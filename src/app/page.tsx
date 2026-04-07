@@ -86,7 +86,7 @@ export default async function DashboardPage() {
 						</div>
 					</Card.Header>
 					<Card.Content>
-						<Chart data={chartData} title="Bitcoin Price Chart" showVolume />
+						<Chart data={chartData} title="Bitcoin Price Chart" />
 					</Card.Content>
 				</Card>
 

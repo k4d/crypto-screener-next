@@ -1,15 +1,24 @@
 "use client";
 
 import {
+	AreaSeries,
+	BarSeries,
+	BaselineSeries,
 	type CandlestickData,
 	CandlestickSeries,
 	createChart,
 	HistogramSeries,
 	type IChartApi,
 	type ISeriesApi,
+	LineSeries,
 	type SeriesType,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
+
+/**
+ * Available chart types.
+ */
+export type ChartType = "candlestick" | "bar" | "line" | "area" | "baseline";
 
 /**
  * Props for the Chart component.
@@ -17,6 +26,8 @@ import { useEffect, useRef } from "react";
 interface ChartProps {
 	/** Array of candlestick data points (OHLC) */
 	data: CandlestickData[];
+	/** Chart type (default: "candlestick") */
+	type?: ChartType;
 	/** Chart title (optional) */
 	title?: string;
 	/** Chart width in pixels (default: 100% of container) */
@@ -34,13 +45,15 @@ interface ChartProps {
 }
 
 /**
- * Chart component - displays candlestick price chart using Lightweight Charts.
+ * Chart component - displays financial chart using Lightweight Charts.
  *
  * Renders an interactive financial chart with OHLC data (Open, High, Low, Close).
- * Supports adaptive width, custom height, timeframe, grid toggle, and volume histogram.
+ * Supports multiple chart types (Candlestick, Bar, Line, Area, Baseline),
+ * adaptive width, custom height, timeframe, grid toggle, and volume histogram.
  *
  * @param props - Component props
  * @param props.data - Array of candlestick data points
+ * @param props.type - Chart type (default: "candlestick")
  * @param props.title - Chart title (optional)
  * @param props.width - Chart width in pixels (default: 100% of container)
  * @param props.height - Chart height in pixels (default: 300)
@@ -54,18 +67,16 @@ interface ChartProps {
  * // Basic usage with default settings
  * <Chart data={chartData} />
  *
- * // With title and custom dimensions
- * <Chart data={chartData} title="BTC/USD" width={800} height={400} />
+ * // Line chart with title
+ * <Chart data={chartData} type="line" title="BTC/USD" />
  *
- * // With volume and timeframe
- * <Chart data={chartData} timeframe="1Y" showVolume />
- *
- * // Without grid
- * <Chart data={chartData} showGrid={false} />
+ * // Area chart with volume
+ * <Chart data={chartData} type="area" showVolume />
  * ```
  */
 export const Chart = ({
 	data,
+	type = "line",
 	title,
 	width,
 	height = 300,
@@ -104,20 +115,50 @@ export const Chart = ({
 			},
 		});
 
-		const candleSeries = chart.addSeries(CandlestickSeries);
+		// Determine series type and options
+		let series: ISeriesApi<SeriesType>;
 
-		// Configure candlestick scale margins (top 70%)
-		candleSeries.priceScale().applyOptions({
+		switch (type) {
+			case "bar":
+				series = chart.addSeries(BarSeries);
+				break;
+			case "line":
+				series = chart.addSeries(LineSeries);
+				break;
+			case "area":
+				series = chart.addSeries(AreaSeries, {
+					topColor: "rgba(38, 166, 154, 0.56)",
+					bottomColor: "rgba(38, 166, 154, 0.04)",
+					lineColor: "rgba(38, 166, 154, 1)",
+				});
+				break;
+			case "baseline":
+				series = chart.addSeries(BaselineSeries, {
+					baseValue: { type: "price", price: data[0]?.close || 0 },
+					topLineColor: "rgba(38, 166, 154, 1)",
+					topFillColor1: "rgba(38, 166, 154, 0.28)",
+					topFillColor2: "rgba(38, 166, 154, 0.05)",
+					bottomLineColor: "rgba(239, 83, 80, 1)",
+					bottomFillColor1: "rgba(239, 83, 80, 0.05)",
+					bottomFillColor2: "rgba(239, 83, 80, 0.28)",
+				});
+				break;
+			default:
+				series = chart.addSeries(CandlestickSeries);
+		}
+
+		// Configure scale margins for main series
+		series.priceScale().applyOptions({
 			scaleMargins: {
 				top: 0.1,
-				bottom: 0.3, // Leave space for volume
+				bottom: showVolume ? 0.3 : 0.1,
 			},
 		});
 
 		chartRef.current = chart;
-		seriesRef.current = candleSeries;
+		seriesRef.current = series;
 
-		// Add volume histogram below candles if enabled
+		// Add volume histogram below chart if enabled
 		if (showVolume) {
 			const volumeSeries = chart.addSeries(HistogramSeries, {
 				priceFormat: {
@@ -147,6 +188,18 @@ export const Chart = ({
 			volumeSeries.setData(volumeData);
 		}
 
+		// Set data based on chart type
+		if (type === "candlestick" || type === "bar") {
+			series.setData(data);
+		} else {
+			// For line, area, baseline: map OHLC to LineData (using close price)
+			const lineData = data.map((candle) => ({
+				time: candle.time,
+				value: candle.close,
+			}));
+			series.setData(lineData);
+		}
+
 		// Resize Observer for adaptive width (only if width prop is not set)
 		const resizeObserver = new ResizeObserver((entries) => {
 			if (!width) {
@@ -164,14 +217,22 @@ export const Chart = ({
 			resizeObserver.disconnect();
 			chart.remove();
 		};
-	}, [width, height, data, showGrid, showVolume]);
+	}, [width, height, data, showGrid, showVolume, type]);
 
 	// Update data when data prop changes
 	useEffect(() => {
 		if (seriesRef.current) {
-			seriesRef.current.setData(data);
+			if (type === "candlestick" || type === "bar") {
+				seriesRef.current.setData(data);
+			} else {
+				const lineData = data.map((candle) => ({
+					time: candle.time,
+					value: candle.close,
+				}));
+				seriesRef.current.setData(lineData);
+			}
 		}
-	}, [data]);
+	}, [data, type]);
 
 	return (
 		<div className={className}>
