@@ -57,8 +57,8 @@ interface ChartProps {
  *
  * Renders a fully-featured financial chart with support for multiple
  * visualization types (Candlestick, Bar, Line, Area, Baseline).
- * Includes adaptive sizing, custom tooltips, volume histogram,
- * and customizable axes visibility.
+ * Includes adaptive sizing, smart tooltip positioning (avoids edge overflow),
+ * volume histogram, and customizable axes visibility.
  *
  * @param props - Component props
  * @param props.data - Array of OHLC data points (must be sorted by time)
@@ -125,6 +125,8 @@ export const Chart = ({
 
 	// State for custom tooltip
 	const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
+	// State for chart container width (for tooltip positioning)
+	const [containerWidth, setContainerWidth] = useState<number>(0);
 
 	useEffect(() => {
 		// Check if container exists
@@ -132,6 +134,9 @@ export const Chart = ({
 
 		// Determine width: use prop if provided, else container width
 		const chartWidth = width || chartContainerRef.current.clientWidth;
+
+		// Store container width for tooltip positioning
+		setContainerWidth(chartWidth);
 
 		// Create chart with container width
 		const chart = createChart(chartContainerRef.current, {
@@ -299,6 +304,7 @@ export const Chart = ({
 				for (const entry of entries) {
 					const { width: newWidth } = entry.contentRect;
 					chart.applyOptions({ width: newWidth });
+					setContainerWidth(newWidth);
 				}
 			}
 		});
@@ -347,7 +353,11 @@ export const Chart = ({
 
 			{/* Custom Tooltip */}
 			{showTooltip && tooltipData && (
-				<ChartTooltip data={tooltipData} type={type} />
+				<ChartTooltip
+					data={tooltipData}
+					type={type}
+					containerWidth={containerWidth}
+				/>
 			)}
 		</div>
 	);

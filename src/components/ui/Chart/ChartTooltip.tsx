@@ -31,6 +31,8 @@ interface ChartTooltipProps {
 	data: TooltipData;
 	/** Chart type to determine which fields to display */
 	type: ChartType;
+	/** Width of the chart container to prevent overflow */
+	containerWidth: number;
 }
 
 /**
@@ -62,24 +64,44 @@ const formatTime = (time: string) => {
  * ChartTooltip component - displays OHLCV data on cursor hover.
  *
  * Renders a floating tooltip that follows the cursor position on the chart.
+ * Automatically adjusts position to prevent overflow at the right edge.
  * Shows full OHLCV data for candlestick/bar charts, and simplified
  * value display for line/area/baseline charts.
  *
  * @param props - Component props
  * @param props.data - Tooltip data with OHLCV values and cursor coordinates
  * @param props.type - Chart type to determine display format
+ * @param props.containerWidth - Width of the chart container for overflow detection
  *
  * @example
  * ```tsx
  * <ChartTooltip
  *   data={{ time: "2024-01-01", close: 42000, x: 100, y: 50 }}
  *   type="candlestick"
+ *   containerWidth={800}
  * />
  * ```
  */
-export const ChartTooltip = ({ data, type }: ChartTooltipProps) => {
+export const ChartTooltip = ({
+	data,
+	type,
+	containerWidth,
+}: ChartTooltipProps) => {
 	// Determine if the chart type supports OHLC data
 	const isOhlc = type === "candlestick" || type === "bar";
+
+	// Estimate tooltip width (min-w-35 = 140px, but content can be wider)
+	const estimatedWidth = 180;
+	const offset = 12;
+
+	// Default: open to the right
+	let transform = `translate(${offset}px, -50%)`;
+
+	// Check if tooltip would overflow the right edge
+	if (data.x + estimatedWidth + offset > containerWidth) {
+		// Switch to left
+		transform = `translate(calc(-100% - ${offset}px), -50%)`;
+	}
 
 	return (
 		<div
@@ -87,7 +109,7 @@ export const ChartTooltip = ({ data, type }: ChartTooltipProps) => {
 			style={{
 				left: data.x,
 				top: data.y,
-				transform: "translate(12px, -50%)", // Offset to avoid cursor overlap
+				transform,
 			}}
 		>
 			<div className="mb-2 font-bold text-gray-500 pb-1">
