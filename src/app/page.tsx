@@ -88,8 +88,10 @@ export default async function DashboardPage() {
 					<Card.Content>
 						<Chart
 							data={chartData}
+							type="area"
 							title="Bitcoin Price Chart"
 							showGrid
+							showTooltip
 							showPriceAxis={false}
 							showTimeAxis={false}
 						/>

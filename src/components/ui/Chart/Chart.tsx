@@ -11,9 +11,11 @@ import {
 	type IChartApi,
 	type ISeriesApi,
 	LineSeries,
+	type MouseEventParams,
 	type SeriesType,
 } from "lightweight-charts";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChartTooltip, type TooltipData } from "./ChartTooltip";
 
 /**
  * Available chart types.
@@ -26,7 +28,7 @@ export type ChartType = "candlestick" | "bar" | "line" | "area" | "baseline";
 interface ChartProps {
 	/** Array of candlestick data points (OHLC) */
 	data: CandlestickData[];
-	/** Chart type (default: "candlestick") */
+	/** Chart type (default: "line") */
 	type?: ChartType;
 	/** Chart title (optional) */
 	title?: string;
@@ -44,40 +46,62 @@ interface ChartProps {
 	showPriceAxis?: boolean;
 	/** Show time axis (bottom) (default: true) */
 	showTimeAxis?: boolean;
+	/** Show custom tooltip on hover (default: false) */
+	showTooltip?: boolean;
 	/** Additional CSS classes for the chart container */
 	className?: string;
 }
 
 /**
- * Chart component - displays financial chart using Lightweight Charts.
+ * Chart component - interactive financial chart using Lightweight Charts.
  *
- * Renders an interactive financial chart with OHLC data (Open, High, Low, Close).
- * Supports multiple chart types (Candlestick, Bar, Line, Area, Baseline),
- * adaptive width, custom height, timeframe, grid toggle, and volume histogram.
+ * Renders a fully-featured financial chart with support for multiple
+ * visualization types (Candlestick, Bar, Line, Area, Baseline).
+ * Includes adaptive sizing, custom tooltips, volume histogram,
+ * and customizable axes visibility.
  *
  * @param props - Component props
- * @param props.data - Array of candlestick data points
- * @param props.type - Chart type (default: "candlestick")
- * @param props.title - Chart title (optional)
- * @param props.width - Chart width in pixels (default: 100% of container)
+ * @param props.data - Array of OHLC data points (must be sorted by time)
+ * @param props.type - Chart visualization type (default: "line")
+ * @param props.title - Optional chart title displayed above the chart
+ * @param props.width - Fixed width in pixels (default: 100% of container)
  * @param props.height - Chart height in pixels (default: 300)
- * @param props.timeframe - Timeframe for the chart (default: "30m")
- * @param props.showGrid - Show grid lines (default: true)
- * @param props.showVolume - Show volume histogram (default: false)
- * @param props.showPriceAxis - Show price axis (right side) (default: true)
- * @param props.showTimeAxis - Show time axis (bottom) (default: true)
+ * @param props.timeframe - Timeframe identifier for attribution (default: "30m")
+ * @param props.showGrid - Toggle grid lines visibility (default: true)
+ * @param props.showVolume - Toggle volume histogram (default: false)
+ * @param props.showPriceAxis - Toggle right price axis visibility (default: true)
+ * @param props.showTimeAxis - Toggle bottom time axis visibility (default: true)
+ * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
  * @example
  * ```tsx
- * // Basic usage with default settings
- * <Chart data={chartData} />
+ * // Basic line chart with default settings
+ * <Chart data={priceData} />
  *
- * // Line chart with title
- * <Chart data={chartData} type="line" title="BTC/USD" />
+ * // Candlestick chart with volume and title
+ * <Chart
+ *   data={ohlcData}
+ *   type="candlestick"
+ *   title="BTC/USD"
+ *   showVolume
+ * />
  *
- * // Area chart with volume
- * <Chart data={chartData} type="area" showVolume />
+ * // Area chart with hidden axes
+ * <Chart
+ *   data={priceData}
+ *   type="area"
+ *   showPriceAxis={false}
+ *   showTimeAxis={false}
+ * />
+ *
+ * // Fixed size baseline chart
+ * <Chart
+ *   data={priceData}
+ *   type="baseline"
+ *   width={800}
+ *   height={400}
+ * />
  * ```
  */
 export const Chart = ({
@@ -91,11 +115,16 @@ export const Chart = ({
 	showVolume = false,
 	showPriceAxis = true,
 	showTimeAxis = true,
+	showTooltip = false,
 	className,
 }: ChartProps) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const chartRef = useRef<IChartApi | null>(null);
 	const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
+	const volumeSeriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
+
+	// State for custom tooltip
+	const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
 
 	useEffect(() => {
 		// Check if container exists
@@ -174,7 +203,7 @@ export const Chart = ({
 
 		// Add volume histogram below chart if enabled
 		if (showVolume) {
-			const volumeSeries = chart.addSeries(HistogramSeries, {
+			volumeSeriesRef.current = chart.addSeries(HistogramSeries, {
 				priceFormat: {
 					type: "volume",
 				},
@@ -182,7 +211,7 @@ export const Chart = ({
 			});
 
 			// Configure volume scale margins (bottom 30%)
-			volumeSeries.priceScale().applyOptions({
+			volumeSeriesRef.current.priceScale().applyOptions({
 				scaleMargins: {
 					top: 0.7, // Start at 70% height
 					bottom: 0,
@@ -199,7 +228,7 @@ export const Chart = ({
 						: "rgba(239, 83, 80, 0.5)", // Red for bearish
 			}));
 
-			volumeSeries.setData(volumeData);
+			volumeSeriesRef.current.setData(volumeData);
 		}
 
 		// Set data based on chart type
@@ -213,6 +242,56 @@ export const Chart = ({
 			}));
 			series.setData(lineData);
 		}
+
+		// Handler for crosshair movement
+		const handleCrosshairMove = (param: MouseEventParams) => {
+			if (!showTooltip) {
+				setTooltipData(null);
+				return;
+			}
+
+			if (!param.time || !param.seriesData.size || !seriesRef.current) {
+				setTooltipData(null);
+				return;
+			}
+
+			const mainSeriesData = param.seriesData.get(seriesRef.current);
+			const volSeriesData = volumeSeriesRef.current
+				? param.seriesData.get(volumeSeriesRef.current)
+				: null;
+
+			if (mainSeriesData && param.point) {
+				// Define a loose type to avoid 'any' casting everywhere
+				interface LooseSeriesData {
+					open?: number;
+					high?: number;
+					low?: number;
+					close?: number;
+					value?: number;
+				}
+
+				const data = mainSeriesData as LooseSeriesData;
+				const volData = volSeriesData as LooseSeriesData | null;
+
+				const hasOHLC = data.open !== undefined;
+
+				setTooltipData({
+					time: String(param.time),
+					open: hasOHLC ? data.open : undefined,
+					high: hasOHLC ? data.high : undefined,
+					low: hasOHLC ? data.low : undefined,
+					close: hasOHLC ? data.close : data.value,
+					volume: volData?.value,
+					x: param.point.x,
+					y: param.point.y,
+				});
+			} else {
+				setTooltipData(null);
+			}
+		};
+
+		// Subscribe to crosshair movement for custom tooltip
+		chart.subscribeCrosshairMove(handleCrosshairMove);
 
 		// Resize Observer for adaptive width (only if width prop is not set)
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -229,6 +308,7 @@ export const Chart = ({
 		// Cleanup on unmount
 		return () => {
 			resizeObserver.disconnect();
+			chart.unsubscribeCrosshairMove(handleCrosshairMove);
 			chart.remove();
 		};
 	}, [
@@ -240,6 +320,7 @@ export const Chart = ({
 		type,
 		showPriceAxis,
 		showTimeAxis,
+		showTooltip,
 	]);
 
 	// Update data when data prop changes
@@ -258,11 +339,16 @@ export const Chart = ({
 	}, [data, type]);
 
 	return (
-		<div className={className}>
+		<div className={`relative ${className || ""}`}>
 			{title && (
 				<h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 			)}
 			<div ref={chartContainerRef} data-timeframe={timeframe} />
+
+			{/* Custom Tooltip */}
+			{showTooltip && tooltipData && (
+				<ChartTooltip data={tooltipData} type={type} />
+			)}
 		</div>
 	);
 };
