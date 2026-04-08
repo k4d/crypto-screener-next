@@ -88,7 +88,7 @@ const data = [
 | **showTimeAxis**  | `boolean`        | `true`       | Показать шкалу времени (снизу)                |
 | **showTooltip**   | `boolean`        | `false`      | Показать кастомный тултип при наведении       |
 | **currency**      | `string`         | `"USD"`      | Код валюты для форматирования цен             |
-| **mainSeriesTitle**| `string`        | —            | Заголовок основной серии (на графике)         |
+| **mainSeriesTitle**| `string`        | —            | Заголовок основной серии (в тултипе)          |
 | **additionalSeries**| `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий (линии, области)  |
 | **className** | `string`             | —            | Дополнительные CSS классы для обертки         |
 
@@ -140,8 +140,20 @@ interface CandlestickData {
 
 ### Адаптивность
 Тултип автоматически подстраивается под тип графика:
-*   **Для `candlestick` и `bar`**: Отображает полные данные **OHLCV** (Open, High, Low, Close, Volume).
-*   **Для `line`, `area`, `baseline`**: Отображает **Price** (цена закрытия) и Volume.
+*   **Для `candlestick` и `bar`**: Отображает заголовок серии (если задан `mainSeriesTitle`) + полные данные **OHLCV** (Open, High, Low, Close, Volume).
+*   **Для `line`, `area`, `baseline`**: Отображает **Title: Price** (заголовок + цена закрытия) + Volume.
+
+### Дополнительные серии
+При наведении показываются значения всех дополнительных серий в текущей точке:
+```
+Apr 8, 2024
+──────────────────
+BTC:      $84,750
+──────────────────
+ETH:      $3,245
+BNB:      $612
+```
+Если для серии задан `originalData`, в тултипе отображаются оригинальные (реальные) значения, а не масштабированные.
 
 ### Форматирование цен
 Цены автоматически форматируются с учетом валюты (проп `currency`):
@@ -189,10 +201,45 @@ const additionalSeries: AdditionalSeriesConfig[] = [
 
 ### Параметры серии
 *   **type**: Тип графика (`line` или `area`).
-*   **data**: Массив объектов `{ time, value }`.
+*   **data**: Массив объектов `{ time, value }` (используется для отображения на графике).
+*   **originalData**: Массив `{ time, value }` — оригинальные данные для тултипа (полезно при масштабировании).
 *   **color**: Цвет линии.
 *   **lineWidth**: Толщина линии.
-*   **title**: Заголовок серии (отображается в легенде, если поддерживается).
+*   **title**: Заголовок серии (отображается в тултипе и на ценовой оси).
+*   **priceLineVisible**: Показать горизонтальную линию цены на графике (по умолчанию `false`).
+*   **lastValueVisible**: Показать метку последнего значения на оси (по умолчанию `true`).
+
+### Пример со масштабированными данными
+
+Если нужно отобразить линии на одном уровне (например, сравнить рост активов), используйте `data` для масштабированных значений и `originalData` для реальных цен в тултипе:
+
+```tsx
+const ethScaled = ethData.map(d => ({
+  time: d.time,
+  value: d.close * scaleFactor, // Масштабируем для визуализации
+}));
+
+const ethOriginal = ethData.map(d => ({
+  time: d.time,
+  value: d.close, // Реальная цена для тултипа
+}));
+
+<Chart
+  data={btcData}
+  additionalSeries={[
+    {
+      type: "line",
+      data: ethScaled,
+      originalData: ethOriginal, // ← реальные цены в тултипе
+      color: "#627EEA",
+      title: "ETH",
+      priceLineVisible: true,
+    },
+  ]}
+  showTooltip
+  mainSeriesTitle="BTC"
+/>
+```
 
 ---
 
@@ -214,6 +261,6 @@ const additionalSeries: AdditionalSeriesConfig[] = [
 
 ---
 
-**Дата:** 2026-04-01
-**Версия:** 1.7.0
+**Дата:** 2026-04-08
+**Версия:** 2.0.0
 **Статус:** ✅ Production Ready
