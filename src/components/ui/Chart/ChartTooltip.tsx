@@ -1,5 +1,12 @@
 import type { ChartType } from "./Chart";
 
+// ——— Constants ———
+
+const TOOLTIP_WIDTH = 162;
+const TOOLTIP_OFFSET = 12;
+
+// ——— Types ———
+
 /**
  * Data for an additional series point displayed in tooltip.
  */
@@ -53,18 +60,15 @@ interface ChartTooltipProps {
 	currency?: "USD" | "EUR" | "GBP" | "USDT" | "USDC" | string;
 }
 
+// ——— Helpers ———
+
 /**
- * Helper function to format time string for display.
- * Converts numeric timestamps to human-readable dates.
- *
- * @param time - Time string (timestamp or date string)
- * @returns Formatted date string (e.g., "Jan 1, 2024") or original string
+ * Formats a time string for tooltip display.
+ * Converts Unix timestamps to human-readable dates (e.g., "Jan 1, 2024").
  */
 const formatTime = (time: string) => {
-	// Check if the input is a numeric timestamp
 	if (/^\d+$/.test(time)) {
 		const timestamp = Number(time);
-		// Handle both milliseconds (13 digits) and seconds (10 digits)
 		const date = new Date(
 			timestamp > 9999999999 ? timestamp : timestamp * 1000,
 		);
@@ -74,28 +78,175 @@ const formatTime = (time: string) => {
 			day: "numeric",
 		});
 	}
-	// Return original string if not a timestamp
 	return time;
 };
 
 /**
- * ChartTooltip component — интерактивный тултип при наведении на график.
+ * Formats a price with currency-aware display.
+ * USD/EUR/GBP use currency symbol ($63,022), others show code (1,234.56 USDT).
+ * Adaptive decimal precision based on price magnitude.
+ */
+const formatPrice = (price: number | undefined, currency: string): string => {
+	if (price === undefined) return "-";
+
+	const options = {
+		minimumFractionDigits: price < 1 ? 4 : price < 10 ? 2 : 0,
+		maximumFractionDigits: price < 10 ? 4 : 2,
+	};
+
+	if (currency === "USD" || currency === "EUR" || currency === "GBP") {
+		return price.toLocaleString("en-US", {
+			style: "currency",
+			currency,
+			...options,
+		});
+	}
+
+	return `${price.toLocaleString("en-US", options)} ${currency}`;
+};
+
+/**
+ * Calculates tooltip position to prevent overflow beyond chart boundaries.
+ * Switches from right-aligned to left-aligned when approaching the right edge.
+ */
+const getTooltipPosition = (cursorX: number, containerWidth: number) => {
+	const isOverflowRight =
+		cursorX + TOOLTIP_WIDTH + TOOLTIP_OFFSET > containerWidth;
+
+	if (isOverflowRight) {
+		return {
+			left: cursorX - TOOLTIP_OFFSET,
+			transform: "translate(-100%, -50%)" as const,
+		};
+	}
+
+	return {
+		left: cursorX + TOOLTIP_OFFSET,
+		transform: "translate(0, -50%)" as const,
+	};
+};
+
+// ——— Sub-components ———
+
+/**
+ * Single row in the tooltip: label + value pair.
+ */
+const TooltipPriceRow = ({
+	label,
+	value,
+	labelColor,
+}: {
+	label: string;
+	value: string;
+	labelColor?: string;
+}) => (
+	<>
+		<span
+			className="font-semibold"
+			style={labelColor ? { color: labelColor } : undefined}
+		>
+			{label}:
+		</span>
+		<span className="text-right font-medium text-gray-500">{value}</span>
+	</>
+);
+
+/**
+ * OHLCV display section for candlestick and bar charts.
+ */
+const OhlcTooltipContent = ({
+	data,
+	currency,
+}: {
+	data: TooltipData;
+	currency: string;
+}) => (
+	<>
+		{data.mainSeriesTitle && (
+			<span className="col-span-2 font-semibold text-gray-700">
+				{data.mainSeriesTitle}
+			</span>
+		)}
+		<TooltipPriceRow label="Open" value={formatPrice(data.open, currency)} />
+		<TooltipPriceRow
+			label="High"
+			value={formatPrice(data.high, currency)}
+			labelColor="#16a34a"
+		/>
+		<TooltipPriceRow
+			label="Low"
+			value={formatPrice(data.low, currency)}
+			labelColor="#dc2626"
+		/>
+		<TooltipPriceRow label="Close" value={formatPrice(data.close, currency)} />
+	</>
+);
+
+/**
+ * Simplified price display for line, area, and baseline charts.
+ */
+const SimpleTooltipContent = ({
+	data,
+	currency,
+}: {
+	data: TooltipData;
+	currency: string;
+}) => (
+	<>
+		<span className="font-semibold text-gray-700">
+			{data.mainSeriesTitle ? `${data.mainSeriesTitle}:` : "Price:"}
+		</span>
+		<span className="text-right font-medium text-gray-500">
+			{formatPrice(data.close, currency)}
+		</span>
+	</>
+);
+
+/**
+ * Additional series display section (ETH, BNB, etc.).
+ */
+const AdditionalSeriesSection = ({
+	series,
+	currency,
+}: {
+	series: AdditionalSeriesPoint[];
+	currency: string;
+}) => (
+	<>
+		<div className="mt-2 mb-1.5 border-t border-gray-200" />
+		<div className="grid grid-cols-2 gap-x-4 gap-y-1">
+			{series.map((item) => (
+				<TooltipPriceRow
+					key={item.title}
+					label={item.title}
+					value={formatPrice(item.value, currency)}
+					labelColor={item.color}
+				/>
+			))}
+		</div>
+	</>
+);
+
+// ——— Main component ———
+
+/**
+ * ChartTooltip — interactive tooltip displayed on chart hover.
  *
- * Отображает OHLCV-данные при наведении курсора. Автоматически подстраивается
- * под тип графика:
- * - **OHLC-графики** (`candlestick`, `bar`): Open, High, Low, Close + Volume
- * - **Линейные графики** (`line`, `area`, `baseline`): Price (закрытие) + Volume
+ * Shows OHLCV data when the cursor hovers over the chart. Automatically adapts
+ * to the chart type:
+ * - **OHLC charts** (`candlestick`, `bar`): Open, High, Low, Close + Volume
+ * - **Line charts** (`line`, `area`, `baseline`): Price (close) + Volume
  *
- * Поддерживает отображение дополнительных серий (ETH, BNB и т.д.) с реальными
- * ценами (даже если данные масштабированы для визуализации).
+ * Supports displaying additional series (ETH, BNB, etc.) with real prices
+ * (even when chart data is scaled for visualization).
  *
- * Автоматически предотвращает выход за правую границу графика.
+ * Automatically prevents overflow beyond the right chart edge.
  *
  * @param props - Component props
- * @param props.data - Данные тултипа: OHLCV, координаты курсора, доп.серии
- * @param props.type - Тип графика для определения формата отображения
- * @param props.containerWidth - Ширина контейнера графика (px) для overflow detection
- * @param props.currency - Код валюты (USD/EUR/GBP/USDT/USDC и др.)
+ * @param props.data - Tooltip data: OHLCV, cursor coordinates, additional series
+ * @param props.type - Chart type to determine display format
+ * @param props.containerWidth - Chart container width (px) for overflow detection
+ * @param props.currency - Currency code (USD/EUR/GBP/USDT/USDC, etc.)
  *
  * @example
  * ```tsx
@@ -122,135 +273,34 @@ export const ChartTooltip = ({
 	containerWidth,
 	currency = "USD",
 }: ChartTooltipProps) => {
-	// Determine if the chart type supports OHLC data
 	const isOhlc = type === "candlestick" || type === "bar";
-
-	// Helper function to format price with currency
-	const formatPrice = (price: number | undefined) => {
-		if (price === undefined) return "-";
-
-		const options = {
-			minimumFractionDigits: price < 1 ? 4 : price < 10 ? 2 : 0,
-			maximumFractionDigits: price < 10 ? 4 : 2,
-		};
-
-		if (currency === "USD" || currency === "EUR" || currency === "GBP") {
-			return price.toLocaleString("en-US", {
-				style: "currency",
-				currency,
-				...options,
-			});
-		}
-
-		return `${price.toLocaleString("en-US", options)} ${currency}`;
-	};
-
-	// Tooltip width and positioning
-	const tooltipWidth = 162;
-	const offset = 12;
-
-	// Default: open to the right
-	let leftPosition = data.x + offset;
-	let transform = "translate(0, -50%)";
-
-	// Check if tooltip would overflow the right edge
-	if (data.x + tooltipWidth + offset > containerWidth) {
-		// Switch to left
-		leftPosition = data.x - offset;
-		transform = "translate(-100%, -50%)";
-	}
+	const { left, transform } = getTooltipPosition(data.x, containerWidth);
 
 	return (
 		<div
 			className="pointer-events-none absolute z-50 w-40.5 rounded-xl bg-white/95 p-3 text-xs text-gray-800 shadow-lg backdrop-blur-sm border border-gray-200"
-			style={{
-				left: leftPosition,
-				top: data.y,
-				transform,
-			}}
+			style={{ left, top: data.y, transform }}
 		>
 			<div className="mb-2 font-bold text-gray-500 pb-1">
 				{formatTime(data.time)}
 			</div>
 			<div className="grid grid-cols-2 gap-x-4 gap-y-1">
 				{isOhlc ? (
-					// Full OHLC view for candlestick and bar charts
-					<>
-						{data.mainSeriesTitle && (
-							<span className="col-span-2 font-semibold text-gray-700">
-								{data.mainSeriesTitle}
-							</span>
-						)}
-						<span className="text-gray-500">Open:</span>
-						<span className="text-right font-medium">
-							{formatPrice(data.open)}
-						</span>
-
-						<span className="text-gray-500">High:</span>
-						<span className="text-right font-medium text-green-600">
-							{formatPrice(data.high)}
-						</span>
-
-						<span className="text-gray-500">Low:</span>
-						<span className="text-right font-medium text-red-600">
-							{formatPrice(data.low)}
-						</span>
-
-						<span className="text-gray-500">Close:</span>
-						<span className="text-right font-medium">
-							{formatPrice(data.close)}
-						</span>
-					</>
+					<OhlcTooltipContent data={data} currency={currency} />
 				) : (
-					// Simplified view for line, area, and baseline charts
-					<>
-						<span
-							className="font-semibold"
-							style={{
-								color: "#374151",
-							}}
-						>
-							{data.mainSeriesTitle ? `${data.mainSeriesTitle}:` : "Price:"}
-						</span>
-						<span className="text-right font-medium">
-							{formatPrice(data.close)}
-						</span>
-					</>
+					<SimpleTooltipContent data={data} currency={currency} />
 				)}
 
-				{/* Always show volume if data is available */}
 				{data.volume !== undefined && (
-					<>
-						<span className="text-gray-500">Vol:</span>
-						<span className="text-right font-medium">
-							{data.volume.toLocaleString()}
-						</span>
-					</>
+					<TooltipPriceRow label="Vol" value={data.volume.toLocaleString()} />
 				)}
 			</div>
 
-			{/* Additional Series Section */}
 			{data.additionalSeries && data.additionalSeries.length > 0 && (
-				<>
-					<div className="mt-2 mb-1.5 border-t border-gray-200" />
-					<div className="grid grid-cols-2 gap-x-4 gap-y-1">
-						{data.additionalSeries.map((series) => (
-							<div key={series.title} className="contents">
-								<span
-									className="font-semibold"
-									style={{
-										color: series.color || "#6b7280",
-									}}
-								>
-									{series.title}:
-								</span>
-								<span className="text-right font-medium">
-									{formatPrice(series.value)}
-								</span>
-							</div>
-						))}
-					</div>
-				</>
+				<AdditionalSeriesSection
+					series={data.additionalSeries}
+					currency={currency}
+				/>
 			)}
 		</div>
 	);
