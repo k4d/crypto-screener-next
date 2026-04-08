@@ -33,6 +33,8 @@ interface ChartTooltipProps {
 	type: ChartType;
 	/** Width of the chart container to prevent overflow */
 	containerWidth: number;
+	/** Currency code for price formatting (default: "USD") */
+	currency?: "USD" | "EUR" | "GBP" | "USDT" | "USDC" | string;
 }
 
 /**
@@ -66,12 +68,14 @@ const formatTime = (time: string) => {
  * Renders a floating tooltip that follows the cursor position on the chart.
  * Automatically adjusts position to prevent overflow at the right edge.
  * Shows full OHLCV data for candlestick/bar charts, and simplified
- * value display for line/area/baseline charts.
+ * price display for line/area/baseline charts.
+ * Supports multiple currencies with automatic formatting.
  *
  * @param props - Component props
  * @param props.data - Tooltip data with OHLCV values and cursor coordinates
  * @param props.type - Chart type to determine display format
  * @param props.containerWidth - Width of the chart container for overflow detection
+ * @param props.currency - Currency code for price formatting (default: "USD")
  *
  * @example
  * ```tsx
@@ -79,6 +83,7 @@ const formatTime = (time: string) => {
  *   data={{ time: "2024-01-01", close: 42000, x: 100, y: 50 }}
  *   type="candlestick"
  *   containerWidth={800}
+ *   currency="USDT"
  * />
  * ```
  */
@@ -86,9 +91,30 @@ export const ChartTooltip = ({
 	data,
 	type,
 	containerWidth,
+	currency = "USD",
 }: ChartTooltipProps) => {
 	// Determine if the chart type supports OHLC data
 	const isOhlc = type === "candlestick" || type === "bar";
+
+	// Helper function to format price with currency
+	const formatPrice = (price: number | undefined) => {
+		if (price === undefined) return "-";
+
+		const options = {
+			minimumFractionDigits: price < 1 ? 4 : price < 10 ? 2 : 0,
+			maximumFractionDigits: price < 10 ? 4 : 2,
+		};
+
+		if (currency === "USD" || currency === "EUR" || currency === "GBP") {
+			return price.toLocaleString("en-US", {
+				style: "currency",
+				currency,
+				...options,
+			});
+		}
+
+		return `${price.toLocaleString("en-US", options)} ${currency}`;
+	};
 
 	// Estimate tooltip width (min-w-35 = 140px, but content can be wider)
 	const estimatedWidth = 180;
@@ -120,26 +146,32 @@ export const ChartTooltip = ({
 					// Full OHLC view for candlestick and bar charts
 					<>
 						<span className="text-gray-500">Open:</span>
-						<span className="text-right font-medium">{data.open ?? "-"}</span>
+						<span className="text-right font-medium">
+							{formatPrice(data.open)}
+						</span>
 
 						<span className="text-gray-500">High:</span>
 						<span className="text-right font-medium text-green-600">
-							{data.high ?? "-"}
+							{formatPrice(data.high)}
 						</span>
 
 						<span className="text-gray-500">Low:</span>
 						<span className="text-right font-medium text-red-600">
-							{data.low ?? "-"}
+							{formatPrice(data.low)}
 						</span>
 
 						<span className="text-gray-500">Close:</span>
-						<span className="text-right font-medium">{data.close ?? "-"}</span>
+						<span className="text-right font-medium">
+							{formatPrice(data.close)}
+						</span>
 					</>
 				) : (
 					// Simplified view for line, area, and baseline charts
 					<>
-						<span className="text-gray-500">Value:</span>
-						<span className="text-right font-medium">{data.close ?? "-"}</span>
+						<span className="text-gray-500">Price:</span>
+						<span className="text-right font-medium">
+							{formatPrice(data.close)}
+						</span>
 					</>
 				)}
 

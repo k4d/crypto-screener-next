@@ -87,6 +87,9 @@ const data = [
 | **showPriceAxis** | `boolean`        | `true`       | Показать шкалу цен (справа)                   |
 | **showTimeAxis**  | `boolean`        | `true`       | Показать шкалу времени (снизу)                |
 | **showTooltip**   | `boolean`        | `false`      | Показать кастомный тултип при наведении       |
+| **currency**      | `string`         | `"USD"`      | Код валюты для форматирования цен             |
+| **mainSeriesTitle**| `string`        | —            | Заголовок основной серии (на графике)         |
+| **additionalSeries**| `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий (линии, области)  |
 | **className** | `string`             | —            | Дополнительные CSS классы для обертки         |
 
 ---
@@ -138,7 +141,13 @@ interface CandlestickData {
 ### Адаптивность
 Тултип автоматически подстраивается под тип графика:
 *   **Для `candlestick` и `bar`**: Отображает полные данные **OHLCV** (Open, High, Low, Close, Volume).
-*   **Для `line`, `area`, `baseline`**: Отображает упрощенное значение **Value** (цена закрытия) и Volume.
+*   **Для `line`, `area`, `baseline`**: Отображает **Price** (цена закрытия) и Volume.
+
+### Форматирование цен
+Цены автоматически форматируются с учетом валюты (проп `currency`):
+*   **USD, EUR, GBP**: Отображаются с символом валюты (`$63,022.79`).
+*   **USDT, USDC и другие**: Отображаются как `1,234.56 USDT`.
+*   **Точность**: Зависит от цены (дешевле $1 — 4 знака, дороже $10 — 2 знака).
 
 ### Позиционирование
 Тултип использует "умное" позиционирование, чтобы не перекрывать данные и не выходить за границы:
@@ -147,6 +156,43 @@ interface CandlestickData {
 
 ### Форматирование времени
 Даты автоматически форматируются из Unix-таймстампов в читаемый вид (например, "Jan 1, 2024").
+
+---
+
+## 📈 Несколько линий (Multi-series)
+
+Вы можете накладывать дополнительные графики (линии или области) поверх основного. Это полезно для индикаторов (например, SMA) или сравнения активов.
+
+### Пример использования
+
+```tsx
+import type { AdditionalSeriesConfig } from "@/components/ui/Chart/Chart";
+
+// Данные для дополнительной линии (например, скользящая средняя)
+const smaData = chartData.map((d, i) => ({
+  time: d.time,
+  value: (d.close + (chartData[i - 1]?.close || d.close)) / 2,
+}));
+
+const additionalSeries: AdditionalSeriesConfig[] = [
+  {
+    type: "line",
+    data: smaData,
+    color: "#F7931A",
+    lineWidth: 2,
+    title: "SMA",
+  },
+];
+
+<Chart data={chartData} additionalSeries={additionalSeries} />
+```
+
+### Параметры серии
+*   **type**: Тип графика (`line` или `area`).
+*   **data**: Массив объектов `{ time, value }`.
+*   **color**: Цвет линии.
+*   **lineWidth**: Толщина линии.
+*   **title**: Заголовок серии (отображается в легенде, если поддерживается).
 
 ---
 
@@ -169,5 +215,5 @@ interface CandlestickData {
 ---
 
 **Дата:** 2026-04-01
-**Версия:** 1.5.0
+**Версия:** 1.7.0
 **Статус:** ✅ Production Ready
