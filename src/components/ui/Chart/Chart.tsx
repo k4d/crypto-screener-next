@@ -13,14 +13,36 @@ import {
 	LineSeries,
 	type MouseEventParams,
 	type SeriesType,
+	type Time,
 } from "lightweight-charts";
 import { useEffect, useRef, useState } from "react";
-import { ChartTooltip, type TooltipData } from "./ChartTooltip";
+import {
+	type AdditionalSeriesPoint,
+	ChartTooltip,
+	type TooltipData,
+} from "./ChartTooltip";
 
 /**
  * Available chart types.
  */
 export type ChartType = "candlestick" | "bar" | "line" | "area" | "baseline";
+
+/**
+ * Configuration for additional series (lines/areas) overlaid on the chart.
+ */
+export interface AdditionalSeriesConfig {
+	type: "line" | "area";
+	data: { time: Time; value: number }[];
+	color?: string;
+	lineWidth?: number;
+	title?: string;
+	/** Show horizontal price line at last value (default: false) */
+	priceLineVisible?: boolean;
+	/** Show last value label on the right axis (default: true) */
+	lastValueVisible?: boolean;
+	/** Original data for tooltip display (when scaled data is used for chart) */
+	originalData?: { time: Time; value: number }[];
+}
 
 /**
  * Props for the Chart component.
@@ -48,17 +70,30 @@ interface ChartProps {
 	showTimeAxis?: boolean;
 	/** Show custom tooltip on hover (default: false) */
 	showTooltip?: boolean;
+	/** Currency code for price formatting (default: "USD") */
+	currency?: string;
+	/** Title for the main series (displayed on the chart) */
+	mainSeriesTitle?: string;
+	/** Array of additional series to overlay on the chart */
+	additionalSeries?: AdditionalSeriesConfig[];
 	/** Additional CSS classes for the chart container */
 	className?: string;
 }
 
 /**
- * Chart component - interactive financial chart using Lightweight Charts.
+ * Chart component — interactive financial chart using Lightweight Charts.
  *
  * Renders a fully-featured financial chart with support for multiple
  * visualization types (Candlestick, Bar, Line, Area, Baseline).
  * Includes adaptive sizing, smart tooltip positioning (avoids edge overflow),
- * volume histogram, and customizable axes visibility.
+ * volume histogram, customizable axes visibility, and multi-series overlay.
+ *
+ * Features:
+ * - 5 chart types with Bitcoin orange (#F7931A) as the default main color
+ * - Custom tooltip with OHLCV + additional series values
+ * - `originalData` support for scaled series (real prices in tooltip)
+ * - ResizeObserver for responsive width adaptation
+ * - Optional volume histogram (mock data)
  *
  * @param props - Component props
  * @param props.data - Array of OHLC data points (must be sorted by time)
@@ -72,6 +107,9 @@ interface ChartProps {
  * @param props.showPriceAxis - Toggle right price axis visibility (default: true)
  * @param props.showTimeAxis - Toggle bottom time axis visibility (default: true)
  * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
+ * @param props.currency - Currency code for price formatting (default: "USD")
+ * @param props.mainSeriesTitle - Title for the main series (shown in tooltip)
+ * @param props.additionalSeries - Array of additional series to overlay (lines/areas)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
  * @example
@@ -102,6 +140,24 @@ interface ChartProps {
  *   width={800}
  *   height={400}
  * />
+ *
+ * // Multi-series chart with tooltip and scaled data
+ * <Chart
+ *   data={btcData}
+ *   type="line"
+ *   mainSeriesTitle="BTC"
+ *   showTooltip
+ *   currency="USD"
+ *   additionalSeries={[
+ *     {
+ *       type: "line",
+ *       data: ethScaled,           // Scaled for visual alignment
+ *       originalData: ethOriginal, // Real prices for tooltip
+ *       color: "#627EEA",
+ *       title: "ETH",
+ *     },
+ *   ]}
+ * />
  * ```
  */
 export const Chart = ({
@@ -116,12 +172,18 @@ export const Chart = ({
 	showPriceAxis = true,
 	showTimeAxis = true,
 	showTooltip = false,
+	currency = "USD",
+	mainSeriesTitle,
+	additionalSeries,
 	className,
 }: ChartProps) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const chartRef = useRef<IChartApi | null>(null);
 	const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
 	const volumeSeriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
+	const additionalSeriesRefs = useRef<Map<string, ISeriesApi<SeriesType>>>(
+		new Map(),
+	);
 
 	// State for custom tooltip
 	const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
@@ -166,33 +228,42 @@ export const Chart = ({
 		// Determine series type and options
 		let series: ISeriesApi<SeriesType>;
 
+		// Common options for the main series
+		// biome-ignore lint/suspicious/noExplicitAny: Library options type complexity
+		const mainSeriesOptions: any = {
+			title: mainSeriesTitle,
+			color: "#F7931A", // Bitcoin orange
+		};
+
 		switch (type) {
 			case "bar":
-				series = chart.addSeries(BarSeries);
+				series = chart.addSeries(BarSeries, mainSeriesOptions);
 				break;
 			case "line":
-				series = chart.addSeries(LineSeries);
+				series = chart.addSeries(LineSeries, mainSeriesOptions);
 				break;
 			case "area":
 				series = chart.addSeries(AreaSeries, {
-					topColor: "rgba(38, 166, 154, 0.56)",
-					bottomColor: "rgba(38, 166, 154, 0.04)",
-					lineColor: "rgba(38, 166, 154, 1)",
+					...mainSeriesOptions,
+					topColor: "rgba(247, 147, 26, 0.4)",
+					bottomColor: "rgba(247, 147, 26, 0.05)",
+					lineColor: "rgba(247, 147, 26, 1)",
 				});
 				break;
 			case "baseline":
 				series = chart.addSeries(BaselineSeries, {
+					...mainSeriesOptions,
 					baseValue: { type: "price", price: data[0]?.close || 0 },
-					topLineColor: "rgba(38, 166, 154, 1)",
-					topFillColor1: "rgba(38, 166, 154, 0.28)",
-					topFillColor2: "rgba(38, 166, 154, 0.05)",
+					topLineColor: "rgba(247, 147, 26, 1)",
+					topFillColor1: "rgba(247, 147, 26, 0.28)",
+					topFillColor2: "rgba(247, 147, 26, 0.05)",
 					bottomLineColor: "rgba(239, 83, 80, 1)",
 					bottomFillColor1: "rgba(239, 83, 80, 0.05)",
 					bottomFillColor2: "rgba(239, 83, 80, 0.28)",
 				});
 				break;
 			default:
-				series = chart.addSeries(CandlestickSeries);
+				series = chart.addSeries(CandlestickSeries, mainSeriesOptions);
 		}
 
 		// Configure scale margins for main series
@@ -248,6 +319,44 @@ export const Chart = ({
 			series.setData(lineData);
 		}
 
+		// Add additional series
+		const additionalSeriesMap = new Map<string, ISeriesApi<SeriesType>>();
+		additionalSeries?.forEach((config) => {
+			// Build options, filtering out undefined to satisfy library types
+			// biome-ignore lint/suspicious/noExplicitAny: Lightweight-charts uses complex union types
+			const seriesOptions: any = {
+				color: config.color,
+				lineWidth: config.lineWidth,
+				title: config.title,
+				priceLineVisible: config.priceLineVisible ?? false,
+				lastValueVisible: config.lastValueVisible ?? true,
+			};
+
+			// Remove undefined values to avoid type errors
+			Object.keys(seriesOptions).forEach((key) => {
+				if (seriesOptions[key] === undefined) {
+					delete seriesOptions[key];
+				}
+			});
+
+			let series: ISeriesApi<SeriesType>;
+
+			if (config.type === "area") {
+				series = chart.addSeries(AreaSeries, seriesOptions);
+			} else {
+				series = chart.addSeries(LineSeries, seriesOptions);
+			}
+
+			series.setData(config.data);
+			additionalSeriesMap.set(
+				config.title || `series-${additionalSeries.indexOf(config)}`,
+				series,
+			);
+		});
+
+		// Store additional series refs
+		additionalSeriesRefs.current = additionalSeriesMap;
+
 		// Handler for crosshair movement
 		const handleCrosshairMove = (param: MouseEventParams) => {
 			if (!showTooltip) {
@@ -280,8 +389,57 @@ export const Chart = ({
 
 				const hasOHLC = data.open !== undefined;
 
+				// Collect additional series data
+				const additionalSeriesData: AdditionalSeriesPoint[] = [];
+				for (const [series, seriesData] of param.seriesData) {
+					// Skip main series and volume
+					if (
+						series === seriesRef.current ||
+						series === volumeSeriesRef.current
+					) {
+						continue;
+					}
+
+					// Check if this is one of our additional series
+					if (seriesData && "value" in seriesData) {
+						// Find the title and config for this series
+						let foundTitle: string | undefined;
+						let foundConfig: AdditionalSeriesConfig | undefined;
+						for (const [title, ref] of additionalSeriesRefs.current) {
+							if (ref === series) {
+								foundTitle = title;
+								foundConfig = additionalSeries?.find(
+									(c) => (c.title || "") === title,
+								);
+								break;
+							}
+						}
+
+						let displayValue = (seriesData as { value: number }).value;
+
+						// Use original data value if available
+						if (foundConfig?.originalData) {
+							const originalPoint = foundConfig.originalData.find(
+								(d) => d.time === param.time,
+							);
+							if (originalPoint) {
+								displayValue = originalPoint.value;
+							}
+						}
+
+						if (foundTitle) {
+							additionalSeriesData.push({
+								title: foundTitle,
+								value: displayValue,
+								color: foundConfig?.color,
+							});
+						}
+					}
+				}
+
 				setTooltipData({
 					time: String(param.time),
+					mainSeriesTitle,
 					open: hasOHLC ? data.open : undefined,
 					high: hasOHLC ? data.high : undefined,
 					low: hasOHLC ? data.low : undefined,
@@ -289,6 +447,7 @@ export const Chart = ({
 					volume: volData?.value,
 					x: param.point.x,
 					y: param.point.y,
+					additionalSeries: additionalSeriesData,
 				});
 			} else {
 				setTooltipData(null);
@@ -327,6 +486,8 @@ export const Chart = ({
 		showPriceAxis,
 		showTimeAxis,
 		showTooltip,
+		additionalSeries,
+		mainSeriesTitle,
 	]);
 
 	// Update data when data prop changes
@@ -357,6 +518,7 @@ export const Chart = ({
 					data={tooltipData}
 					type={type}
 					containerWidth={containerWidth}
+					currency={currency}
 				/>
 			)}
 		</div>

@@ -45,6 +45,12 @@ export default async function DashboardPage() {
 	// Fetch real OHLC data for the chart
 	const ohlcData = await getCryptoOHLC(selectedCoin.id, 30);
 
+	// Fetch ETH data for comparison
+	const ethOhlcData = await getCryptoOHLC("ethereum", 30);
+
+	// Fetch BNB data for comparison
+	const bnbOhlcData = await getCryptoOHLC("binancecoin", 30);
+
 	// Transform API data [timestamp, open, high, low, close] to Chart format
 	// Use numeric timestamp (seconds) for uniqueness and sort by time
 	const chartData: CandlestickData[] = ohlcData
@@ -56,6 +62,45 @@ export default async function DashboardPage() {
 			close: candle[4],
 		}))
 		.sort((a, b) => (a.time as number) - (b.time as number)); // Ensure ascending order
+
+	// Prepare ETH data scaled to BTC range for comparison
+	const btcStartPrice = chartData[0]?.close || 1;
+	const ethStartPrice = ethOhlcData[0] ? ethOhlcData[0][4] : 1;
+	const scaleFactor = btcStartPrice / ethStartPrice;
+
+	const ethSeriesData = ethOhlcData
+		.map((candle) => ({
+			time: Math.floor(candle[0] / 1000) as Time,
+			value: candle[4] * scaleFactor, // Scale ETH price to match BTC start
+		}))
+		.sort((a, b) => (a.time as number) - (b.time as number));
+
+	// Original ETH data for tooltip display
+	const ethOriginalData = ethOhlcData
+		.map((candle) => ({
+			time: Math.floor(candle[0] / 1000) as Time,
+			value: candle[4],
+		}))
+		.sort((a, b) => (a.time as number) - (b.time as number));
+
+	// Prepare BNB data scaled to BTC range for comparison
+	const bnbStartPrice = bnbOhlcData[0] ? bnbOhlcData[0][4] : 1;
+	const bnbScaleFactor = btcStartPrice / bnbStartPrice;
+
+	const bnbSeriesData = bnbOhlcData
+		.map((candle) => ({
+			time: Math.floor(candle[0] / 1000) as Time,
+			value: candle[4] * bnbScaleFactor, // Scale BNB price to match BTC start
+		}))
+		.sort((a, b) => (a.time as number) - (b.time as number));
+
+	// Original BNB data for tooltip display
+	const bnbOriginalData = bnbOhlcData
+		.map((candle) => ({
+			time: Math.floor(candle[0] / 1000) as Time,
+			value: candle[4],
+		}))
+		.sort((a, b) => (a.time as number) - (b.time as number));
 
 	return (
 		<div className="flex gap-4 items-start">
@@ -86,14 +131,35 @@ export default async function DashboardPage() {
 						</div>
 					</Card.Header>
 					<Card.Content>
+						{/*"candlestick" | "bar" | "line" | "area" | "baseline"*/}
 						<Chart
 							data={chartData}
 							type="area"
-							title="Bitcoin Price Chart"
+							mainSeriesTitle="BTC"
 							showGrid
 							showTooltip
 							showPriceAxis={false}
 							showTimeAxis={false}
+							additionalSeries={[
+								{
+									type: "line",
+									data: ethSeriesData,
+									color: "#627EEA",
+									lineWidth: 2,
+									title: "ETH",
+									originalData: ethOriginalData,
+									priceLineVisible: true,
+								},
+								{
+									type: "line",
+									data: bnbSeriesData,
+									color: "#F3BA2F",
+									lineWidth: 2,
+									title: "BNB",
+									originalData: bnbOriginalData,
+									priceLineVisible: true,
+								},
+							]}
 						/>
 					</Card.Content>
 				</Card>
