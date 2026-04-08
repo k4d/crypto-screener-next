@@ -27,7 +27,7 @@ export interface TooltipData {
 	/** Time string (timestamp or formatted date) */
 	time: string;
 	/** Title of the main series (e.g., "BTC") */
-	mainSeriesTitle?: string;
+	seriesTitle?: string;
 	/** Opening price (for candlestick/bar charts) */
 	open?: number;
 	/** Highest price (for candlestick/bar charts) */
@@ -162,9 +162,9 @@ const OhlcTooltipContent = ({
 	currency: string;
 }) => (
 	<>
-		{data.mainSeriesTitle && (
+		{data.seriesTitle && (
 			<span className="col-span-2 font-semibold text-gray-700">
-				{data.mainSeriesTitle}
+				{data.seriesTitle}
 			</span>
 		)}
 		<TooltipPriceRow label="Open" value={formatPrice(data.open, currency)} />
@@ -194,7 +194,7 @@ const SimpleTooltipContent = ({
 }) => (
 	<>
 		<span className="font-semibold text-gray-700">
-			{data.mainSeriesTitle ? `${data.mainSeriesTitle}:` : "Price:"}
+			{data.seriesTitle ? `${data.seriesTitle}:` : "Price:"}
 		</span>
 		<span className="text-right font-medium text-gray-500">
 			{formatPrice(data.close, currency)}

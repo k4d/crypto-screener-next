@@ -1,26 +1,12 @@
 "use client";
 
-import {
-	AreaSeries,
-	BarSeries,
-	BaselineSeries,
-	type CandlestickData,
-	CandlestickSeries,
-	createChart,
-	HistogramSeries,
-	type IChartApi,
-	type ISeriesApi,
-	LineSeries,
-	type MouseEventParams,
-	type SeriesType,
-	type Time,
-} from "lightweight-charts";
-import { useEffect, useRef, useState } from "react";
-import {
-	type AdditionalSeriesPoint,
-	ChartTooltip,
-	type TooltipData,
-} from "./ChartTooltip";
+import type { CandlestickData, Time } from "lightweight-charts";
+import { ChartTooltip } from "./ChartTooltip";
+import { useAdditionalSeries } from "./useAdditionalSeries";
+import { useChart } from "./useChart";
+import { useCrosshair } from "./useCrosshair";
+import { useMainSeries } from "./useMainSeries";
+import { useVolume } from "./useVolume";
 
 /**
  * Available chart types.
@@ -73,7 +59,7 @@ interface ChartProps {
 	/** Currency code for price formatting (default: "USD") */
 	currency?: string;
 	/** Title for the main series (displayed on the chart) */
-	mainSeriesTitle?: string;
+	seriesTitle?: string;
 	/** Array of additional series to overlay on the chart */
 	additionalSeries?: AdditionalSeriesConfig[];
 	/** Additional CSS classes for the chart container */
@@ -108,7 +94,7 @@ interface ChartProps {
  * @param props.showTimeAxis - Toggle bottom time axis visibility (default: true)
  * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
  * @param props.currency - Currency code for price formatting (default: "USD")
- * @param props.mainSeriesTitle - Title for the main series (shown in tooltip)
+ * @param props.seriesTitle - Title for the main series (shown in tooltip)
  * @param props.additionalSeries - Array of additional series to overlay (lines/areas)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
@@ -145,7 +131,7 @@ interface ChartProps {
  * <Chart
  *   data={btcData}
  *   type="line"
- *   mainSeriesTitle="BTC"
+ *   seriesTitle="BTC"
  *   showTooltip
  *   currency="USD"
  *   additionalSeries={[
@@ -164,7 +150,7 @@ export const Chart = ({
 	data,
 	type = "line",
 	title,
-	width,
+	width: _width,
 	height = 300,
 	timeframe = "30m",
 	showGrid = true,
@@ -173,344 +159,52 @@ export const Chart = ({
 	showTimeAxis = true,
 	showTooltip = false,
 	currency = "USD",
-	mainSeriesTitle,
+	seriesTitle,
 	additionalSeries,
 	className,
 }: ChartProps) => {
-	const chartContainerRef = useRef<HTMLDivElement>(null);
-	const chartRef = useRef<IChartApi | null>(null);
-	const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
-	const volumeSeriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
-	const additionalSeriesRefs = useRef<Map<string, ISeriesApi<SeriesType>>>(
-		new Map(),
-	);
-
-	// State for custom tooltip
-	const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
-	// State for chart container width (for tooltip positioning)
-	const [containerWidth, setContainerWidth] = useState<number>(0);
-
-	useEffect(() => {
-		// Check if container exists
-		if (!chartContainerRef.current) return;
-
-		// Determine width: use prop if provided, else container width
-		const chartWidth = width || chartContainerRef.current.clientWidth;
-
-		// Store container width for tooltip positioning
-		setContainerWidth(chartWidth);
-
-		// Create chart with container width
-		const chart = createChart(chartContainerRef.current, {
-			width: chartWidth,
-			height,
-			layout: {
-				attributionLogo: false,
-			},
-			grid: {
-				vertLines: {
-					visible: showGrid,
-					color: "rgba(42, 46, 57, 0.06)",
-				},
-				horzLines: {
-					visible: showGrid,
-					color: "rgba(42, 46, 57, 0.06)",
-				},
-			},
-			rightPriceScale: {
-				visible: showPriceAxis,
-			},
-			timeScale: {
-				visible: showTimeAxis,
-			},
-		});
-
-		// Determine series type and options
-		let series: ISeriesApi<SeriesType>;
-
-		// Common options for the main series
-		// biome-ignore lint/suspicious/noExplicitAny: Library options type complexity
-		const mainSeriesOptions: any = {
-			title: mainSeriesTitle,
-			color: "#F7931A", // Bitcoin orange
-		};
-
-		switch (type) {
-			case "bar":
-				series = chart.addSeries(BarSeries, mainSeriesOptions);
-				break;
-			case "line":
-				series = chart.addSeries(LineSeries, mainSeriesOptions);
-				break;
-			case "area":
-				series = chart.addSeries(AreaSeries, {
-					...mainSeriesOptions,
-					topColor: "rgba(247, 147, 26, 0.4)",
-					bottomColor: "rgba(247, 147, 26, 0.05)",
-					lineColor: "rgba(247, 147, 26, 1)",
-				});
-				break;
-			case "baseline":
-				series = chart.addSeries(BaselineSeries, {
-					...mainSeriesOptions,
-					baseValue: { type: "price", price: data[0]?.close || 0 },
-					topLineColor: "rgba(247, 147, 26, 1)",
-					topFillColor1: "rgba(247, 147, 26, 0.28)",
-					topFillColor2: "rgba(247, 147, 26, 0.05)",
-					bottomLineColor: "rgba(239, 83, 80, 1)",
-					bottomFillColor1: "rgba(239, 83, 80, 0.05)",
-					bottomFillColor2: "rgba(239, 83, 80, 0.28)",
-				});
-				break;
-			default:
-				series = chart.addSeries(CandlestickSeries, mainSeriesOptions);
-		}
-
-		// Configure scale margins for main series
-		series.priceScale().applyOptions({
-			scaleMargins: {
-				top: 0.1,
-				bottom: showVolume ? 0.3 : 0.1,
-			},
-		});
-
-		chartRef.current = chart;
-		seriesRef.current = series;
-
-		// Add volume histogram below chart if enabled
-		if (showVolume) {
-			volumeSeriesRef.current = chart.addSeries(HistogramSeries, {
-				priceFormat: {
-					type: "volume",
-				},
-				priceScaleId: "", // Overlay mode (no right axis)
-			});
-
-			// Configure volume scale margins (bottom 30%)
-			volumeSeriesRef.current.priceScale().applyOptions({
-				scaleMargins: {
-					top: 0.7, // Start at 70% height
-					bottom: 0,
-				},
-			});
-
-			// Generate mock volume data based on candlestick data
-			const volumeData = data.map((candle) => ({
-				time: candle.time,
-				value: Math.floor(Math.random() * 1000000) + 500000,
-				color:
-					candle.close >= candle.open
-						? "rgba(38, 166, 154, 0.5)" // Green for bullish
-						: "rgba(239, 83, 80, 0.5)", // Red for bearish
-			}));
-
-			volumeSeriesRef.current.setData(volumeData);
-		}
-
-		// Set data based on chart type
-		if (type === "candlestick" || type === "bar") {
-			series.setData(data);
-		} else {
-			// For line, area, baseline: map OHLC to LineData (using close price)
-			const lineData = data.map((candle) => ({
-				time: candle.time,
-				value: candle.close,
-			}));
-			series.setData(lineData);
-		}
-
-		// Add additional series
-		const additionalSeriesMap = new Map<string, ISeriesApi<SeriesType>>();
-		additionalSeries?.forEach((config) => {
-			// Build options, filtering out undefined to satisfy library types
-			// biome-ignore lint/suspicious/noExplicitAny: Lightweight-charts uses complex union types
-			const seriesOptions: any = {
-				color: config.color,
-				lineWidth: config.lineWidth,
-				title: config.title,
-				priceLineVisible: config.priceLineVisible ?? false,
-				lastValueVisible: config.lastValueVisible ?? true,
-			};
-
-			// Remove undefined values to avoid type errors
-			Object.keys(seriesOptions).forEach((key) => {
-				if (seriesOptions[key] === undefined) {
-					delete seriesOptions[key];
-				}
-			});
-
-			let series: ISeriesApi<SeriesType>;
-
-			if (config.type === "area") {
-				series = chart.addSeries(AreaSeries, seriesOptions);
-			} else {
-				series = chart.addSeries(LineSeries, seriesOptions);
-			}
-
-			series.setData(config.data);
-			additionalSeriesMap.set(
-				config.title || `series-${additionalSeries.indexOf(config)}`,
-				series,
-			);
-		});
-
-		// Store additional series refs
-		additionalSeriesRefs.current = additionalSeriesMap;
-
-		// Handler for crosshair movement
-		const handleCrosshairMove = (param: MouseEventParams) => {
-			if (!showTooltip) {
-				setTooltipData(null);
-				return;
-			}
-
-			if (!param.time || !param.seriesData.size || !seriesRef.current) {
-				setTooltipData(null);
-				return;
-			}
-
-			const mainSeriesData = param.seriesData.get(seriesRef.current);
-			const volSeriesData = volumeSeriesRef.current
-				? param.seriesData.get(volumeSeriesRef.current)
-				: null;
-
-			if (mainSeriesData && param.point) {
-				// Define a loose type to avoid 'any' casting everywhere
-				interface LooseSeriesData {
-					open?: number;
-					high?: number;
-					low?: number;
-					close?: number;
-					value?: number;
-				}
-
-				const data = mainSeriesData as LooseSeriesData;
-				const volData = volSeriesData as LooseSeriesData | null;
-
-				const hasOHLC = data.open !== undefined;
-
-				// Collect additional series data
-				const additionalSeriesData: AdditionalSeriesPoint[] = [];
-				for (const [series, seriesData] of param.seriesData) {
-					// Skip main series and volume
-					if (
-						series === seriesRef.current ||
-						series === volumeSeriesRef.current
-					) {
-						continue;
-					}
-
-					// Check if this is one of our additional series
-					if (seriesData && "value" in seriesData) {
-						// Find the title and config for this series
-						let foundTitle: string | undefined;
-						let foundConfig: AdditionalSeriesConfig | undefined;
-						for (const [title, ref] of additionalSeriesRefs.current) {
-							if (ref === series) {
-								foundTitle = title;
-								foundConfig = additionalSeries?.find(
-									(c) => (c.title || "") === title,
-								);
-								break;
-							}
-						}
-
-						let displayValue = (seriesData as { value: number }).value;
-
-						// Use original data value if available
-						if (foundConfig?.originalData) {
-							const originalPoint = foundConfig.originalData.find(
-								(d) => d.time === param.time,
-							);
-							if (originalPoint) {
-								displayValue = originalPoint.value;
-							}
-						}
-
-						if (foundTitle) {
-							additionalSeriesData.push({
-								title: foundTitle,
-								value: displayValue,
-								color: foundConfig?.color,
-							});
-						}
-					}
-				}
-
-				setTooltipData({
-					time: String(param.time),
-					mainSeriesTitle,
-					open: hasOHLC ? data.open : undefined,
-					high: hasOHLC ? data.high : undefined,
-					low: hasOHLC ? data.low : undefined,
-					close: hasOHLC ? data.close : data.value,
-					volume: volData?.value,
-					x: param.point.x,
-					y: param.point.y,
-					additionalSeries: additionalSeriesData,
-				});
-			} else {
-				setTooltipData(null);
-			}
-		};
-
-		// Subscribe to crosshair movement for custom tooltip
-		chart.subscribeCrosshairMove(handleCrosshairMove);
-
-		// Resize Observer for adaptive width (only if width prop is not set)
-		const resizeObserver = new ResizeObserver((entries) => {
-			if (!width) {
-				for (const entry of entries) {
-					const { width: newWidth } = entry.contentRect;
-					chart.applyOptions({ width: newWidth });
-					setContainerWidth(newWidth);
-				}
-			}
-		});
-
-		resizeObserver.observe(chartContainerRef.current);
-
-		// Cleanup on unmount
-		return () => {
-			resizeObserver.disconnect();
-			chart.unsubscribeCrosshairMove(handleCrosshairMove);
-			chart.remove();
-		};
-	}, [
-		width,
+	const { chart, containerRef, containerWidth } = useChart({
 		height,
-		data,
 		showGrid,
-		showVolume,
-		type,
 		showPriceAxis,
 		showTimeAxis,
-		showTooltip,
-		additionalSeries,
-		mainSeriesTitle,
-	]);
+	});
 
-	// Update data when data prop changes
-	useEffect(() => {
-		if (seriesRef.current) {
-			if (type === "candlestick" || type === "bar") {
-				seriesRef.current.setData(data);
-			} else {
-				const lineData = data.map((candle) => ({
-					time: candle.time,
-					value: candle.close,
-				}));
-				seriesRef.current.setData(lineData);
-			}
-		}
-	}, [data, type]);
+	const { seriesRef } = useMainSeries({
+		chart,
+		type,
+		data,
+		showVolume,
+		seriesTitle,
+	});
+
+	const { additionalSeriesRefs } = useAdditionalSeries({
+		chart,
+		configs: additionalSeries,
+	});
+
+	const { volumeSeriesRef } = useVolume({
+		chart,
+		data,
+		showVolume,
+	});
+
+	const { tooltipData } = useCrosshair({
+		chart,
+		seriesRef,
+		volumeSeriesRef,
+		additionalSeriesRefs,
+		additionalSeriesConfig: additionalSeries,
+		showTooltip,
+		seriesTitle,
+	});
 
 	return (
 		<div className={`relative ${className || ""}`}>
 			{title && (
 				<h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 			)}
-			<div ref={chartContainerRef} data-timeframe={timeframe} />
+			<div ref={containerRef} data-timeframe={timeframe} />
 
 			{/* Custom Tooltip */}
 			{showTooltip && tooltipData && (
