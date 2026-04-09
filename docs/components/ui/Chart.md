@@ -53,7 +53,7 @@ const data = [
 <Chart
   data={btcData}
   type="line"
-  mainSeriesTitle="BTC"
+  seriesTitle="BTC"
   showTooltip
   currency="USD"
   additionalSeries={[
@@ -98,7 +98,7 @@ const data = [
 | **showTimeAxis** | `boolean` | `true` | Показать шкалу времени (снизу) |
 | **showTooltip** | `boolean` | `false` | Показать кастомный тултип при наведении |
 | **currency** | `string` | `"USD"` | Код валюты для форматирования цен |
-| **mainSeriesTitle** | `string` | — | Заголовок основной серии (в тултипе) |
+| **seriesTitle** | `string` | — | Заголовок основной серии (в тултипе) |
 | **additionalSeries** | `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий (линии, области) |
 | **className** | `string` | — | Дополнительные CSS классы для обертки |
 
@@ -258,7 +258,7 @@ const ethOriginal = ethData.map(d => ({
     },
   ]}
   showTooltip
-  mainSeriesTitle="BTC"
+  seriesTitle="BTC"
 />
 ```
 
@@ -268,9 +268,25 @@ const ethOriginal = ethData.map(d => ({
 
 | Файл | Описание |
 | ---- | -------- |
-| `Chart.tsx` | Основной компонент графика |
-| `ChartTooltip.tsx` | Компонент кастомного тултипа |
+| `Chart.tsx` | Основной компонент графика (221 строка) |
+| `ChartTooltip.tsx` | Компонент кастомного тултипа (260 строк) |
+| `helpers.ts` | Константы и хелперы (цвета, трансформеры данных) |
+| `useChart.ts` | Хук инициализации чарта и ResizeObserver |
+| `useMainSeries.ts` | Хук управления главной серией |
+| `useAdditionalSeries.ts` | Хук дополнительных серий (линии/области) |
+| `useVolume.ts` | Хук гистограммы объема |
+| `useCrosshair.ts` | Хук кроссхэира и сбора данных для тултипа |
 | `index.ts` | Экспорт |
+
+---
+
+## 🧪 Тесты
+
+| Файл | Тестов | Проверок |
+| ---- | ------ | -------- |
+| `helpers.test.ts` | 14 | 26 |
+| `ChartTooltip.test.tsx` | 16 | 23 |
+| **Итого** | **30** | **49** |
 
 ---
 
@@ -282,6 +298,6 @@ const ethOriginal = ethData.map(d => ({
 
 ---
 
-**Дата:** 2026-04-08
-**Версия:** 2.1.0
+**Дата:** 2026-04-09
+**Версия:** 3.0.0
 **Статус:** ✅ Production Ready
