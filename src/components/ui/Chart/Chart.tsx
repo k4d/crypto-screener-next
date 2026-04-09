@@ -70,16 +70,20 @@ interface ChartProps {
  * Chart component — interactive financial chart using Lightweight Charts.
  *
  * Renders a fully-featured financial chart with support for multiple
- * visualization types (Candlestick, Bar, Line, Area, Baseline).
- * Includes adaptive sizing, smart tooltip positioning (avoids edge overflow),
- * volume histogram, customizable axes visibility, and multi-series overlay.
+ * visualization types (Candlestick, Bar, Line, Area, Baseline). The chart
+ * instance is created once on mount and updated via `applyOptions()` when
+ * props change, preventing series cleanup errors and ensuring smooth
+ * transitions. Data automatically scales to fill the container width using
+ * `timeScale().fitContent()`.
  *
  * Features:
  * - 5 chart types with Bitcoin orange (#F7931A) as the default main color
  * - Custom tooltip with OHLCV + additional series values
  * - `originalData` support for scaled series (real prices in tooltip)
- * - ResizeObserver for responsive width adaptation
+ * - Auto-responsive width (fills container) or fixed width via `width` prop
+ * - `timeScale().fitContent()` ensures data scales correctly on resize
  * - Optional volume histogram (mock data)
+ * - Multi-series overlay (lines/areas) for comparisons/indicators
  *
  * @param props - Component props
  * @param props.data - Array of OHLC data points (must be sorted by time)
@@ -100,7 +104,7 @@ interface ChartProps {
  *
  * @example
  * ```tsx
- * // Basic line chart with default settings
+ * // Basic line chart with default settings (auto-responsive)
  * <Chart data={priceData} />
  *
  * // Candlestick chart with volume and title
@@ -150,7 +154,7 @@ export const Chart = ({
 	data,
 	type = "line",
 	title,
-	width: _width,
+	width,
 	height = 300,
 	timeframe = "30m",
 	showGrid = true,
@@ -165,6 +169,7 @@ export const Chart = ({
 }: ChartProps) => {
 	const { chart, containerRef, containerWidth } = useChart({
 		height,
+		width,
 		showGrid,
 		showPriceAxis,
 		showTimeAxis,
@@ -200,11 +205,11 @@ export const Chart = ({
 	});
 
 	return (
-		<div className={`relative ${className || ""}`}>
+		<div className={`relative w-full ${className || ""}`}>
 			{title && (
 				<h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
 			)}
-			<div ref={containerRef} data-timeframe={timeframe} />
+			<div ref={containerRef} className="w-full" data-timeframe={timeframe} />
 
 			{/* Custom Tooltip */}
 			{showTooltip && tooltipData && (
