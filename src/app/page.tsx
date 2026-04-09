@@ -135,7 +135,7 @@ export default async function DashboardPage() {
 						<Chart
 							data={chartData}
 							type="area"
-							seriesTitle="BTC"
+							title="BTC"
 							showGrid
 							showTooltip
 							showPriceAxis={false}

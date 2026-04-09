@@ -18,7 +18,7 @@ interface UseMainSeriesProps {
 	type: ChartType;
 	data: CandlestickData[];
 	showVolume: boolean;
-	seriesTitle?: string;
+	title?: string;
 }
 
 interface UseMainSeriesReturn {
@@ -37,7 +37,7 @@ interface UseMainSeriesReturn {
  * @param props.type - Chart visualization type
  * @param props.data - Array of OHLC data points
  * @param props.showVolume - Whether volume histogram is enabled (affects scale margins)
- * @param props.seriesTitle - Title displayed in the tooltip for the main series
+ * @param props.title - Title displayed in the tooltip for the main series
  * @returns Object containing the series ref for crosshair data collection
  *
  * @example
@@ -47,7 +47,7 @@ interface UseMainSeriesReturn {
  *   type: "candlestick",
  *   data: ohlcData,
  *   showVolume: true,
- *   seriesTitle: "BTC",
+ *   title: "BTC",
  * });
  * ```
  */
@@ -56,7 +56,7 @@ export const useMainSeries = ({
 	type,
 	data,
 	showVolume,
-	seriesTitle,
+	title,
 }: UseMainSeriesProps): UseMainSeriesReturn => {
 	const seriesRef = useRef<ISeriesApi<SeriesType> | null>(null);
 
@@ -64,7 +64,7 @@ export const useMainSeries = ({
 		if (!chart || data.length === 0) return;
 
 		const mainSeriesOptions = {
-			title: seriesTitle,
+			title,
 			color: BITCOIN_ORANGE,
 		};
 
@@ -119,7 +119,7 @@ export const useMainSeries = ({
 		return () => {
 			chart.removeSeries(series);
 		};
-	}, [chart, type, data, showVolume, seriesTitle]);
+	}, [chart, type, data, showVolume, title]);
 
 	return { seriesRef };
 };

@@ -55,7 +55,7 @@ const data = [
 <Chart
   data={btcData}
   type="line"
-  seriesTitle="BTC"
+  title="BTC"
   showTooltip
   currency="USD"
   additionalSeries={[
@@ -67,6 +67,17 @@ const data = [
       title: "ETH",
     },
   ]}
+/>
+```
+
+### График с заголовком
+
+```tsx
+<Chart
+  data={data}
+  chartTitle="Bitcoin / USD"
+  showPriceAxis={false}
+  showTimeAxis={false}
 />
 ```
 
@@ -90,7 +101,8 @@ const data = [
 | ---- | --- | ------------ | -------- |
 | **data** | `CandlestickData[]` | — | Массив данных OHLC (обязательно) |
 | **type** | `ChartType` | `"line"` | Тип графика (`candlestick`, `bar`, `line`, `area`, `baseline`) |
-| **title** | `string` | — | Заголовок графика (опционально) |
+| **chartTitle** | `string` | — | Заголовок графика над чартом (опционально) |
+| **title** | `string` | — | Название главной серии (в тултипе) |
 | **width** | `number` | `100%` | Фиксированная ширина графика в пикселях (по умолчанию — авто) |
 | **height** | `number` | `300` | Высота графика в пикселях |
 | **timeframe** | `string` | `"30m"` | Таймфрейм (используется для атрибуции) |
@@ -100,7 +112,6 @@ const data = [
 | **showTimeAxis** | `boolean` | `true` | Показать шкалу времени (снизу) |
 | **showTooltip** | `boolean` | `false` | Показать кастомный тултип при наведении |
 | **currency** | `string` | `"USD"` | Код валюты для форматирования цен |
-| **seriesTitle** | `string` | — | Заголовок основной серии (в тултипе) |
 | **additionalSeries** | `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий (линии, области) |
 | **className** | `string` | — | Дополнительные CSS классы для обертки |
 
@@ -260,7 +271,7 @@ const ethOriginal = ethData.map(d => ({
     },
   ]}
   showTooltip
-  seriesTitle="BTC"
+  title="BTC"
 />
 ```
 

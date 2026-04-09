@@ -15,7 +15,7 @@ interface UseCrosshairProps {
 	additionalSeriesRefs: RefObject<Map<string, ISeriesApi<SeriesType>>>;
 	additionalSeriesConfig?: AdditionalSeriesConfig[];
 	showTooltip: boolean;
-	seriesTitle?: string;
+	title?: string;
 }
 
 interface UseCrosshairReturn {
@@ -44,7 +44,7 @@ interface LooseSeriesData {
  * @param props.additionalSeriesRefs - Ref to the map of additional series
  * @param props.additionalSeriesConfig - Config array for additional series (used for originalData lookup)
  * @param props.showTooltip - Whether to display the tooltip
- * @param props.seriesTitle - Title for the main series in the tooltip
+ * @param props.title - Title for the main series in the tooltip
  * @returns Object containing the current tooltip data
  *
  * @example
@@ -56,7 +56,7 @@ interface LooseSeriesData {
  *   additionalSeriesRefs,
  *   additionalSeriesConfig: additionalSeries,
  *   showTooltip: true,
- *   seriesTitle: "BTC",
+ *   title: "BTC",
  * });
  * ```
  */
@@ -67,7 +67,7 @@ export const useCrosshair = ({
 	additionalSeriesRefs,
 	additionalSeriesConfig,
 	showTooltip,
-	seriesTitle,
+	title,
 }: UseCrosshairProps): UseCrosshairReturn => {
 	const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
 
@@ -141,7 +141,7 @@ export const useCrosshair = ({
 
 			setTooltipData({
 				time: String(param.time),
-				seriesTitle,
+				seriesTitle: title,
 				open: hasOHLC ? data.open : undefined,
 				high: hasOHLC ? data.high : undefined,
 				low: hasOHLC ? data.low : undefined,
@@ -165,7 +165,7 @@ export const useCrosshair = ({
 		volumeSeriesRef,
 		additionalSeriesRefs,
 		additionalSeriesConfig,
-		seriesTitle,
+		title,
 	]);
 
 	return { tooltipData };

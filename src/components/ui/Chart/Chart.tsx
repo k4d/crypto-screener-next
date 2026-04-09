@@ -38,8 +38,8 @@ interface ChartProps {
 	data: CandlestickData[];
 	/** Chart type (default: "line") */
 	type?: ChartType;
-	/** Chart title (optional) */
-	title?: string;
+	/** Chart title displayed above the chart (optional) */
+	chartTitle?: string;
 	/** Chart width in pixels (default: 100% of container) */
 	width?: number;
 	/** Chart height in pixels (default: 300) */
@@ -58,8 +58,8 @@ interface ChartProps {
 	showTooltip?: boolean;
 	/** Currency code for price formatting (default: "USD") */
 	currency?: string;
-	/** Title for the main series (displayed on the chart) */
-	seriesTitle?: string;
+	/** Title for the main series (displayed in tooltip) */
+	title?: string;
 	/** Array of additional series to overlay on the chart */
 	additionalSeries?: AdditionalSeriesConfig[];
 	/** Additional CSS classes for the chart container */
@@ -88,7 +88,8 @@ interface ChartProps {
  * @param props - Component props
  * @param props.data - Array of OHLC data points (must be sorted by time)
  * @param props.type - Chart visualization type (default: "line")
- * @param props.title - Optional chart title displayed above the chart
+ * @param props.chartTitle - Optional chart title displayed above the chart
+ * @param props.title - Title for the main series (shown in tooltip)
  * @param props.width - Fixed width in pixels (default: 100% of container)
  * @param props.height - Chart height in pixels (default: 300)
  * @param props.timeframe - Timeframe identifier for attribution (default: "30m")
@@ -98,7 +99,6 @@ interface ChartProps {
  * @param props.showTimeAxis - Toggle bottom time axis visibility (default: true)
  * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
  * @param props.currency - Currency code for price formatting (default: "USD")
- * @param props.seriesTitle - Title for the main series (shown in tooltip)
  * @param props.additionalSeries - Array of additional series to overlay (lines/areas)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
@@ -107,11 +107,11 @@ interface ChartProps {
  * // Basic line chart with default settings (auto-responsive)
  * <Chart data={priceData} />
  *
- * // Candlestick chart with volume and title
+ * // Candlestick chart with volume and chart title
  * <Chart
  *   data={ohlcData}
  *   type="candlestick"
- *   title="BTC/USD"
+ *   chartTitle="BTC/USD"
  *   showVolume
  * />
  *
@@ -135,7 +135,7 @@ interface ChartProps {
  * <Chart
  *   data={btcData}
  *   type="line"
- *   seriesTitle="BTC"
+ *   title="BTC"
  *   showTooltip
  *   currency="USD"
  *   additionalSeries={[
@@ -153,6 +153,7 @@ interface ChartProps {
 export const Chart = ({
 	data,
 	type = "line",
+	chartTitle,
 	title,
 	width,
 	height = 300,
@@ -163,7 +164,6 @@ export const Chart = ({
 	showTimeAxis = true,
 	showTooltip = false,
 	currency = "USD",
-	seriesTitle,
 	additionalSeries,
 	className,
 }: ChartProps) => {
@@ -180,7 +180,7 @@ export const Chart = ({
 		type,
 		data,
 		showVolume,
-		seriesTitle,
+		title,
 	});
 
 	const { additionalSeriesRefs } = useAdditionalSeries({
@@ -201,13 +201,15 @@ export const Chart = ({
 		additionalSeriesRefs,
 		additionalSeriesConfig: additionalSeries,
 		showTooltip,
-		seriesTitle,
+		title,
 	});
 
 	return (
 		<div className={`relative w-full ${className || ""}`}>
-			{title && (
-				<h3 className="text-lg font-semibold text-gray-800 mb-2">{title}</h3>
+			{chartTitle && (
+				<h3 className="text-lg font-semibold text-gray-800 mb-2">
+					{chartTitle}
+				</h3>
 			)}
 			<div ref={containerRef} className="w-full" data-timeframe={timeframe} />
 
