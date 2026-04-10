@@ -1,7 +1,9 @@
 "use client";
 
 import type { CandlestickData, Time } from "lightweight-charts";
+import { ChartLegend, type ChartLegendItem } from "./ChartLegend";
 import { ChartTooltip } from "./ChartTooltip";
+import { resolveLegendValues } from "./helpers";
 import { useAdditionalSeries } from "./useAdditionalSeries";
 import { useChart } from "./useChart";
 import { useCrosshair } from "./useCrosshair";
@@ -62,6 +64,16 @@ interface ChartProps {
 	title?: string;
 	/** Array of additional series to overlay on the chart */
 	additionalSeries?: AdditionalSeriesConfig[];
+	/** Legend items displayed on the chart */
+	legend?: ChartLegendItem[];
+	/** Currency for price formatting (default: "USD") */
+	legendCurrency?: string;
+	/** Legend layout direction (default: "vertical") */
+	legendPosition?: "vertical" | "horizontal";
+	/** Legend alignment direction (default: "left") */
+	legendAlign?: "left" | "right";
+	/** Whether to show the legend (default: true when legend is provided) */
+	showLegend?: boolean;
 	/** Additional CSS classes for the chart container */
 	className?: string;
 }
@@ -100,6 +112,10 @@ interface ChartProps {
  * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
  * @param props.currency - Currency code for price formatting (default: "USD")
  * @param props.additionalSeries - Array of additional series to overlay (lines/areas)
+ * @param props.legend - Legend items displayed on the chart. If not provided, items are auto-generated for active series.
+ * @param props.legendPosition - Legend layout direction (default: "vertical")
+ * @param props.legendAlign - Legend alignment direction (default: "left")
+ * @param props.showLegend - Whether to show the legend (default: true when legend is provided)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
  * @example
@@ -148,6 +164,17 @@ interface ChartProps {
  *     },
  *   ]}
  * />
+ *
+ * // Chart with auto-generated legend (values resolved from additionalSeries)
+ * <Chart
+ *   data={btcData}
+ *   additionalSeries={[
+ *     { type: "line", data: ethData, color: "#627EEA" },
+ *     { type: "line", data: bnbData, color: "#F3BA2F" },
+ *   ]}
+ *   legendPosition="horizontal"
+ *   legendAlign="right"
+ * />
  * ```
  */
 export const Chart = ({
@@ -165,8 +192,26 @@ export const Chart = ({
 	showTooltip = false,
 	currency = "USD",
 	additionalSeries,
+	legend,
+	legendPosition = "vertical",
+	legendAlign = "left",
+	showLegend = true,
 	className,
 }: ChartProps) => {
+	// If legend is not explicitly passed, create placeholders for auto-filling
+	// 1 item for the main series + one for each additionalSeries
+	const legendPlaceholder = legend
+		? legend
+		: [{}, ...(additionalSeries?.map(() => ({})) || [])];
+
+	// Automatically calculate legend values from data if not provided
+	const resolvedLegend = resolveLegendValues(
+		legendPlaceholder,
+		data,
+		additionalSeries,
+		title,
+	);
+
 	const { chart, containerRef, containerWidth } = useChart({
 		height,
 		width,
@@ -211,6 +256,15 @@ export const Chart = ({
 					{chartTitle}
 				</h3>
 			)}
+
+			{/* Legend */}
+			<ChartLegend
+				items={resolvedLegend || []}
+				position={legendPosition}
+				align={legendAlign}
+				show={showLegend}
+			/>
+
 			<div ref={containerRef} className="w-full" data-timeframe={timeframe} />
 
 			{/* Custom Tooltip */}

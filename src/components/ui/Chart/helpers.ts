@@ -11,6 +11,8 @@ import type {
 	LineData,
 	LineStyle,
 } from "lightweight-charts";
+import type { AdditionalSeriesConfig } from "./Chart";
+import type { ChartLegendItem } from "./ChartLegend";
 
 // ——— Colors ———
 
@@ -70,3 +72,76 @@ export const generateVolumeData = (data: CandlestickData[]) =>
 		value: Math.floor(Math.random() * 1000000) + 500000,
 		color: candle.close >= candle.open ? VOLUME_GREEN : VOLUME_RED,
 	}));
+
+// ——— Legend Helpers ———
+
+/**
+ * Resolves legend item properties (color, label, value) automatically
+ * when they are not explicitly provided by the user.
+ *
+ * Resolution Logic:
+ * - `color`: Extracted from `additionalSeries[index - 1]` for indices > 0.
+ * - `label`: Falls back to `mainSeriesTitle` (index 0) or `additionalSeries[index - 1].title`.
+ * - `value`: Computed from the last close price of the main series or the last
+ *   value in `additionalSeries[index - 1].originalData`.
+ *
+ * @param legend - Partial legend items provided by the user
+ * @param data - Main series candlestick data
+ * @param additionalSeries - Configurations for overlay series
+ * @param mainSeriesTitle - Display name for the primary series (index 0)
+ * @returns Array of legend items with all missing properties resolved
+ */
+export const resolveLegendValues = (
+	legend: ChartLegendItem[] | undefined,
+	data: CandlestickData[],
+	additionalSeries: AdditionalSeriesConfig[] | undefined,
+	mainSeriesTitle?: string,
+): ChartLegendItem[] => {
+	if (!legend?.length) return [];
+
+	return legend.map((item, index) => {
+		const resolved = { ...item };
+
+		// Resolve color if missing from additionalSeries
+		if (!resolved.color) {
+			const additionalConfig =
+				index === 0
+					? undefined // Main series usually doesn't have config in additionalSeries, or use default
+					: additionalSeries?.[index - 1];
+
+			resolved.color = additionalConfig?.color;
+		}
+
+		// Resolve label if missing
+		if (!resolved.label) {
+			if (index === 0) {
+				resolved.label = mainSeriesTitle || "Main";
+			} else {
+				resolved.label =
+					additionalSeries?.[index - 1]?.title || `Series ${index}`;
+			}
+		}
+
+		// Resolve value if missing
+		if (!resolved.value) {
+			// 1. Main series (index 0 is usually the main coin, e.g., BTC)
+			if (index === 0 && data.length > 0) {
+				const lastCandle = data[data.length - 1];
+				resolved.value = `$${lastCandle.close.toLocaleString()}`;
+			}
+			// 2. Additional series (shift index by -1 because legend[0] is main series)
+			else {
+				const additionalConfig = additionalSeries?.[index - 1];
+				if (additionalConfig?.originalData?.length) {
+					const lastPoint =
+						additionalConfig.originalData[
+							additionalConfig.originalData.length - 1
+						];
+					resolved.value = `$${lastPoint.value.toLocaleString()}`;
+				}
+			}
+		}
+
+		return resolved;
+	});
+};
