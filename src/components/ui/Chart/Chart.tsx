@@ -63,7 +63,7 @@ interface ChartProps {
 	/** Title for the main series (displayed in tooltip) */
 	title?: string;
 	/** Array of additional series to overlay on the chart */
-	additionalSeries?: AdditionalSeriesConfig[];
+	overlays?: AdditionalSeriesConfig[];
 	/** Legend items displayed on the chart */
 	legend?: ChartLegendItem[];
 	/** Currency for price formatting (default: "USD") */
@@ -111,7 +111,7 @@ interface ChartProps {
  * @param props.showTimeAxis - Toggle bottom time axis visibility (default: true)
  * @param props.showTooltip - Toggle custom tooltip on hover (default: false)
  * @param props.currency - Currency code for price formatting (default: "USD")
- * @param props.additionalSeries - Array of additional series to overlay (lines/areas)
+ * @param props.overlays - Array of additional series to overlay (lines/areas)
  * @param props.legend - Legend items displayed on the chart. If not provided, items are auto-generated for active series.
  * @param props.legendPosition - Legend layout direction (default: "vertical")
  * @param props.legendAlign - Legend alignment direction (default: "left")
@@ -154,7 +154,7 @@ interface ChartProps {
  *   title="BTC"
  *   showTooltip
  *   currency="USD"
- *   additionalSeries={[
+ *   overlays={[
  *     {
  *       type: "line",
  *       data: ethScaled,           // Scaled for visual alignment
@@ -165,10 +165,10 @@ interface ChartProps {
  *   ]}
  * />
  *
- * // Chart with auto-generated legend (values resolved from additionalSeries)
+ * // Chart with auto-generated legend (values resolved from overlays)
  * <Chart
  *   data={btcData}
- *   additionalSeries={[
+ *   overlays={[
  *     { type: "line", data: ethData, color: "#627EEA" },
  *     { type: "line", data: bnbData, color: "#F3BA2F" },
  *   ]}
@@ -191,7 +191,7 @@ export const Chart = ({
 	showTimeAxis = true,
 	showTooltip = false,
 	currency = "USD",
-	additionalSeries,
+	overlays,
 	legend,
 	legendPosition = "vertical",
 	legendAlign = "left",
@@ -202,13 +202,13 @@ export const Chart = ({
 	// 1 item for the main series + one for each additionalSeries
 	const legendPlaceholder = legend
 		? legend
-		: [{}, ...(additionalSeries?.map(() => ({})) || [])];
+		: [{}, ...(overlays?.map(() => ({})) || [])];
 
 	// Automatically calculate legend values from data if not provided
 	const resolvedLegend = resolveLegendValues(
 		legendPlaceholder,
 		data,
-		additionalSeries,
+		overlays,
 		title,
 	);
 
@@ -230,7 +230,7 @@ export const Chart = ({
 
 	const { additionalSeriesRefs } = useAdditionalSeries({
 		chart,
-		configs: additionalSeries,
+		configs: overlays,
 	});
 
 	const { volumeSeriesRef } = useVolume({
@@ -244,7 +244,7 @@ export const Chart = ({
 		seriesRef,
 		volumeSeriesRef,
 		additionalSeriesRefs,
-		additionalSeriesConfig: additionalSeries,
+		additionalSeriesConfig: overlays,
 		showTooltip,
 		title,
 	});

@@ -131,7 +131,6 @@ export default async function DashboardPage() {
 						</div>
 					</Card.Header>
 					<Card.Content>
-						{/*"candlestick" | "bar" | "line" | "area" | "baseline"*/}
 						<Chart
 							data={chartData}
 							type="area"
@@ -140,7 +139,8 @@ export default async function DashboardPage() {
 							showTooltip
 							showPriceAxis={false}
 							showTimeAxis={false}
-							additionalSeries={[
+							showLegend
+							overlays={[
 								{
 									type: "line",
 									data: ethSeriesData,
@@ -148,7 +148,6 @@ export default async function DashboardPage() {
 									lineWidth: 2,
 									title: "ETH",
 									originalData: ethOriginalData,
-									priceLineVisible: true,
 								},
 								{
 									type: "line",
@@ -157,7 +156,6 @@ export default async function DashboardPage() {
 									lineWidth: 2,
 									title: "BNB",
 									originalData: bnbOriginalData,
-									priceLineVisible: true,
 								},
 							]}
 						/>
