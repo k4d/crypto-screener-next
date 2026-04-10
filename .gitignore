@@ -47,3 +47,4 @@ next-env.d.ts
 # AI
 GEMINI.md
 QWEN.md
+.qwen/
