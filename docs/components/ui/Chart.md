@@ -6,13 +6,14 @@
 
 ## 📖 Обзор
 
-**Chart** — это компонент для визуализации биржевых данных с использованием библиотеки **Lightweight Charts**. Поддерживает 5 типов графиков (свечи, линия, область, бары, baseline), гистограмму объема, адаптивный размер, **умное позиционирование тултипа** и наложение нескольких серий.
+**Chart** — это компонент для визуализации биржевых данных с использованием библиотеки **Lightweight Charts**. Поддерживает 5 типов графиков (свечи, линия, область, бары, baseline), гистограмму объема, адаптивный размер, **умное позиционирование тултипа**, **автоматическую легенду** и наложение нескольких серий.
 
 ### Ключевые особенности
 
 - 🟠 **Bitcoin Orange (#F7931A)** — цвет главной серии по умолчанию
 - 📊 **5 типов графиков** — candlestick, bar, line, area, baseline
 - 🎯 **Multi-series overlay** — наложение дополнительных линий/областей
+- 🏷️ **Автоматическая легенда** — автозаполнение меток, цен и цветов
 - 💡 **Smart Tooltip** — OHLCV + дополнительные серии + реальные цены через `originalData`
 - 📐 **Адаптивность** — автоматическая подстройка ширины под контейнер + `timeScale().fitContent()`
 - 📏 **Фиксированная ширина** — проп `width` для задания точного размера
@@ -44,12 +45,12 @@ const data = [
 <Chart
   data={data}
   type="candlestick"
-  title="Bitcoin / USD"
+  chartTitle="Bitcoin / USD"
   showVolume
 />
 ```
 
-### Multi-series с тултипом
+### Multi-series с тултипом и overlays
 
 ```tsx
 <Chart
@@ -58,7 +59,7 @@ const data = [
   title="BTC"
   showTooltip
   currency="USD"
-  additionalSeries={[
+  overlays={[
     {
       type: "line",
       data: ethScaled,
@@ -70,14 +71,19 @@ const data = [
 />
 ```
 
-### График с заголовком
+### График с легендой (автозаполнение)
 
 ```tsx
 <Chart
-  data={data}
-  chartTitle="Bitcoin / USD"
-  showPriceAxis={false}
-  showTimeAxis={false}
+  data={btcData}
+  type="area"
+  overlays={[
+    { type: "line", data: ethData, color: "#627EEA" },
+    { type: "line", data: bnbData, color: "#F3BA2F" },
+  ]}
+  showLegend
+  legendPosition="horizontal"
+  legendAlign="right"
 />
 ```
 
@@ -112,7 +118,11 @@ const data = [
 | **showTimeAxis** | `boolean` | `true` | Показать шкалу времени (снизу) |
 | **showTooltip** | `boolean` | `false` | Показать кастомный тултип при наведении |
 | **currency** | `string` | `"USD"` | Код валюты для форматирования цен |
-| **additionalSeries** | `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий (линии, области) |
+| **overlays** | `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий для наложения (линии, области) |
+| **legend** | `ChartLegendItem[]` | `auto` | Элементы легенды. Если не переданы, генерируются автоматически. |
+| **legendPosition** | `"vertical"` \| `"horizontal"` | `"vertical"` | Направление расположения элементов легенды |
+| **legendAlign** | `"left"` \| `"right"` | `"left"` | Выравнивание блока легенды |
+| **showLegend** | `boolean` | `true` | Отображать ли легенду |
 | **className** | `string` | — | Дополнительные CSS классы для обертки |
 
 ---
@@ -206,7 +216,39 @@ BNB:      $612
 
 ---
 
-## 📈 Несколько линий (Multi-series)
+## 🏷️ Легенда (ChartLegend)
+
+Компонент `Chart` включает в себя встроенную легенду, которая отображает названия и текущие значения всех серий на графике.
+
+### Автозаполнение
+
+Если вы не передаёте проп `legend` вручную, компонент автоматически создаст элементы для каждой активной серии:
+- **Label**: берётся из `title` серии (или `mainSeriesTitle` для главной).
+- **Value**: рассчитывается по последней доступной цене (из `data` для главной серии или `originalData` для оверлеев).
+- **Color**: подтягивается из конфигурации `overlays`.
+
+```tsx
+// Легенда сгенерируется автоматически для всех серий
+<Chart
+  data={btcData}
+  overlays={[{ type: "line", data: ethData, color: "#627EEA" }]}
+  showLegend
+/>
+```
+
+### Настройка отображения
+
+Вы можете управлять внешним видом легенды через специальные пропы:
+
+| Проп | Описание |
+| ---- | -------- |
+| `legendPosition` | `"vertical"` (столбик) или `"horizontal"` (строка) |
+| `legendAlign` | `"left"` (по левому краю) или `"right"` (по правому краю) |
+| `showLegend` | Скрыть легенду: `showLegend={false}` |
+
+---
+
+## 📈 Несколько линий (Multi-series / Overlays)
 
 ### Пример использования
 
@@ -218,7 +260,7 @@ const smaData = chartData.map((d, i) => ({
   value: (d.close + (chartData[i - 1]?.close || d.close)) / 2,
 }));
 
-const additionalSeries: AdditionalSeriesConfig[] = [
+const overlays: AdditionalSeriesConfig[] = [
   {
     type: "line",
     data: smaData,
@@ -228,7 +270,7 @@ const additionalSeries: AdditionalSeriesConfig[] = [
   },
 ];
 
-<Chart data={chartData} additionalSeries={additionalSeries} />
+<Chart data={chartData} overlays={overlays} />
 ```
 
 ### Параметры серии
@@ -240,7 +282,7 @@ const additionalSeries: AdditionalSeriesConfig[] = [
 | **originalData** | `{ time, value }[]` | — | Оригинальные данные для тултипа |
 | **color** | `string` | — | Цвет линии |
 | **lineWidth** | `number` | — | Толщина линии |
-| **title** | `string` | — | Заголовок (в тултипе) |
+| **title** | `string` | — | Заголовок (в тултипе и легенде) |
 | **priceLineVisible** | `boolean` | `false` | Горизонтальная линия цены |
 | **lastValueVisible** | `boolean` | `true` | Метка последнего значения на оси |
 
@@ -261,7 +303,7 @@ const ethOriginal = ethData.map(d => ({
 
 <Chart
   data={btcData}
-  additionalSeries={[
+  overlays={[
     {
       type: "line",
       data: ethScaled,
@@ -281,9 +323,10 @@ const ethOriginal = ethData.map(d => ({
 
 | Файл | Описание |
 | ---- | -------- |
-| `Chart.tsx` | Основной компонент графика (221 строка) |
-| `ChartTooltip.tsx` | Компонент кастомного тултипа (260 строк) |
-| `helpers.ts` | Константы и хелперы (цвета, трансформеры данных) |
+| `Chart.tsx` | Основной компонент графика |
+| `ChartLegend.tsx` | Компонент легенды (автозаполнение, стили) |
+| `ChartTooltip.tsx` | Компонент кастомного тултипа |
+| `helpers.ts` | Константы и хелперы (цвета, трансформеры данных, `resolveLegendValues`) |
 | `useChart.ts` | Хук инициализации чарта, resize и обновления настроек через `applyOptions()` |
 | `useMainSeries.ts` | Хук управления главной серией |
 | `useAdditionalSeries.ts` | Хук дополнительных серий (линии/области) |
@@ -312,5 +355,5 @@ const ethOriginal = ethData.map(d => ({
 ---
 
 **Дата:** 2026-04-09
-**Версия:** 3.1.0
+**Версия:** 4.0.0
 **Статус:** ✅ Production Ready
