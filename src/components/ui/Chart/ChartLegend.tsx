@@ -78,8 +78,11 @@ export const ChartLegend = ({
 					: "",
 			)}
 		>
-			{items.map((item, index) => (
-				<div key={index} className="flex items-center gap-2">
+			{items.map((item) => (
+				<div
+					key={item.label || `value-${item.value}`}
+					className="flex items-center gap-2"
+				>
 					<span
 						className={cn(
 							"text-xs font-semibold",

@@ -62,8 +62,8 @@ export interface TableBodyProps {
  *
  * // Advanced mode with children
  * <TableBody>
- *   {rows.map((row, index) => (
- *     <TableRow rowKey={index} className="bg-gray-50">
+ *   {rows.map((row) => (
+ *     <TableRow rowKey={row.id} className="bg-gray-50">
  *       <TableCell>{row.name}</TableCell>
  *       <TableCell align="right">{row.price}</TableCell>
  *     </TableRow>
