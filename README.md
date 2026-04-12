@@ -6,6 +6,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwind-css)
 ![Bun](https://img.shields.io/badge/Bun-1.3-fcf0e6?logo=bun)
+![Chart](https://img.shields.io/badge/Charts-Lightweight-orange?logo=apachetradingview)
 
 ---
 
@@ -48,7 +49,7 @@
 | **Тренды**    | 🔜 Скоро    | Трендовые запросы (Top 15)                    |
 | **Тема**      | ✅ Готово   | Переключение светлой/тёмной темы              |
 | **Таблица**   | ✅ Готово   | Полная таблица (Basic/Hybrid/Advanced режимы) |
-| **Графики**   | 🔜 Скоро    | Графики цен (Lightweight Charts)              |
+| **Графики**   | ✅ Готово   | Графики цен (Lightweight Charts + Legend)     |
 
 ---
 
@@ -58,10 +59,11 @@
 
 | Технология                                    | Версия       | Назначение                   |
 | --------------------------------------------- | ------------ | ---------------------------- |
-| [Next.js](https://nextjs.org/)                | 16.1.5       | React фреймворк (App Router) |
+| [Next.js](https://nextjs.org/)                | 16.2.2       | React фреймворк (App Router) |
 | [TypeScript](https://www.typescriptlang.org/) | 5.9.3        | Типизация                    |
-| [Tailwind CSS](https://tailwindcss.com/)      | 4.2.1        | Стилизация                   |
-| [HeroUI](https://www.heroui.com/)             | 3.0.0-beta.7 | UI компоненты                |
+| [Tailwind CSS](https://tailwindcss.com/)      | 4.2.2        | Стилизация                   |
+| [HeroUI](https://www.heroui.com/)             | 3.0.2        | UI компоненты                |
+| [Lightweight Charts](https://www.tradingview.com/lightweight-charts/) | 5.1.0 | Графики |
 | [Bun](https://bun.sh/)                        | 1.3.x        | Package manager + runtime    |
 
 ### Инструменты:
@@ -107,6 +109,18 @@ crypto-screener-next/
 │   │   ├── footer/
 │   │   ├── header/
 │   │   └── ui/                ← UI компоненты
+│   │       ├── Chart/         ← Chart компоненты (Lightweight Charts)
+│   │       │   ├── Chart.tsx
+│   │       │   ├── ChartLegend.tsx
+│   │       │   ├── ChartTooltip.tsx
+│   │       │   ├── helpers.ts
+│   │       │   ├── indicators.ts
+│   │       │   ├── useChart.ts
+│   │       │   ├── useMainSeries.ts
+│   │       │   ├── useAdditionalSeries.ts
+│   │       │   ├── useCrosshair.ts
+│   │       │   ├── useVolume.ts
+│   │       │   └── index.ts
 │   │       ├── List/          ← List компоненты
 │   │       │   ├── List.tsx
 │   │       │   ├── ListItem.tsx
@@ -184,8 +198,10 @@ bun run dev
 | ---------------------------------------- | ---------------------------- |
 | [CoinGecko API](./docs/api/coingecko.md) | API клиент, функции, примеры |
 | [Endpoints](./docs/api/endpoints.md)     | Список endpoint'ов CoinGecko |
+| [Chart Component](./docs/components/ui/Chart.md) | Chart компонент (v4.0.0) — графики, легенда, overlays |
 | [Table Component](./docs/components/ui/Table.md) | Table компонент (v1.1.0) — Basic/Hybrid/Advanced режимы |
 | [List Component](./docs/components/ui/List.md)   | List компонент (v1.0.1) — гибкий список |
+| [Features Roadmap](./docs/features.md)   | План развития проекта        |
 | [Компоненты](./docs/components/)         | Документация компонентов     |
 | [Гайды](./docs/guides/)                  | Пошаговые руководства        |
 
@@ -197,6 +213,9 @@ bun run dev
 
 | Компонент    | Описание                           | Путь                         |
 | ------------ | ---------------------------------- | ---------------------------- |
+| **Chart**    | Финансовый график (Lightweight Charts) | `@/components/ui/Chart`  |
+| **ChartLegend** | Легенда графика с автозаполнением | `@/components/ui/Chart`   |
+| **ChartTooltip** | Кастомный тултип графика      | `@/components/ui/Chart`     |
 | **List**     | Гибкий список (ul, ol, div)        | `@/components/ui/List`       |
 | **ListItem** | Элемент списка                     | `@/components/ui/List`       |
 | **Table**    | Таблица данных                     | `@/components/ui/Table`      |
@@ -317,6 +336,8 @@ bun test src/components/crypto/CoinPrice.test.tsx
 | CoinGecko API     | 24     | ✅     |
 | List              | 25     | ✅     |
 | Table             | 14     | ✅     |
+| Chart Helpers     | 14     | ✅     |
+| Chart Tooltip     | 16     | ✅     |
 
 **Примечание:** 
 - ListItem тестируется вместе с List (входит в 25 тестов)
