@@ -8,7 +8,8 @@ import {
 	SearchField,
 	Surface,
 } from "@heroui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { cn } from "@/utils/cn";
 
 interface SearchModalProps {
 	isOpen: boolean;
@@ -48,6 +49,7 @@ export default function SearchModal({
 }: SearchModalProps) {
 	const [value, setValue] = useState("");
 	const [activeButton, setActiveButton] = useState<string | null>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleOpenChange = (open: boolean) => {
 		if (!open) {
@@ -57,6 +59,15 @@ export default function SearchModal({
 		onOpenChange(open);
 	};
 
+	// Handle Enter key press
+	const handleSearch = () => {
+		if (value) {
+			console.log(`🔍 Searching for: "${value}"`);
+			// TODO: Implement real search logic here
+			handleOpenChange(false); // Close the modal
+		}
+	};
+
 	return (
 		<Modal isOpen={isOpen} onOpenChange={handleOpenChange}>
 			<Modal.Backdrop variant="blur">
@@ -64,12 +75,19 @@ export default function SearchModal({
 					<Modal.Dialog className="rounded-xl">
 						<Modal.Body className="p-2">
 							<SearchField fullWidth name="search" aria-label="Search coins">
-								<SearchField.Group>
+								<SearchField.Group className="rounded-md">
 									<SearchField.SearchIcon />
 									<SearchField.Input
+										ref={inputRef}
 										placeholder="Search coins..."
 										value={value}
+										autoFocus
 										onChange={(e) => setValue(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												handleSearch();
+											}
+										}}
 									/>
 									{value && (
 										<CloseButton
@@ -81,7 +99,10 @@ export default function SearchModal({
 										/>
 									)}
 									<Kbd
-										className="ml-1 mr-2 p-1 text-xs cursor-pointer border border-zinc-300 rounded"
+										className={cn(
+											"ml-1 mr-2 p-1 text-xs cursor-pointer",
+											"border border-zinc-300 rounded",
+										)}
 										onClick={() => handleOpenChange(false)}
 									>
 										<Kbd.Content>Esc</Kbd.Content>
@@ -103,14 +124,17 @@ export default function SearchModal({
 										key={item.label}
 										variant="tertiary"
 										size="sm"
-										className={`h-8 px-4 text-xs border ${
+										className={cn(
+											"h-8 px-4 text-xs border",
 											activeButton === item.label
 												? "bg-sky-100 text-sky-700 border-sky-300"
-												: "border-transparent"
-										}`}
+												: "border-transparent",
+										)}
 										onPress={() => {
 											setValue(item.label);
 											setActiveButton(item.label);
+											// Return focus to input after button click
+											inputRef.current?.focus();
 										}}
 									>
 										{item.label}
