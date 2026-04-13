@@ -47,10 +47,12 @@ export default function SearchModal({
 	onOpenChange,
 }: SearchModalProps) {
 	const [value, setValue] = useState("");
+	const [activeButton, setActiveButton] = useState<string | null>(null);
 
 	const handleOpenChange = (open: boolean) => {
 		if (!open) {
-			setValue(""); // Clear search when closing
+			setValue("");
+			setActiveButton(null); // Reset active button when closing
 		}
 		onOpenChange(open);
 	};
@@ -59,9 +61,9 @@ export default function SearchModal({
 		<Modal isOpen={isOpen} onOpenChange={handleOpenChange}>
 			<Modal.Backdrop variant="blur">
 				<Modal.Container placement="center" size="lg">
-					<Modal.Dialog>
+					<Modal.Dialog className="rounded-xl">
 						<Modal.Body className="p-2">
-							<SearchField fullWidth name="search">
+							<SearchField fullWidth name="search" aria-label="Search coins">
 								<SearchField.Group>
 									<SearchField.SearchIcon />
 									<SearchField.Input
@@ -69,9 +71,17 @@ export default function SearchModal({
 										value={value}
 										onChange={(e) => setValue(e.target.value)}
 									/>
-									{value && <CloseButton onPress={() => setValue("")} />}
+									{value && (
+										<CloseButton
+											onPress={() => {
+												setValue("");
+												setActiveButton(null);
+											}}
+											aria-label="Clear search"
+										/>
+									)}
 									<Kbd
-										className="ml-1 mr-2 p-1 text-xs cursor-pointer"
+										className="ml-1 mr-2 p-1 text-xs cursor-pointer border border-zinc-300 rounded"
 										onClick={() => handleOpenChange(false)}
 									>
 										<Kbd.Content>Esc</Kbd.Content>
@@ -80,7 +90,9 @@ export default function SearchModal({
 							</SearchField>
 							<Surface variant="default" className="mt-1 p-4 text-center">
 								<p className="text-zinc-600 font-light text-sm">
-									{value ? `Searching: "${value}"` : "No recent searches"}
+									{value
+										? `Press Enter to search "${value}"`
+										: "No recent searches"}
 								</p>
 							</Surface>
 						</Modal.Body>
@@ -91,7 +103,15 @@ export default function SearchModal({
 										key={item.label}
 										variant="tertiary"
 										size="sm"
-										onPress={() => setValue(item.label)}
+										className={`h-8 px-4 text-xs border ${
+											activeButton === item.label
+												? "bg-sky-100 text-sky-700 border-sky-300"
+												: "border-transparent"
+										}`}
+										onPress={() => {
+											setValue(item.label);
+											setActiveButton(item.label);
+										}}
 									>
 										{item.label}
 									</Button>

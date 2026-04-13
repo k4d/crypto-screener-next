@@ -46,7 +46,7 @@ export const SearchButton = ({ onPress, className }: SearchButtonProps) => {
 		>
 			<Search size={16} strokeWidth={1.5} />
 			<span className="font-light">Search</span>
-			<Kbd className="p-1 text-xs">
+			<Kbd className="p-1 text-xs cursor-pointer rounded">
 				<Kbd.Abbr keyValue="command" title="Command" />
 				<Kbd.Content>K</Kbd.Content>
 			</Kbd>

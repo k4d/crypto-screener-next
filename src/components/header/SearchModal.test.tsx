@@ -92,7 +92,9 @@ describe("SearchModal", () => {
 
 		fireEvent.change(searchInput, { target: { value: "Bitcoin" } });
 
-		expect(screen.getByText('Searching: "Bitcoin"')).toBeInTheDocument();
+		expect(
+			screen.getByText('Press Enter to search "Bitcoin"'),
+		).toBeInTheDocument();
 	});
 
 	it("clears search value when closing modal", () => {
@@ -102,7 +104,9 @@ describe("SearchModal", () => {
 
 		fireEvent.change(searchInput, { target: { value: "Bitcoin" } });
 
-		expect(screen.getByText('Searching: "Bitcoin"')).toBeInTheDocument();
+		expect(
+			screen.getByText('Press Enter to search "Bitcoin"'),
+		).toBeInTheDocument();
 
 		// Close modal
 		const closeButton = screen.getByRole("button", { name: /dismiss/i });
