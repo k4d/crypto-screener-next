@@ -3,6 +3,7 @@
 import { Button, Kbd } from "@heroui/react";
 import { Search } from "lucide-react";
 import { useEffect } from "react";
+import { cn } from "@/utils/cn";
 
 interface SearchButtonProps {
 	onPress?: () => void;
@@ -42,7 +43,7 @@ export const SearchButton = ({ onPress, className }: SearchButtonProps) => {
 			variant="outline"
 			aria-label="Search"
 			onPress={onPress}
-			className={className}
+			className={cn(className)}
 		>
 			<Search size={16} strokeWidth={1.5} />
 			<span className="font-light">Search</span>
