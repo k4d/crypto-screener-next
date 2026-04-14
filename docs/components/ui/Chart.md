@@ -121,7 +121,7 @@ const data = [
 | **overlays** | `AdditionalSeriesConfig[]` | `[]` | Массив дополнительных серий для наложения (линии, области) |
 | **legend** | `ChartLegendItem[]` | `auto` | Элементы легенды. Если не переданы, генерируются автоматически. |
 | **legendPosition** | `"vertical"` \| `"horizontal"` | `"vertical"` | Направление расположения элементов легенды |
-| **legendAlign** | `"left"` \| `"right"` | `"left"` | Выравнивание блока легенды |
+| **legendAlign** | `"left"` \| `"center"` \| `"right"` | `"left"` | Выравнивание блока легенды |
 | **showLegend** | `boolean` | `true` | Отображать ли легенду |
 | **className** | `string` | — | Дополнительные CSS классы для обертки |
 
