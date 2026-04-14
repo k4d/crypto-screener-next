@@ -36,7 +36,7 @@ export function RootLayout({ children }: RootLayoutProps) {
 			<body className={`${fonts} flex flex-col min-h-screen antialiased`}>
 				<ViewTransition>
 					<Header />
-					<main className="flex-1 mt-24 p-6 bg-linear-to-b from-slate-200 to-slate-100">
+					<main className="flex flex-col flex-1 mt-24 p-6 bg-linear-to-b from-slate-200 to-slate-100">
 						{children}
 					</main>
 					<Footer />
