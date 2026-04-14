@@ -25,7 +25,7 @@ interface ChartLegendProps {
 	/** Layout direction (default: "vertical") */
 	position?: "vertical" | "horizontal";
 	/** Alignment direction (default: "left") */
-	align?: "left" | "right";
+	align?: "left" | "center" | "right";
 	/** Whether to show the legend (default: true) */
 	show?: boolean;
 }
@@ -34,15 +34,17 @@ interface ChartLegendProps {
  * ChartLegend — overlay component for displaying chart legends.
  *
  * Renders color indicators, labels, and values in a customizable layout.
- * Positioned absolutely at the top-left or top-right of the parent container.
+ * Supports absolute positioning at the top of the parent container with
+ * flexible alignment (`left`, `center`, `right`) and layout direction
+ * (`vertical`, `horizontal`).
  *
- * When integrated with the `Chart` component, missing properties are
- * automatically inferred from active series configurations.
+ * When integrated with the `Chart` component, missing properties (like
+ * label or value) are automatically inferred from active series configurations.
  *
  * @param props - Component props
  * @param props.items - Array of legend items to display
  * @param props.position - Layout direction: `"vertical"` (default) or `"horizontal"`
- * @param props.align - Horizontal alignment: `"left"` (default) or `"right"`
+ * @param props.align - Horizontal alignment: `"left"` (default), `"center"`, or `"right"`
  * @param props.show - Visibility toggle (default: `true`)
  *
  * @example
@@ -50,8 +52,11 @@ interface ChartLegendProps {
  * // Basic usage with auto-resolved values
  * <ChartLegend items={[{ label: "BTC" }, { label: "ETH", color: "#627EEA" }]} />
  *
- * // Aligned to the right with horizontal layout
- * <ChartLegend items={[...]} position="horizontal" align="right" />
+ * // Centered horizontal legend
+ * <ChartLegend items={[...]} position="horizontal" align="center" />
+ *
+ * // Right-aligned vertical legend
+ * <ChartLegend items={[...]} position="vertical" align="right" />
  * ```
  */
 export const ChartLegend = ({
@@ -67,7 +72,11 @@ export const ChartLegend = ({
 			className={cn(
 				"absolute z-10 top-3 flex",
 				// Block positioning
-				align === "right" ? "right-3" : "left-3",
+				align === "right"
+					? "right-3"
+					: align === "center"
+						? "left-1/2 -translate-x-1/2"
+						: "left-3",
 				// Internal element layout
 				position === "horizontal" ? "items-center gap-4" : "flex-col gap-0.5",
 				// Content alignment
@@ -75,7 +84,11 @@ export const ChartLegend = ({
 					? position === "horizontal"
 						? "justify-end"
 						: "items-end"
-					: "",
+					: align === "center"
+						? position === "horizontal"
+							? "justify-center"
+							: "items-center"
+						: "",
 			)}
 		>
 			{items.map((item) => (

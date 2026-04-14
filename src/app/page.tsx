@@ -140,6 +140,8 @@ export default async function DashboardPage() {
 							showPriceAxis={false}
 							showTimeAxis={false}
 							showLegend
+							legendAlign="center"
+							legendPosition="horizontal"
 							overlays={[
 								{
 									type: "line",

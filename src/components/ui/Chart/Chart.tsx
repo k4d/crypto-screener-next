@@ -71,7 +71,7 @@ interface ChartProps {
 	/** Legend layout direction (default: "vertical") */
 	legendPosition?: "vertical" | "horizontal";
 	/** Legend alignment direction (default: "left") */
-	legendAlign?: "left" | "right";
+	legendAlign?: "left" | "center" | "right";
 	/** Whether to show the legend (default: true when legend is provided) */
 	showLegend?: boolean;
 	/** Additional CSS classes for the chart container */
@@ -96,6 +96,7 @@ interface ChartProps {
  * - `timeScale().fitContent()` ensures data scales correctly on resize
  * - Optional volume histogram (mock data)
  * - Multi-series overlay (lines/areas) for comparisons/indicators
+ * - Flexible legend positioning (left, center, right)
  *
  * @param props - Component props
  * @param props.data - Array of OHLC data points (must be sorted by time)
@@ -114,7 +115,7 @@ interface ChartProps {
  * @param props.overlays - Array of additional series to overlay (lines/areas)
  * @param props.legend - Legend items displayed on the chart. If not provided, items are auto-generated for active series.
  * @param props.legendPosition - Legend layout direction (default: "vertical")
- * @param props.legendAlign - Legend alignment direction (default: "left")
+ * @param props.legendAlign - Legend alignment: `"left"`, `"center"`, or `"right"` (default: "left")
  * @param props.showLegend - Whether to show the legend (default: true when legend is provided)
  * @param props.className - Additional CSS classes for the outer wrapper
  *
@@ -174,6 +175,14 @@ interface ChartProps {
  *   ]}
  *   legendPosition="horizontal"
  *   legendAlign="right"
+ * />
+ *
+ * // Centered legend example
+ * <Chart
+ *   data={btcData}
+ *   overlays={[{ type: "line", data: ethData, color: "#627EEA" }]}
+ *   legendPosition="horizontal"
+ *   legendAlign="center"
  * />
  * ```
  */
