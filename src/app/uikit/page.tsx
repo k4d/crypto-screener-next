@@ -7,9 +7,9 @@ export default function UIkitPage() {
 			<div className="max-w-7xl mx-auto space-y-8">
 				{/* Header */}
 				<div className="text-center">
-					<h1 className="text-4xl font-extrabold text-gray-800">
+					<h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
 						UI Kit
-						<span className="text-sm font-light text-gray-600 ml-1">
+						<span className="text-sm font-light text-gray-600 tracking-tight ml-1">
 							v1.1.0
 						</span>
 					</h1>
@@ -21,7 +21,9 @@ export default function UIkitPage() {
 				{/* List Component */}
 				<Card className="p-8 space-y-2 rounded-xl bg-linear-to-br from-slate-50 to-white shadow-xs">
 					<div className="space-y-0">
-						<h2 className="text-2xl font-bold text-gray-800">List Component</h2>
+						<h2 className="text-2xl font-bold text-gray-800 tracking-tight">
+							List Component
+						</h2>
 						<p className="font-light text-sm text-gray-600">
 							Гибкий список для отображения элементов
 						</p>
@@ -221,7 +223,7 @@ export default function UIkitPage() {
 				{/* Table Component */}
 				<Card className="p-8 space-y-2 rounded-xl bg-linear-to-br from-slate-50 to-white shadow-xs">
 					<div className="space-y-0">
-						<h2 className="text-2xl font-bold text-gray-800">
+						<h2 className="text-2xl font-bold text-gray-800 tracking-tight">
 							Table Component
 						</h2>
 						<p className="font-light text-sm text-gray-600">
