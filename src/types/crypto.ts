@@ -58,6 +58,54 @@ export const CryptoSchema = z.object({
 });
 
 /**
+ * Represents a single trending cryptocurrency found in CoinGecko's search results.
+ * Note: This schema reflects the structure *within* the `item` object of the API response.
+ */
+export const TrendingCoinDataSchema = z.object({
+	id: z.string(),
+	coin_id: z.number(), // Added from API documentation
+	name: z.string(),
+	symbol: z.string().toLowerCase(),
+	market_cap_rank: z.number().int().nullable(), // API docs confirm this can be null
+	thumb: z.url(),
+	small: z.url(),
+	large: z.url(), // Added from API documentation
+	slug: z.string(), // Added from API documentation
+	price_btc: z.number(), // Added from API documentation
+	score: z.number(), // Added from API documentation
+	data: z.object({
+		price: z.number(), // API returns this as number
+		price_btc: z.string(), // API returns this as string
+		price_change_percentage_24h: z.record(z.string(), z.number()), // API returns object with many currencies
+		market_cap: z.string(), // API returns formatted string (e.g., "$1,234,567")
+		market_cap_btc: z.string(), // API returns formatted string
+		total_volume: z.string(), // API returns formatted string
+		total_volume_btc: z.string(), // API returns formatted string
+		sparkline: z.string(), // Added from API documentation (SVG URL)
+		content: z
+			.object({
+				// API docs show this can be null
+				title: z.string(),
+				description: z.string(),
+			})
+			.nullable(),
+	}),
+});
+
+/**
+ * Zod schema for the trending search results response from CoinGecko API.
+ * Contains lists of trending coins, NFTs, and categories.
+ * Adjusted to match the actual API response structure.
+ */
+export const TrendingResponseSchema = z
+	.object({
+		coins: z.array(z.object({ item: TrendingCoinDataSchema })), // API returns coins as array of objects containing 'item'
+		nfts: z.array(z.any()).optional(), // Make fields optional as per documentation
+		categories: z.array(z.any()).optional(), // Make fields optional as per documentation
+	})
+	.catchall(z.any()); // Use catchall to allow any other unexpected fields
+
+/**
  * Zod schema for cryptocurrency list response from CoinGecko API.
  * Array of cryptocurrency data with market metrics.
  */
@@ -132,3 +180,12 @@ export type CryptoHistory = z.infer<typeof CryptoHistorySchema>;
 
 /** OHLC data array for candlestick charts */
 export type CryptoOHLCResponse = z.infer<typeof CryptoOHLCResponseSchema>;
+
+/** Single trending coin item's core data */
+export type TrendingCoinData = z.infer<typeof TrendingCoinDataSchema>;
+
+/** Flattened trending coin item, useful for frontend tables */
+export type TrendingCoinItem = TrendingCoinData; // Alias for clarity, refers to the data within 'item'
+
+/** Trending search results response */
+export type TrendingResponse = z.infer<typeof TrendingResponseSchema>;

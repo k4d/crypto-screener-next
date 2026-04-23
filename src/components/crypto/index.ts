@@ -2,6 +2,8 @@ export { CoinAvatar } from "./CoinAvatar";
 export { CoinName } from "./CoinName";
 export { CoinPrice } from "./CoinPrice";
 export { CoinPriceChange } from "./CoinPriceChange";
+export { CoinRank } from "./CoinRank";
 export { CoinSymbol } from "./CoinSymbol";
 export { CryptoListBox } from "./CryptoListBox";
 export { TimeFrameButtons } from "./TimeFrameButtons";
+export { TrendingCoinList } from "./TrendingCoinList";

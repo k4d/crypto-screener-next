@@ -1,7 +1,11 @@
 import { Card, Tabs } from "@heroui/react";
 import type { CandlestickData, Time } from "lightweight-charts";
 
-import { getCryptoList, getCryptoOHLC } from "@/api/coingecko";
+import {
+	getCryptoList,
+	getCryptoOHLC,
+	getTrendingSearches,
+} from "@/api/coingecko";
 import {
 	CoinAvatar,
 	CoinName,
@@ -10,9 +14,11 @@ import {
 	CoinSymbol,
 	CryptoListBox,
 	TimeFrameButtons,
+	TrendingCoinList,
 } from "@/components/crypto";
 import CryptoTable from "@/components/crypto/CryptoTable";
 import { Chart } from "@/components/ui";
+import type { TrendingResponse } from "@/types/crypto";
 
 interface TabListItem {
 	id: string;
@@ -41,6 +47,18 @@ export default async function DashboardPage() {
 	const getCoins = await getCryptoList("usd", 10);
 	const dataCoins = getCoins;
 	const selectedCoin = dataCoins[0];
+
+	// Fetch trending coins with error handling
+	let trendingData: TrendingResponse = {
+		coins: [],
+		nfts: [],
+		categories: [],
+	};
+	try {
+		trendingData = await getTrendingSearches();
+	} catch (error) {
+		console.error("Failed to load trending data:", error);
+	}
 
 	// Fetch real OHLC data for the chart
 	const ohlcData = await getCryptoOHLC(selectedCoin.id, 30);
@@ -197,8 +215,14 @@ export default async function DashboardPage() {
 							<Tabs.Panel id="top-10" className="p-0.5">
 								<CryptoListBox coins={dataCoins} className="p-0" />
 							</Tabs.Panel>
-							<Tabs.Panel id="trending" className="pt-4">
-								Trending coins last 24 hours.
+							<Tabs.Panel id="trending" className="p-0.5">
+								{trendingData.coins.length > 0 ? (
+									<TrendingCoinList coins={trendingData.coins} />
+								) : (
+									<p className="text-gray-500 text-sm">
+										Failed to load trending coins.
+									</p>
+								)}
 							</Tabs.Panel>
 							<Tabs.Panel id="watchlist" className="pt-4">
 								My Watchlist coins last 24 hours.

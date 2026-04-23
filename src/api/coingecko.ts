@@ -1,10 +1,12 @@
-import { ZodError, z } from "zod";
+import type { z } from "zod";
+import { ZodError } from "zod";
 import type {
 	Crypto,
 	CryptoHistory,
 	CryptoListResponse,
 	CryptoOHLCResponse,
 	CryptoSearchResult,
+	TrendingResponse,
 } from "@/types/crypto";
 import {
 	CryptoHistorySchema,
@@ -12,6 +14,7 @@ import {
 	CryptoOHLCResponseSchema,
 	CryptoSchema,
 	CryptoSearchResultsSchema,
+	TrendingResponseSchema,
 } from "@/types/crypto";
 
 const API_KEY = process.env.COINGECKO_API_KEY;
@@ -54,10 +57,19 @@ export class ValidationError extends Error {
  * @returns Headers object with Accept and API key
  */
 function getHeaders(): HeadersInit {
-	return {
+	const headers: HeadersInit = {
 		Accept: "application/json",
-		"x-cg-demo-api-key": API_KEY || "",
 	};
+
+	if (!API_KEY) {
+		console.warn(
+			"COINGECKO_API_KEY is not set. Using CoinGecko API without a key may lead to rate limiting.",
+		);
+	} else {
+		headers["x-cg-demo-api-key"] = API_KEY;
+	}
+
+	return headers;
 }
 
 /**
@@ -70,29 +82,40 @@ function getHeaders(): HeadersInit {
  */
 async function handleResponse<T>(
 	response: Response,
-	schema: unknown,
+	schema: z.ZodSchema<T>, // Use the generic type T here
 ): Promise<T> {
 	if (!response.ok) {
-		const error = await response
-			.json()
-			.catch(() => ({ message: "Unknown error" }));
-		throw new ApiError(response.status, error.message || response.statusText);
+		let errorPayload: { message?: string } = {};
+		try {
+			// Attempt to parse JSON error response
+			errorPayload = await response.json();
+		} catch (parseError) {
+			console.error("Failed to parse JSON error response:", parseError);
+			// If parsing fails, use statusText as the message
+			errorPayload.message = response.statusText || "Unknown API error";
+		}
+		// Throw ApiError with status and message
+		throw new ApiError(
+			response.status,
+			errorPayload?.message ?? response.statusText,
+		);
 	}
 
 	const data = await response.json();
 
 	try {
-		// biome-ignore lint/suspicious/noExplicitAny: Zod v4 type compatibility
-		const result = await z.parse(schema as any, data);
-		return result;
+		// Use the provided schema to parse and validate data
+		return schema.parse(data);
 	} catch (error) {
 		if (error instanceof ZodError) {
 			console.error("Validation error:", error.issues);
+			// Extract the first issue path and message for ValidationError
 			throw new ValidationError(
 				error.issues[0]?.path.join(".") || "unknown",
 				error.issues[0]?.message || "Invalid response format",
 			);
 		}
+		// Re-throw any other unexpected errors
 		throw error;
 	}
 }
@@ -268,5 +291,38 @@ export async function getCryptoOHLC(
 			throw error;
 		}
 		throw new ApiError(500, `Failed to fetch OHLC data for: ${id}`);
+	}
+}
+
+/**
+ * Get trending search cryptocurrencies from CoinGecko.
+ * @returns Trending cryptocurrencies and other trending items
+ * @throws {ApiError} If API request fails
+ * @throws {ValidationError} If response data is invalid
+ *
+ * @example
+ * ```tsx
+ * const trending = await getTrendingSearches();
+ * console.log(trending.coins); // Access coins directly
+ * ```
+ */
+export async function getTrendingSearches(): Promise<TrendingResponse> {
+	const url = `${BASE_URL}/search/trending`;
+
+	try {
+		const response = await fetch(url, {
+			headers: getHeaders(),
+			next: { revalidate: 600 }, // Cache for 10 minutes as per CoinGecko docs
+		});
+
+		// Use the updated TrendingResponseSchema for validation
+		return handleResponse(response, TrendingResponseSchema);
+	} catch (error) {
+		console.error("getTrendingSearches error:", error);
+		// Re-throw specific errors or a generic one
+		if (error instanceof ApiError || error instanceof ValidationError) {
+			throw error;
+		}
+		throw new ApiError(500, "Failed to fetch trending searches");
 	}
 }
