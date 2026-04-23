@@ -251,7 +251,22 @@ const handleSearch = async () => {
 	} finally {
 		setIsLoading(false);
 	}
+	handleOpenChange(false);
 };
+```
+
+---
+
+### 9. Валидация `market_cap_rank` — риск падения приложения
+
+**Файл:** `src/types/crypto.ts`, схема `CryptoSchema`
+
+**Проблема:** В схеме `CryptoSchema` поле `market_cap_rank` определено как `z.number().int().positive()`. Однако API CoinGecko часто возвращает `null` для монет с низким рейтингом или новых активов. Это приведет к ошибке валидации Zod и падению приложения при попытке обработать данные менее популярных криптовалют.
+
+**Рекомендация:**
+
+```typescript
+market_cap_rank: z.number().int().positive().nullable(),
 ```
 
 ---
@@ -268,6 +283,7 @@ const handleSearch = async () => {
 | 6   | Отсутствие error boundaries              | 🟡 Серьёзная    | `page.tsx`        | 40     |
 | 7   | Неправильное форматирование цены         | 🟠 Рекомендация | `CryptoTable.tsx` | 15     |
 | 8   | TODO в SearchModal не реализовано        | 🟠 Рекомендация | `SearchModal.tsx` | 66     |
+| 9   | Валидация `market_cap_rank`              | 🔴 Критичная    | `crypto.ts`       | 18     |
 
 ---
 
