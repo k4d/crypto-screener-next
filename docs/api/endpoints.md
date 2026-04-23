@@ -123,10 +123,10 @@ const history = await getCryptoHistory("bitcoin", 7, "usd");
 GET /api/v3/search/trending
 ```
 
-**Структура ответа:**
+**Структура ответа (Тип: `TrendingResponse`):**
 ```typescript
 {
-  coins: [    // Top 15 trending coins
+  coins: [    // Top 15 trending coins (где 'item' имеет тип `TrendingCoinData`)
     {
       item: {
         id: "bitcoin",
