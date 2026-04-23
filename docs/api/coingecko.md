@@ -20,8 +20,8 @@ src/api/coingecko.ts
     ├── getCryptoList()    ← Список криптовалют
     ├── searchCrypto()     ← Поиск по названию/символу
     ├── getCryptoById()    ← Детальная информация
-    └── getCryptoHistory() ← История цен
-```
+    ├── getCryptoHistory() ← История цен
+    └── getTrendingSearches() ← Трендовые криптовалюты```
 
 ---
 
@@ -227,6 +227,78 @@ history.prices.map(([timestamp, price]) => ({
 
 ---
 
+### 5. `getTrendingSearches()`
+
+Получить список трендовых криптовалют с CoinGecko.
+
+**Параметры:** Нет.
+
+**Возвращает:** `Promise<TrendingResponse>` — Трендовые криптовалюты и другие трендовые элементы (NFT, категории).
+
+**Ошибки:** `ApiError`, `ValidationError`
+
+**Пример:**
+
+```tsx
+// Server Component
+export default async function Dashboard() {
+    const trending = await getTrendingSearches();
+
+    return (
+        <div>
+            {trending.coins.map(({ item }) => (
+                <div key={item.id}>
+                    {item.name}: #{item.market_cap_rank ?? "N/A"}
+                </div>
+            ))}
+        </div>
+    );
+}
+```
+
+**Данные ответа:**
+
+```typescript
+{
+  coins: [
+    {
+      item: {
+        id: "bitcoin",
+        coin_id: 1,
+        name: "Bitcoin",
+        symbol: "btc",
+        market_cap_rank: 1,
+        thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+        small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
+        large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+        slug: "bitcoin",
+        price_btc: 1,
+        score: 0,
+        data: {
+          price: 60000,
+          price_btc: "1",
+          price_change_percentage_24h: { usd: 1.5 },
+          market_cap: "$1T",
+          market_cap_btc: "1M",
+          total_volume: "$10B",
+          total_volume_btc: "100K",
+          sparkline: "some_svg_url",
+          content: {
+            title: "Bitcoin (BTC)",
+            description: "Digital gold",
+          },
+        },
+      },
+    },
+    // ... другие трендовые монеты
+  ],
+  nfts: [], // Массив трендовых NFT (может быть пустым)
+  categories: [], // Массив трендовых категорий (может быть пустым)
+}
+```
+
+---
+
 ## ⚠️ Обработка ошибок
 
 ### ApiError
@@ -288,6 +360,7 @@ try {
 | `getCryptoById()`    | `300 сек`  | Детали монеты обновляются каждые 5 минут  |
 | `getCryptoHistory()` | `300 сек`  | История обновляется каждые 5 минут        |
 | `searchCrypto()`     | `нет`      | Не кешируется (пользовательский ввод)     |
+| `getTrendingSearches()` | `600 сек`  | Трендовые данные обновляются каждые 10 минут |
 
 **Пример:**
 
@@ -310,6 +383,8 @@ const response = await fetch(url, {
 - `CryptoListResponseSchema` — Массив криптовалют
 - `CryptoSearchResultsSchema` — Результаты поиска
 - `CryptoHistorySchema` — История цен
+- `TrendingResponseSchema` — Ответ трендовых запросов
+- `TrendingCoinDataSchema` — Данные одной трендовой монеты
 
 **Пример валидации:**
 
