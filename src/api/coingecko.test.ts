@@ -4,6 +4,7 @@ import {
 	getCryptoById,
 	getCryptoHistory,
 	getCryptoList,
+	getTrendingSearches,
 	searchCrypto,
 	ValidationError,
 } from "./coingecko";
@@ -55,6 +56,71 @@ const mockHistoryData = {
 		[1704153600000, 43000],
 		[1704240000000, 44000],
 	] as [number, number][],
+};
+
+const mockTrendingResponseData = {
+	coins: [
+		{
+			item: {
+				id: "bitcoin",
+				coin_id: 1,
+				name: "Bitcoin",
+				symbol: "btc",
+				market_cap_rank: 1,
+				thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+				small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
+				large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+				slug: "bitcoin",
+				price_btc: 1,
+				score: 0,
+				data: {
+					price: 60000,
+					price_btc: "1",
+					price_change_percentage_24h: { usd: 1.5 },
+					market_cap: "$1T",
+					market_cap_btc: "1M",
+					total_volume: "$10B",
+					total_volume_btc: "100K",
+					sparkline: "some_svg_url",
+					content: {
+						title: "Bitcoin (BTC)",
+						description: "Digital gold",
+					},
+				},
+			},
+		},
+		{
+			item: {
+				id: "ethereum",
+				coin_id: 2,
+				name: "Ethereum",
+				symbol: "eth",
+				market_cap_rank: 2,
+				thumb:
+					"https://assets.coingecko.com/coins/images/279/thumb/ethereum.png",
+				small:
+					"https://assets.coingecko.com/coins/images/279/small/ethereum.png",
+				large:
+					"https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+				slug: "ethereum",
+				price_btc: 0.05,
+				score: 1,
+				data: {
+					price: 3000,
+					price_btc: "0.05",
+					price_change_percentage_24h: { usd: 2.0 },
+					market_cap: "$300B",
+					market_cap_btc: "50K",
+					total_volume: "$5B",
+					total_volume_btc: "80K",
+					sparkline: "some_eth_svg_url",
+					content: null,
+				},
+			},
+		},
+	],
+	nfts: [],
+	categories: [],
 };
 
 /**
@@ -345,6 +411,82 @@ describe("CoinGecko API", () => {
 			await expect(getCryptoHistory("bitcoin")).rejects.toThrow(
 				ValidationError,
 			);
+		});
+	});
+
+	describe("getTrendingSearches", () => {
+		it("should fetch trending searches successfully", async () => {
+			spyOn(global, "fetch").mockImplementation(
+				() =>
+					// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+					Promise.resolve(createMockResponse(mockTrendingResponseData)) as any,
+			);
+
+			const result = await getTrendingSearches();
+
+			expect(result.coins).toHaveLength(2);
+			expect(result.coins[0].item.id).toBe("bitcoin");
+			expect(result.coins[1].item.name).toBe("Ethereum");
+		});
+
+		it("should throw ApiError on API error", async () => {
+			spyOn(global, "fetch").mockImplementation(() =>
+				Promise.resolve(
+					createMockErrorResponse(403, "Forbidden", "Rate limit exceeded"),
+				),
+			);
+
+			await expect(getTrendingSearches()).rejects.toThrow(ApiError);
+			await expect(getTrendingSearches()).rejects.toHaveProperty("status", 403);
+			await expect(getTrendingSearches()).rejects.toHaveProperty(
+				"message",
+				"Rate limit exceeded",
+			);
+		});
+
+		it("should throw ValidationError on invalid data", async () => {
+			spyOn(global, "fetch").mockImplementation(
+				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+				() => Promise.resolve(createMockResponse({ coins: "invalid" })) as any,
+			);
+
+			await expect(getTrendingSearches()).rejects.toThrow(ValidationError);
+		});
+
+		it("should throw ApiError for network failure", async () => {
+			spyOn(global, "fetch").mockImplementation(
+				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+				() => Promise.reject(new TypeError("Failed to fetch")) as any,
+			);
+
+			await expect(getTrendingSearches()).rejects.toThrow(ApiError);
+			await expect(getTrendingSearches()).rejects.toHaveProperty(
+				"message",
+				"Failed to fetch trending searches",
+			);
+		});
+
+		it("should log error and throw ApiError if json parsing fails on API error", async () => {
+			const consoleErrorSpy = spyOn(console, "error");
+			spyOn(global, "fetch").mockImplementation(() =>
+				Promise.resolve({
+					ok: false,
+					status: 500,
+					statusText: "Internal Server Error",
+					json: () => Promise.reject(new Error("Malformed JSON")),
+				}),
+			);
+
+			await expect(getTrendingSearches()).rejects.toThrow(ApiError);
+			await expect(getTrendingSearches()).rejects.toHaveProperty(
+				"message",
+				"Internal Server Error", // Should fall back to statusText
+			);
+			expect(consoleErrorSpy).toHaveBeenCalledWith(
+				"Failed to parse JSON error response:",
+				expect.any(Error),
+			);
+			consoleErrorSpy.mockRestore();
 		});
 	});
 
