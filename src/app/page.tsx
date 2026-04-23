@@ -44,24 +44,24 @@ const tabListClass =
 	"w-fit *:h-6 *:w-fit *:px-3 *:text-xs *:font-normal *:data-[selected=true]:text-accent-foreground bg-zinc-100";
 
 export default async function DashboardPage() {
-	const getCoins = await getCryptoList("usd", 10);
-	const dataCoins = getCoins;
-	const selectedCoin = dataCoins[0];
+	const getTopCoins = await getCryptoList("usd", 10);
+	const topCoinsData = getTopCoins;
+	const topCoin = topCoinsData[0];
 
 	// Fetch trending coins with error handling
-	let trendingData: TrendingResponse = {
+	let trendingCoinsData: TrendingResponse = {
 		coins: [],
 		nfts: [],
 		categories: [],
 	};
 	try {
-		trendingData = await getTrendingSearches();
+		trendingCoinsData = await getTrendingSearches();
 	} catch (error) {
 		console.error("Failed to load trending data:", error);
 	}
 
 	// Fetch real OHLC data for the chart
-	const ohlcData = await getCryptoOHLC(selectedCoin.id, 30);
+	const ohlcData = await getCryptoOHLC(topCoin.id, 30);
 
 	// Fetch ETH data for comparison
 	const ethOhlcData = await getCryptoOHLC("ethereum", 30);
@@ -131,16 +131,16 @@ export default async function DashboardPage() {
 				>
 					<Card.Header>
 						<div className="flex items-center gap-2">
-							<CoinAvatar crypto={selectedCoin} />
+							<CoinAvatar crypto={topCoin} />
 							<div>
-								<CoinName name={selectedCoin.name} size="md" />
-								<CoinSymbol name={selectedCoin.symbol} size="sm" />
+								<CoinName name={topCoin.name} size="md" />
+								<CoinSymbol name={topCoin.symbol} size="sm" />
 							</div>
 							<div className="ml-4">
-								<CoinPrice price={selectedCoin.current_price} />
+								<CoinPrice price={topCoin.current_price} />
 								<CoinPriceChange
 									size="md"
-									change={selectedCoin.price_change_percentage_24h}
+									change={topCoin.price_change_percentage_24h}
 									showIcon
 									period="24h"
 								/>
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
 					className="w-full rounded-xl bg-linear-to-br from-slate-50 to-white border-t border-l border-white shadow-xs"
 				>
 					<Card.Content>
-						<CryptoTable coins={dataCoins} />
+						<CryptoTable coins={topCoinsData} />
 					</Card.Content>
 				</Card>
 			</div>
@@ -213,11 +213,11 @@ export default async function DashboardPage() {
 								</Tabs.List>
 							</Tabs.ListContainer>
 							<Tabs.Panel id="top-10" className="p-0.5">
-								<CryptoListBox coins={dataCoins} className="p-0" />
+								<CryptoListBox coins={topCoinsData} className="p-0" />
 							</Tabs.Panel>
 							<Tabs.Panel id="trending" className="p-0.5">
-								{trendingData.coins.length > 0 ? (
-									<TrendingCoinList coins={trendingData.coins} />
+								{trendingCoinsData.coins.length > 0 ? (
+									<TrendingCoinList coins={trendingCoinsData.coins} />
 								) : (
 									<p className="text-gray-500 text-sm">
 										Failed to load trending coins.
