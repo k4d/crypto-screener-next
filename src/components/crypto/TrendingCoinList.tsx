@@ -56,6 +56,7 @@ export function TrendingCoinList({ coins, className }: TrendingCoinListProps) {
 							<CoinPriceChange
 								change={item.data?.price_change_percentage_24h?.usd}
 								size="sm"
+								className="justify-end"
 							/>
 						</div>
 					</div>
