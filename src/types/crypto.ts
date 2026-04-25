@@ -189,3 +189,17 @@ export type TrendingCoinItem = TrendingCoinData; // Alias for clarity, refers to
 
 /** Trending search results response */
 export type TrendingResponse = z.infer<typeof TrendingResponseSchema>;
+
+/**
+ * Standardized data structure for a single item in a crypto list.
+ * This interface is used by the generic CryptoListItem component.
+ */
+export interface CoinListItemData {
+	id: string;
+	name: string;
+	symbol: string;
+	image: string;
+	rank?: number;
+	price?: number;
+	priceChange?: number;
+}

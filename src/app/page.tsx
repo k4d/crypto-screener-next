@@ -12,8 +12,8 @@ import {
 	CoinPrice,
 	CoinPriceChange,
 	CoinSymbol,
-	CryptoListBox,
 	TimeFrameButtons,
+	TopCoinList,
 	TrendingCoinList,
 } from "@/components/crypto";
 import CryptoTable from "@/components/crypto/CryptoTable";
@@ -213,7 +213,7 @@ export default async function DashboardPage() {
 								</Tabs.List>
 							</Tabs.ListContainer>
 							<Tabs.Panel id="top-10" className="p-0.5">
-								<CryptoListBox coins={topCoinsData} className="p-0" />
+								<TopCoinList coins={topCoinsData} className="p-0" />
 							</Tabs.Panel>
 							<Tabs.Panel id="trending" className="p-0.5">
 								{trendingCoinsData.coins.length > 0 ? (
