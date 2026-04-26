@@ -7,5 +7,5 @@ export { CoinSymbol } from "./CoinSymbol";
 export { CoinList } from "./List/CoinList";
 export { CoinListItem } from "./List/CoinListItem";
 export { TimeFrameButtons } from "./TimeFrameButtons";
-export { TopCoinList } from "./TopCoinList";
-export { TrendingCoinList } from "./TrendingCoinList";
+export { default as TopCoinList } from "./TopCoinList";
+export { default as TrendingCoinList } from "./TrendingCoinList";

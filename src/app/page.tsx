@@ -1,11 +1,6 @@
 import { Card, Tabs } from "@heroui/react";
 import type { CandlestickData, Time } from "lightweight-charts";
-
-import {
-	getCryptoList,
-	getCryptoOHLC,
-	getTrendingSearches,
-} from "@/api/coingecko";
+import { getCryptoList, getCryptoOHLC } from "@/api/coingecko";
 import {
 	CoinAvatar,
 	CoinName,
@@ -18,7 +13,6 @@ import {
 } from "@/components/crypto";
 import CryptoTable from "@/components/crypto/CryptoTable";
 import { Chart } from "@/components/ui";
-import type { TrendingResponse } from "@/types/crypto";
 
 interface TabListItem {
 	id: string;
@@ -44,21 +38,8 @@ const tabListClass =
 	"w-fit *:h-6 *:w-fit *:px-3 *:text-xs *:font-normal *:data-[selected=true]:text-accent-foreground bg-zinc-100";
 
 export default async function DashboardPage() {
-	const getTopCoins = await getCryptoList("usd", 10);
-	const topCoinsData = getTopCoins;
+	const topCoinsData = await getCryptoList("usd", 10);
 	const topCoin = topCoinsData[0];
-
-	// Fetch trending coins with error handling
-	let trendingCoinsData: TrendingResponse = {
-		coins: [],
-		nfts: [],
-		categories: [],
-	};
-	try {
-		trendingCoinsData = await getTrendingSearches();
-	} catch (error) {
-		console.error("Failed to load trending data:", error);
-	}
 
 	// Fetch real OHLC data for the chart
 	const ohlcData = await getCryptoOHLC(topCoin.id, 30);
@@ -213,16 +194,10 @@ export default async function DashboardPage() {
 								</Tabs.List>
 							</Tabs.ListContainer>
 							<Tabs.Panel id="top-10" className="p-0.5">
-								<TopCoinList coins={topCoinsData} className="p-0" />
+								<TopCoinList className="p-0" />
 							</Tabs.Panel>
 							<Tabs.Panel id="trending" className="p-0.5">
-								{trendingCoinsData.coins.length > 0 ? (
-									<TrendingCoinList coins={trendingCoinsData.coins} />
-								) : (
-									<p className="text-gray-500 text-sm">
-										Failed to load trending coins.
-									</p>
-								)}
+								<TrendingCoinList className="p-0" />
 							</Tabs.Panel>
 							<Tabs.Panel id="watchlist" className="pt-4">
 								My Watchlist coins last 24 hours.

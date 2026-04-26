@@ -1,40 +1,49 @@
-"use client";
+import { getTrendingSearches } from "@/api/coingecko";
+import type { TrendingResponse } from "@/types/crypto";
+import { TrendingCoinList as TrendingCoinListClient } from "./TrendingCoinList.client";
 
-import type { CoinListItemData, TrendingResponse } from "@/types/crypto";
-import { CoinList } from "./List/CoinList";
-
+/**
+ * Props for the TrendingCoinList server component.
+ */
 interface TrendingCoinListProps {
-	coins: TrendingResponse["coins"];
+	/** Optional CSS classes to apply to the list container. */
 	className?: string;
 }
 
 /**
- * Displays a list of trending cryptocurrencies by adapting the data
- * for the generic CryptoList component.
+ * A server component that fetches trending cryptocurrencies and
+ * renders the client-side `TrendingCoinListClient` to display them.
+ * This pattern encapsulates data fetching logic on the server while
+ * delegating rendering to a client component. It includes error handling
+ * for the API call.
  *
+ * If data fetching fails, it renders a fallback message.
+ *
+ * @param {TrendingCoinListProps} props - The component props.
+ * @param {string} [props.className] - Optional CSS classes for the container.
  * @example
- * ```tsx
- * async function Page() {
- *   const trendingData = await fetchTrendingCoins();
- *   return <TrendingCoinList coins={trendingData.coins} />;
- * }
- * ```
+ * <TrendingCoinList />
  */
-export function TrendingCoinList({ coins, className }: TrendingCoinListProps) {
-	/**
-	 * Maps the raw API data to the standardized `CryptoListItemData` format.
-	 */
-	const normalizedData: CoinListItemData[] = coins.map((item) => ({
-		id: item.item.id,
-		name: item.item.name,
-		symbol: item.item.symbol,
-		image: item.item.thumb,
-		rank: item.item.market_cap_rank ?? undefined,
-		price: item.item.data?.price,
-		priceChange: item.item.data?.price_change_percentage_24h?.usd,
-	}));
+export default async function TrendingCoinList({
+	className,
+}: TrendingCoinListProps) {
+	let trendingCoinsData: TrendingResponse;
+	try {
+		trendingCoinsData = await getTrendingSearches();
+	} catch (error) {
+		console.error(
+			"Failed to load trending data in TrendingCoinListContainer:",
+			error,
+		);
+		trendingCoinsData = { coins: [], nfts: [], categories: [] };
+	}
 
-	return <CoinList items={normalizedData} className={className} />;
+	return trendingCoinsData.coins.length > 0 ? (
+		<TrendingCoinListClient
+			coins={trendingCoinsData.coins}
+			className={className}
+		/>
+	) : (
+		<p className="text-gray-500 text-sm">Failed to load trending coins.</p>
+	);
 }
-
-TrendingCoinList.displayName = "TrendingCoinList";

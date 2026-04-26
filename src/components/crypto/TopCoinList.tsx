@@ -1,35 +1,34 @@
-"use client";
+import { getCryptoList } from "@/api/coingecko";
+import type { Crypto } from "@/types/crypto";
+import { TopCoinList as TopCoinListClient } from "./TopCoinList.client";
 
-import type { CoinListItemData, Crypto } from "@/types/crypto";
-import { CoinList } from "./List/CoinList";
-
+/**
+ * Props for the TopCoinList server component.
+ */
 interface TopCoinListProps {
-	/** Array of cryptocurrency data to display */
-	coins: Crypto[];
-	/** Additional CSS classes */
+	/** Optional CSS classes to apply to the list container. */
 	className?: string;
 }
 
 /**
- * CryptoListBox component - adapts and displays a list of cryptocurrencies.
- * It transforms the raw `Crypto` type into the standardized `CryptoListItemData`
- * and renders the generic `CryptoList` component.
+ * A server component that fetches the top 10 cryptocurrencies and
+ * renders the client-side `TopCoinListClient` to display them.
+ * This pattern encapsulates data fetching logic on the server while
+ * delegating rendering to a client component. It includes error handling
+ * for the API call.
+ *
+ * @param {TopCoinListProps} props - The component props.
+ * @param {string} [props.className] - Optional CSS classes for the container.
+ * @example
+ * <TopCoinList />
  */
-export function TopCoinList({ coins, className }: TopCoinListProps) {
-	/**
-	 * Maps the raw API data to the standardized `CryptoListItemData` format.
-	 */
-	const normalizedData: CoinListItemData[] = coins.map((item) => ({
-		id: item.id,
-		name: item.name,
-		symbol: item.symbol,
-		image: item.image,
-		// No rank is available in the standard Crypto type, so it's omitted.
-		price: item.current_price,
-		priceChange: item.price_change_percentage_24h ?? undefined,
-	}));
+export default async function TopCoinList({ className }: TopCoinListProps) {
+	let topCoinsData: Crypto[] = [];
+	try {
+		topCoinsData = await getCryptoList("usd", 10);
+	} catch (error) {
+		console.error("Failed to load top coins:", error);
+	}
 
-	return <CoinList items={normalizedData} className={className} />;
+	return <TopCoinListClient coins={topCoinsData} className={className} />;
 }
-
-TopCoinList.displayName = "TopCoinList";
