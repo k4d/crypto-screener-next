@@ -14,11 +14,11 @@ export const CryptoSchema = z.object({
 	/** URL to the cryptocurrency logo image */
 	image: z.url(),
 	/** Current price in the specified currency (must be positive) */
-	current_price: z.number().positive(),
+	current_price: z.number().positive().nullable(),
 	/** Market capitalization in USD (must be non-negative) */
 	market_cap: z.number().nonnegative(),
 	/** Market cap rank (must be a positive integer) */
-	market_cap_rank: z.number().int().positive(),
+	market_cap_rank: z.number().int().positive().nullable(),
 	/** Fully diluted valuation in USD (null if not available) */
 	fully_diluted_valuation: z.number().nullable(),
 	/** Total trading volume in the last 24 hours (must be non-negative) */
@@ -123,7 +123,7 @@ export const CryptoSearchResultSchema = z.object({
 	/** Symbol of the cryptocurrency in lowercase */
 	symbol: z.string().toLowerCase(),
 	/** Market cap rank (must be a positive integer) */
-	market_cap_rank: z.number().int().positive(),
+	market_cap_rank: z.number().int().positive().nullable(),
 	/** Thumbnail image URL (100x100) */
 	thumb: z.url(),
 	/** Small image URL (250x250) */

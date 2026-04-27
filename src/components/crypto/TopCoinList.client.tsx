@@ -41,7 +41,7 @@ export function TopCoinList({ coins, className }: TopCoinListProps) {
 		symbol: item.symbol,
 		image: item.image,
 		// Rank is available in Crypto type but omitted here; add if needed in future updates.
-		price: item.current_price,
+		price: item.current_price ?? undefined,
 		priceChange: item.price_change_percentage_24h ?? undefined,
 	}));
 
