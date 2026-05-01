@@ -11,11 +11,35 @@ import {
 import { List } from "@/components/ui";
 import type { CoinListItemData } from "@/types/crypto";
 
+/**
+ * Props for the CoinListItem component.
+ */
 interface CoinListItemProps {
+	/** Standardized data for a single cryptocurrency item. */
 	item: CoinListItemData;
 }
 
-/** Renders a list of cryptocurrencies using `CryptoListItem` for each entry. */
+/**
+ * Renders a single row in a cryptocurrency list.
+ * It displays the coin's avatar, name, symbol, rank (optional), price, and 24-hour price change.
+ * It expects data in the `CoinListItemData` format.
+ *
+ * @param {CoinListItemProps} props - The component props.
+ * @param {CoinListItemData} props.item - Standardized data for the cryptocurrency item.
+ * @example
+ * ```tsx
+ * // Example of usage within CoinList component
+ * <CoinListItem item={{
+ *   id: "bitcoin",
+ *   name: "Bitcoin",
+ *   symbol: "btc",
+ *   image: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+ *   rank: 1,
+ *   price: 60000,
+ *   priceChange: 1.5
+ * }} />
+ * ```
+ */
 export function CoinListItem({ item }: CoinListItemProps) {
 	return (
 		<List.Item hover className="pl-3.5 pr-4 py-2 rounded-lg">
