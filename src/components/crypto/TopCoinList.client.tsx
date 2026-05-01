@@ -11,6 +11,8 @@ interface TopCoinListProps {
 	coins: Crypto[];
 	/** Optional CSS classes to apply to the list container. */
 	className?: string;
+	/** Optional text to display when the list is empty. */
+	emptyText?: string;
 }
 
 /**
@@ -21,6 +23,7 @@ interface TopCoinListProps {
  * @param {TopCoinListProps} props - The component props.
  * @param {Array<Object>} props.coins - Array of top cryptocurrency data.
  * @param {string} [props.className] - Optional CSS classes for the container.
+ * @param {string} [props.emptyText] - Optional text to display when the list is empty.
  * @example
  * ```tsx
  * // Example of usage within a server component
@@ -31,7 +34,7 @@ interface TopCoinListProps {
  * }
  * ```
  */
-export function TopCoinList({ coins, className }: TopCoinListProps) {
+export function TopCoinList({ coins, className, emptyText }: TopCoinListProps) {
 	/**
 	 * Maps the raw API data to the standardized `CoinListItemData` format.
 	 */
@@ -45,5 +48,11 @@ export function TopCoinList({ coins, className }: TopCoinListProps) {
 		priceChange: item.price_change_percentage_24h ?? undefined,
 	}));
 
-	return <CoinList items={normalizedData} className={className} />;
+	return (
+		<CoinList
+			items={normalizedData}
+			className={className}
+			emptyText={emptyText}
+		/>
+	);
 }

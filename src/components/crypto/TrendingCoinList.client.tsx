@@ -11,6 +11,8 @@ interface TrendingCoinListProps {
 	coins: TrendingResponse["coins"];
 	/** Optional CSS classes to apply to the list container. */
 	className?: string;
+	/** Optional text to display when the list is empty. */
+	emptyText?: string;
 }
 
 /**
@@ -21,6 +23,7 @@ interface TrendingCoinListProps {
  * @param {TrendingCoinListProps} props - The component props.
  * @param {Array<Object>} props.coins - Array of trending coin data.
  * @param {string} [props.className] - Optional CSS classes for the container.
+ * @param {string} [props.emptyText] - Optional text to display when the list is empty.
  * @example
  * ```tsx
  * // Example of usage within a server component
@@ -31,7 +34,11 @@ interface TrendingCoinListProps {
  * }
  * ```
  */
-export function TrendingCoinList({ coins, className }: TrendingCoinListProps) {
+export function TrendingCoinList({
+	coins,
+	className,
+	emptyText,
+}: TrendingCoinListProps) {
 	/**
 	 * Maps the raw API data to the standardized `CoinListItemData` format.
 	 */
@@ -45,7 +52,13 @@ export function TrendingCoinList({ coins, className }: TrendingCoinListProps) {
 		priceChange: item.item.data?.price_change_percentage_24h?.usd,
 	}));
 
-	return <CoinList items={normalizedData} className={className} />;
+	return (
+		<CoinList
+			items={normalizedData}
+			className={className}
+			emptyText={emptyText}
+		/>
+	);
 }
 
 TrendingCoinList.displayName = "TrendingCoinList";

@@ -24,11 +24,23 @@ interface TopCoinListProps {
  */
 export default async function TopCoinList({ className }: TopCoinListProps) {
 	let topCoinsData: Crypto[] = [];
+	let emptyText: string | undefined;
+
 	try {
 		topCoinsData = await getCryptoList("usd", 10);
+		if (topCoinsData.length === 0) {
+			emptyText = "No coins found.";
+		}
 	} catch (error) {
 		console.error("Failed to load top coins:", error);
+		emptyText = "Failed to load coins. Please try again later.";
 	}
 
-	return <TopCoinListClient coins={topCoinsData} className={className} />;
+	return (
+		<TopCoinListClient
+			coins={topCoinsData}
+			className={className}
+			emptyText={emptyText}
+		/>
+	);
 }

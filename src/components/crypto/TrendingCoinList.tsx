@@ -28,22 +28,27 @@ export default async function TrendingCoinList({
 	className,
 }: TrendingCoinListProps) {
 	let trendingCoinsData: TrendingResponse;
+	let emptyText: string | undefined;
+
 	try {
 		trendingCoinsData = await getTrendingSearches();
+		if (trendingCoinsData.coins.length === 0) {
+			emptyText = "No trending coins found.";
+		}
 	} catch (error) {
 		console.error(
 			"Failed to load trending data in TrendingCoinListContainer:",
 			error,
 		);
 		trendingCoinsData = { coins: [], nfts: [], categories: [] };
+		emptyText = "Failed to load trending coins. Please try again later.";
 	}
 
-	return trendingCoinsData.coins.length > 0 ? (
+	return (
 		<TrendingCoinListClient
 			coins={trendingCoinsData.coins}
 			className={className}
+			emptyText={emptyText}
 		/>
-	) : (
-		<p className="text-gray-500 text-sm">Failed to load trending coins.</p>
 	);
 }
