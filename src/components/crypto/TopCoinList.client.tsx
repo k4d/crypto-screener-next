@@ -17,6 +17,8 @@ interface TopCoinListProps {
 
 /**
  * A client component that displays a list of top cryptocurrencies.
+ * It filters out specific assets (e.g., "figure-heloc") to ensure
+ * the list contains only relevant top market cap coins.
  * It expects pre-fetched top coin data (from a server component) and
  * adapts it to render using the generic `CoinList` component.
  *
@@ -38,15 +40,17 @@ export function TopCoinList({ coins, className, emptyText }: TopCoinListProps) {
 	/**
 	 * Maps the raw API data to the standardized `CoinListItemData` format.
 	 */
-	const normalizedData: CoinListItemData[] = coins.map((item) => ({
-		id: item.id,
-		name: item.name,
-		symbol: item.symbol,
-		image: item.image,
-		// Rank is available in Crypto type but omitted here; add if needed in future updates.
-		price: item.current_price ?? undefined,
-		priceChange: item.price_change_percentage_24h ?? undefined,
-	}));
+	const normalizedData: CoinListItemData[] = coins
+		.filter((item) => item.id !== "figure-heloc")
+		.map((item) => ({
+			id: item.id,
+			name: item.name,
+			symbol: item.symbol,
+			image: item.image,
+			// Rank is available in Crypto type but omitted here; add if needed in future updates.
+			price: item.current_price ?? undefined,
+			priceChange: item.price_change_percentage_24h ?? undefined,
+		}));
 
 	return (
 		<CoinList

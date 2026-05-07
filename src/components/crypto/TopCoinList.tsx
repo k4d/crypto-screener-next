@@ -27,7 +27,7 @@ export default async function TopCoinList({ className }: TopCoinListProps) {
 	let emptyText: string | undefined;
 
 	try {
-		topCoinsData = await getCryptoList("usd", 10);
+		topCoinsData = await getCryptoList("usd", 11);
 		if (topCoinsData.length === 0) {
 			emptyText = "No coins found.";
 		}
