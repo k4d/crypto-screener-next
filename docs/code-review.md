@@ -271,6 +271,30 @@ market_cap_rank: z.number().int().positive().nullable(),
 
 ---
 
+### 10. Несоответствие схемы `getCryptoById`
+
+**Файл:** `src/api/coingecko.ts`, функция `getCryptoById`
+
+**Проблема:** Функция использует `CryptoSchema` для валидации ответа эндпоинта `/coins/{id}`. Однако этот эндпоинт возвращает **гораздо больше данных** (описание, ссылки, сообщество, детальные рынки), чем `/coins/markets`. `CryptoSchema` содержит только поля для списка рынков. Если API вернет лишние поля, Zod (в строгом режиме) выбросит ошибку. Даже если использовать `.passthrough()`, тип `Crypto` не будет содержать полезных полей (например, `description`).
+
+**Рекомендация:** Создать отдельную схему `CryptoDetailSchema` для детального просмотра, которая включает все поля `CryptoSchema` плюс новые поля (`description`, `links` и т.д.), и использовать её в `getCryptoById`.
+
+```typescript
+// В crypto.ts
+const CryptoDetailSchema = CryptoSchema.extend({
+	description: z.object({ en: z.string() }).optional(),
+	links: z
+		.object({
+			/* ... */
+		})
+		.optional(),
+}).passthrough(); // или strict()
+
+export type CryptoDetail = z.infer<typeof CryptoDetailSchema>;
+```
+
+---
+
 ## 📋 ИТОГОВАЯ ТАБЛИЦА ЗАМЕЧАНИЙ
 
 | №   | Проблема                                 | Уровень         | Файл              | Строка |
@@ -284,6 +308,7 @@ market_cap_rank: z.number().int().positive().nullable(),
 | 7   | Неправильное форматирование цены         | 🟠 Рекомендация | `CryptoTable.tsx` | 15     |
 | 8   | TODO в SearchModal не реализовано        | 🟠 Рекомендация | `SearchModal.tsx` | 66     |
 | 9   | Валидация `market_cap_rank`              | 🔴 Критичная    | `crypto.ts`       | 18     |
+| 10  | Несоответствие схемы `getCryptoById`     | 🟡 Серьёзная    | `coingecko.ts`    | ...    |
 
 ---
 
@@ -316,4 +341,5 @@ market_cap_rank: z.number().int().positive().nullable(),
 3. 📅 **Потом** (Sprint 2):
     - Реализовать поиск в SearchModal (замечание 8)
     - Исправить конвертацию времени (замечание 4)
+    - Создать `CryptoDetailSchema` (замечание 10)
     - Внедрить рекомендации по мониторингу и тестированию
