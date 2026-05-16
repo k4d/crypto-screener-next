@@ -10,7 +10,7 @@ import {
 } from "./coingecko";
 
 // Mock data
-const mockCryptoData = {
+const mockCryptoDataForList = {
 	id: "bitcoin",
 	symbol: "btc",
 	name: "Bitcoin",
@@ -36,6 +36,30 @@ const mockCryptoData = {
 	atl_change_percentage: 92800,
 	atl_date: "2013-07-06T00:00:00.000Z",
 	last_updated: "2024-01-01T00:00:00.000Z",
+};
+
+const mockCryptoDataForDetail = {
+	...mockCryptoDataForList,
+	image: {
+		thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+		small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
+		large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+	},
+	description: {
+		en: "Bitcoin is a decentralized digital currency.",
+	},
+	links: {
+		homepage: ["https://bitcoin.org"],
+		blockchain_site: [],
+		official_forum_url: [],
+		chat_url: [],
+		announcement_url: [],
+		twitter_screen_name: "bitcoin",
+		facebook_username: "",
+		repos_url: {
+			github: ["https://github.com/bitcoin/bitcoin"],
+		},
+	},
 };
 
 const mockSearchData = [
@@ -157,8 +181,9 @@ describe("CoinGecko API", () => {
 	describe("getCryptoList", () => {
 		it("should fetch cryptocurrency list successfully", async () => {
 			const fetchSpy = spyOn(global, "fetch").mockImplementation(
-				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
-				() => Promise.resolve(createMockResponse([mockCryptoData])) as any,
+				() =>
+					// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+					Promise.resolve(createMockResponse([mockCryptoDataForList])) as any,
 			);
 
 			const result = await getCryptoList("usd", 1);
@@ -172,8 +197,9 @@ describe("CoinGecko API", () => {
 
 		it("should use default parameters", async () => {
 			const fetchSpy = spyOn(global, "fetch").mockImplementation(
-				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
-				() => Promise.resolve(createMockResponse([mockCryptoData])) as any,
+				() =>
+					// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+					Promise.resolve(createMockResponse([mockCryptoDataForList])) as any,
 			);
 
 			await getCryptoList();
@@ -210,7 +236,7 @@ describe("CoinGecko API", () => {
 		it("should throw ValidationError for negative price", async () => {
 			const invalidData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					current_price: -100,
 				},
 			];
@@ -279,8 +305,9 @@ describe("CoinGecko API", () => {
 	describe("getCryptoById", () => {
 		it("should fetch cryptocurrency by ID successfully", async () => {
 			spyOn(global, "fetch").mockImplementation(
-				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
-				() => Promise.resolve(createMockResponse(mockCryptoData)) as any,
+				() =>
+					// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+					Promise.resolve(createMockResponse(mockCryptoDataForDetail)) as any,
 			);
 
 			const result = await getCryptoById("bitcoin");
@@ -292,8 +319,9 @@ describe("CoinGecko API", () => {
 
 		it("should use correct revalidate time", async () => {
 			const fetchSpy = spyOn(global, "fetch").mockImplementation(
-				// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
-				() => Promise.resolve(createMockResponse(mockCryptoData)) as any,
+				() =>
+					// biome-ignore lint/suspicious/noExplicitAny: Mocking fetch requires type assertion
+					Promise.resolve(createMockResponse(mockCryptoDataForDetail)) as any,
 			);
 
 			await getCryptoById("bitcoin");
@@ -494,7 +522,7 @@ describe("CoinGecko API", () => {
 		it("should validate URL fields", async () => {
 			const invalidData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					image: "not-a-url",
 				},
 			];
@@ -509,7 +537,7 @@ describe("CoinGecko API", () => {
 		it("should validate positive numbers", async () => {
 			const invalidData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					current_price: 0,
 				},
 			];
@@ -524,7 +552,7 @@ describe("CoinGecko API", () => {
 		it("should validate non-negative numbers", async () => {
 			const invalidData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					market_cap: -1,
 				},
 			];
@@ -539,7 +567,7 @@ describe("CoinGecko API", () => {
 		it("should allow nullable fields", async () => {
 			const validData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					fully_diluted_valuation: null,
 					total_supply: null,
 					max_supply: null,
@@ -557,7 +585,7 @@ describe("CoinGecko API", () => {
 		it("should validate market_cap_rank as positive integer", async () => {
 			const invalidData = [
 				{
-					...mockCryptoData,
+					...mockCryptoDataForList,
 					market_cap_rank: 1.5,
 				},
 			];

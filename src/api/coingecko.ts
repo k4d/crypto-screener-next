@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import { ZodError } from "zod";
 import type {
-	Crypto,
+	CryptoDetail,
 	CryptoHistory,
 	CryptoListResponse,
 	CryptoOHLCResponse,
@@ -9,10 +9,10 @@ import type {
 	TrendingResponse,
 } from "@/types/crypto";
 import {
+	CryptoDetailSchema,
 	CryptoHistorySchema,
 	CryptoListResponseSchema,
 	CryptoOHLCResponseSchema,
-	CryptoSchema,
 	CryptoSearchResultsSchema,
 	TrendingResponseSchema,
 } from "@/types/crypto";
@@ -192,6 +192,54 @@ export async function searchCrypto(
 }
 
 /**
+ * Fetches multiple cryptocurrencies by their IDs in a single request from CoinGecko.
+ * Utilizes the `/coins/markets` endpoint with the `ids` parameter.
+ *
+ * This function includes several robustness improvements:
+ * - Deduplicates the input `ids` array to prevent redundant queries.
+ * - Performs URL encoding on `currency` and `ids` parameters for safety and correctness.
+ * - Returns an empty array immediately if the input `ids` list is empty, avoiding unnecessary API calls.
+ *
+ * @param ids - An array of CoinGecko cryptocurrency IDs (e.g., ["bitcoin", "ethereum"]). Duplicates are handled.
+ * @param currency - The currency to display prices in (default: "usd").
+ * @returns A promise that resolves to an array of cryptocurrency data with market metrics (`CryptoListResponse`).
+ * @throws {ApiError} If the API request itself fails (e.g., network issues, invalid API key).
+ * @throws {ValidationError} If the data received from the API does not conform to the expected schema.
+ *
+ * @example
+ * ```tsx
+ * const coins = await getCryptosByIds(["bitcoin", "solana"]);
+ * ```
+ */
+export async function getCryptosByIds(
+	ids: string[],
+	currency = "usd",
+): Promise<CryptoListResponse> {
+	const uniqueIds = [...new Set(ids)];
+
+	if (uniqueIds.length === 0) {
+		return [];
+	}
+
+	const url = `${BASE_URL}/coins/markets?vs_currency=${encodeURIComponent(currency)}&ids=${encodeURIComponent(uniqueIds.join(","))}&order=market_cap_desc&sparkline=false`;
+
+	try {
+		const response = await fetch(url, {
+			headers: getHeaders(),
+			next: { revalidate: 300 },
+		});
+
+		return handleResponse(response, CryptoListResponseSchema);
+	} catch (error) {
+		console.error("getCryptosByIds error:", error);
+		if (error instanceof ApiError || error instanceof ValidationError) {
+			throw error;
+		}
+		throw new ApiError(500, "Failed to fetch cryptocurrencies");
+	}
+}
+
+/**
  * Get detailed information about a specific cryptocurrency.
  * @param id - CoinGecko cryptocurrency ID (e.g., "bitcoin", "ethereum")
  * @returns Cryptocurrency data with full market metrics
@@ -203,7 +251,7 @@ export async function searchCrypto(
  * const bitcoin = await getCryptoById("bitcoin");
  * ```
  */
-export async function getCryptoById(id: string): Promise<Crypto> {
+export async function getCryptoById(id: string): Promise<CryptoDetail> {
 	const url = `${BASE_URL}/coins/${id}`;
 
 	try {
@@ -212,7 +260,7 @@ export async function getCryptoById(id: string): Promise<Crypto> {
 			next: { revalidate: 300 },
 		});
 
-		return handleResponse(response, CryptoSchema);
+		return handleResponse(response, CryptoDetailSchema);
 	} catch (error) {
 		console.error("getCryptoById error:", error);
 		if (error instanceof ApiError || error instanceof ValidationError) {
