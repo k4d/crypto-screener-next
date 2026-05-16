@@ -7,10 +7,11 @@ import {
 	CoinPrice,
 	CoinPriceChange,
 	CoinSymbol,
+	FavoritesList,
 	TimeFrameButtons,
 	TopCoinList,
 	TrendingCoinList,
-	Watchlist,
+	WatchList,
 } from "@/components/crypto";
 import CryptoTable from "@/components/crypto/CryptoTable";
 import { Chart } from "@/components/ui";
@@ -205,10 +206,10 @@ export default async function DashboardPage() {
 								<TrendingCoinList />
 							</Tabs.Panel>
 							<Tabs.Panel id="watchlist" className="p-0.5">
-								<Watchlist />
+								<WatchList />
 							</Tabs.Panel>
 							<Tabs.Panel id="favorites" className="p-0.5">
-								My Favorites coins last 24 hours.
+								<FavoritesList />
 							</Tabs.Panel>
 						</Tabs>
 					</Card.Content>
