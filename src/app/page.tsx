@@ -10,6 +10,7 @@ import {
 	TimeFrameButtons,
 	TopCoinList,
 	TrendingCoinList,
+	Watchlist,
 } from "@/components/crypto";
 import CryptoTable from "@/components/crypto/CryptoTable";
 import { Chart } from "@/components/ui";
@@ -31,6 +32,10 @@ const tabListItems: TabListItem[] = [
 	{
 		id: "watchlist",
 		label: "Watchlist",
+	},
+	{
+		id: "favorites",
+		label: "Favorites",
 	},
 ];
 
@@ -194,13 +199,16 @@ export default async function DashboardPage() {
 								</Tabs.List>
 							</Tabs.ListContainer>
 							<Tabs.Panel id="top-10" className="p-0.5">
-								<TopCoinList className="p-0" />
+								<TopCoinList />
 							</Tabs.Panel>
 							<Tabs.Panel id="trending" className="p-0.5">
-								<TrendingCoinList className="p-0" />
+								<TrendingCoinList />
 							</Tabs.Panel>
-							<Tabs.Panel id="watchlist" className="pt-4">
-								My Watchlist coins last 24 hours.
+							<Tabs.Panel id="watchlist" className="p-0.5">
+								<Watchlist />
+							</Tabs.Panel>
+							<Tabs.Panel id="favorites" className="p-0.5">
+								My Favorites coins last 24 hours.
 							</Tabs.Panel>
 						</Tabs>
 					</Card.Content>

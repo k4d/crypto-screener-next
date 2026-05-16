@@ -9,3 +9,4 @@ export { CoinListItem } from "./List/CoinListItem";
 export { TimeFrameButtons } from "./TimeFrameButtons";
 export { default as TopCoinList } from "./TopCoinList";
 export { default as TrendingCoinList } from "./TrendingCoinList";
+export { Watchlist } from "./Watchlist";
