@@ -1,7 +1,9 @@
 export type {
+	CoinListItemData,
 	Crypto,
+	CryptoDetail,
+	CryptoDetailSchema,
 	CryptoHistory,
-	CryptoListItemData,
 	CryptoListResponse,
 	CryptoOHLCResponse,
 	CryptoSearchResult,

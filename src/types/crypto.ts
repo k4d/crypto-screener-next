@@ -191,6 +191,42 @@ export type TrendingCoinItem = TrendingCoinData; // Alias for clarity, refers to
 export type TrendingResponse = z.infer<typeof TrendingResponseSchema>;
 
 /**
+ * Zod schema for detailed cryptocurrency data from CoinGecko API.
+ * Extends CryptoSchema with additional fields returned by the /coins/{id} endpoint,
+ * such as description and links.
+ * Uses .catchall(z.any()) to allow any other unspecified fields from the API.
+ */
+export const CryptoDetailSchema = CryptoSchema.omit({ image: true })
+	.extend({
+		image: z.object({
+			thumb: z.url(),
+			small: z.url(),
+			large: z.url(),
+		}),
+		description: z.object({
+			en: z.string().optional(),
+		}),
+		links: z.object({
+			homepage: z.array(z.string()).optional(),
+			blockchain_site: z.array(z.string()).optional(),
+			official_forum_url: z.array(z.string()).optional(),
+			chat_url: z.array(z.string()).optional(),
+			announcement_url: z.array(z.string()).optional(),
+			twitter_screen_name: z.string().optional(),
+			facebook_username: z.string().optional(),
+			repos_url: z
+				.object({
+					github: z.array(z.string()).optional(),
+				})
+				.optional(),
+		}),
+	})
+	.catchall(z.any());
+
+/** Detailed cryptocurrency data type including all fields from /coins/{id} endpoint */
+export type CryptoDetail = z.infer<typeof CryptoDetailSchema>;
+
+/**
  * Standardized data structure for a single item in a crypto list.
  * This interface is used by the generic CryptoListItem component.
  */
