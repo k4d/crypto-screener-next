@@ -105,7 +105,31 @@ export default async function Dashboard() {
 
 ---
 
-### 2. `searchCrypto(query)`
+### 2. `getCryptosByIds(ids, currency)`
+
+Получить список криптовалют по их ID в одном запросе.
+
+**Параметры:**
+
+| Имя        | Тип      | По умолчанию | Описание                                 |
+| ---------- | -------- | ------------ | ---------------------------------------- |
+| `ids`      | `string[]` | —            | Массив CoinGecko ID (["bitcoin", "ethereum"]) |
+| `currency` | `string` | `"usd"`      | Валюта цен (usd, eur, gbp)               |
+
+**Возвращает:** `Promise<CryptoListResponse>` — Массив данных криптовалют
+
+**Ошибки:** `ApiError`, `ValidationError`
+
+**Пример:**
+
+```tsx
+// Server Component
+const coins = await getCryptosByIds(["bitcoin", "ethereum"]);
+```
+
+---
+
+### 3. `searchCrypto(query)`
 
 Поиск криптовалют по названию или символу.
 
@@ -151,7 +175,7 @@ const handleSearch = async (query: string) => {
 
 ---
 
-### 3. `getCryptoById(id)`
+### 4. `getCryptoById(id)`
 
 Получить детальную информацию о конкретной криптовалюте.
 
@@ -161,7 +185,7 @@ const handleSearch = async (query: string) => {
 | ---- | -------- | ---------------------------------------------- |
 | `id` | `string` | CoinGecko ID (например, "bitcoin", "ethereum") |
 
-**Возвращает:** `Promise<Crypto>` — Полные данные криптовалюты
+**Возвращает:** `Promise<CryptoDetail>` — Полные данные криптовалюты, включая `description`, `links` и др.
 
 **Ошибки:** `ApiError`, `ValidationError`
 
@@ -184,7 +208,7 @@ export default async function CoinPage({ params }) {
 
 ---
 
-### 4. `getCryptoHistory(id, days, currency)`
+### 5. `getCryptoHistory(id, days, currency)`
 
 Получить историю цен криптовалюты.
 
@@ -227,7 +251,7 @@ history.prices.map(([timestamp, price]) => ({
 
 ---
 
-### 5. `getTrendingSearches()`
+### 6. `getTrendingSearches()`
 
 Получить список трендовых криптовалют с CoinGecko.
 
