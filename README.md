@@ -46,7 +46,9 @@
 | ------------- | ----------- | --------------------------------------------- |
 | **Dashboard** | ✅ Готово   | Список топ-10 криптовалют с реальными данными |
 | **Поиск**     | ✅ Готово   | Поиск криптовалют по названию/символу         |
-| **Тренды**    | 🔜 Скоро    | Трендовые запросы (Top 15)                    |
+| **Тренды**    | ✅ Готово   | Трендовые запросы (Top 15)                    |
+| **Список отслеживания** | ✅ Готово | Настраиваемый список отслеживаемых криптовалют  |
+| **Избранное** | ✅ Готово | Настраиваемый список избранных криптовалют     |
 | **Тема**      | ✅ Готово   | Переключение светлой/тёмной темы              |
 | **Таблица**   | ✅ Готово   | Полная таблица (Basic/Hybrid/Advanced режимы) |
 | **Графики**   | ✅ Готово   | Графики цен (Lightweight Charts + Legend)     |
@@ -61,10 +63,10 @@
 | --------------------------------------------- | ------------ | ---------------------------- |
 | [Next.js](https://nextjs.org/)                | 16.2.2       | React фреймворк (App Router) |
 | [TypeScript](https://www.typescriptlang.org/) | 5.9.3        | Типизация                    |
-| [Tailwind CSS](https://tailwindcss.com/)      | 4.2.2        | Стилизация                   |
-| [HeroUI](https://www.heroui.com/)             | 3.0.2        | UI компоненты                |
-| [Lightweight Charts](https://www.tradingview.com/lightweight-charts/) | 5.1.0 | Графики |
-| [Bun](https://bun.sh/)                        | 1.3.x        | Package manager + runtime    |
+| [Tailwind CSS](https://tailwindcss.com/)      | 4.3.0        | Стилизация                   |
+| [HeroUI](https://www.heroui.com/)             | 3.0.5        | UI компоненты                |
+| [Lightweight Charts](https://www.tradingview.com/lightweight-charts/) | 5.2.0 | Графики |
+| [Bun](https://bun.sh/)                        | 1.3.14       | Package manager + runtime    |
 
 ### Инструменты:
 
@@ -75,8 +77,8 @@
 | [Bun Test](https://bun.sh/docs/test)                       | Тестирование             |
 | [React Testing Library](https://testing-library.com/react) | Тестирование компонентов |
 | [Happy DOM](https://github.com/capricorn86/happy-dom)      | DOM среда для тестов     |
-| [Zod](https://zod.dev/)                                    | Валидация схем           |
-| [lucide-react](https://lucide.dev/)                        | Иконки                   |
+| [Zod](https://zod.dev/)                       | 4.4.3        | Валидация схем           |
+| [lucide-react](https://lucide.dev/)                        | 1.16.0       | Иконки                   |
 
 ---
 
@@ -99,13 +101,21 @@ crypto-screener-next/
 │   │   ├── page.tsx           ← Dashboard страница
 │   │   └── coins/             ← Страница криптовалют
 │   ├── components/            ← React компоненты
-│   │   ├── crypto/            ← Crypto компоненты
-│   │   │   ├── CoinAvatar.tsx
-│   │   │   ├── CoinPrice.tsx
-│   │   │   ├── CoinPriceChange.tsx
-│   │   │   ├── CoinSymbol.tsx
-│   │   │   ├── CryptoListBox.tsx
-│   │   │   └── ...
+│   ├── crypto/            ← Crypto компоненты
+│   │   ├── CoinAvatar.tsx
+│   │   ├── CoinPrice.tsx
+│   │   ├── CoinPriceChange.tsx
+│   │   ├── CoinSymbol.tsx
+│   │   ├── Lists/             ← Компоненты списков
+│   │   │   ├── FavoritesList.tsx
+│   │   │   ├── TopCoinList.tsx
+│   │   │   ├── TrendingCoinList.tsx
+│   │   │   ├── UserCoinList.tsx
+│   │   │   └── WatchList.tsx
+│   │   └── List/              ← Универсальные компоненты CoinList
+│   │       ├── CoinList.tsx
+│   │       └── CoinListItem.tsx
+│   │   └── TimeFrameButtons.tsx
 │   │   ├── footer/
 │   │   ├── header/
 │   │   └── ui/                ← UI компоненты
@@ -244,19 +254,23 @@ bun run dev
 
 ### Основные компоненты:
 
-| Компонент           | Описание                  | Путь                                      |
-| ------------------- | ------------------------- | ----------------------------------------- |
-| **Header**          | Хедер с лого и навигацией | `@/components/header`                     |
-| **Logo**            | Логотип приложения        | `@/components/header/Logo.tsx`            |
-| **NavBar**          | Навигационное меню        | `@/components/header/NavBar.tsx`          |
-| **SearchModal**     | Модальное окно поиска     | `@/components/header/SearchModal.tsx`     |
-| **ThemeButton**     | Переключатель темы        | `@/components/header/ThemeButton.tsx`     |
-| **CoinAvatar**      | Аватар криптовалюты       | `@/components/crypto/CoinAvatar.tsx`      |
-| **CoinPrice**       | Отображение цены          | `@/components/crypto/CoinPrice.tsx`       |
-| **CoinPriceChange** | Изменение цены (%)        | `@/components/crypto/CoinPriceChange.tsx` |
-| **CoinSymbol**      | Символ криптовалюты       | `@/components/crypto/CoinSymbol.tsx`      |
-| **CryptoListBox**   | Список криптовалют        | `@/components/crypto/CryptoListBox.tsx`   |
-
+| Компонент           | Описание                  | Путь                                             |
+| ------------------- | ------------------------- | ------------------------------------------------ |
+| **Header**          | Хедер с лого и навигацией | `@/components/header`                            |
+| **Logo**            | Логотип приложения        | `@/components/header/Logo.tsx`                   |
+| **NavBar**          | Навигационное меню        | `@/components/header/NavBar.tsx`                 |
+| **SearchModal**     | Модальное окно поиска     | `@/components/header/SearchModal.tsx`            |
+| **ThemeButton**     | Переключатель темы        | `@/components/header/ThemeButton.tsx`            |
+| **CoinAvatar**      | Аватар криптовалюты       | `@/components/crypto/CoinAvatar.tsx`             |
+| **CoinPrice**       | Отображение цены          | `@/components/crypto/CoinPrice.tsx`              |
+| **CoinPriceChange** | Изменение цены (%)        | `@/components/crypto/CoinPriceChange.tsx`        |
+| **CoinSymbol**      | Символ криптовалюты       | `@/components/crypto/CoinSymbol.tsx`             |
+| **TimeFrameButtons** | Кнопки выбора временного интервала | `@/components/crypto/TimeFrameButtons.tsx`    |
+| **UserCoinList**    | Универсальный компонент для списков | `@/components/crypto/Lists/UserCoinList.tsx` |
+| **WatchList**       | Список отслеживания       | `@/components/crypto/Lists/WatchList.tsx`        |
+| **FavoritesList**   | Список избранного         | `@/components/crypto/Lists/FavoritesList.tsx`    |
+| **TopCoinList**     | Список топ-криптовалют   | `@/components/crypto/Lists/TopCoinList.tsx`      |
+| **TrendingCoinList**| Список трендовых криптовалют | `@/components/crypto/Lists/TrendingCoinList.tsx`|
 ### Импорт компонентов:
 
 ```tsx
