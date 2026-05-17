@@ -1,6 +1,6 @@
 import { getCryptosByIds } from "@/api/coingecko";
 import type { CoinListItemData } from "@/types/crypto";
-import { CoinList } from "./List/CoinList";
+import { CoinList } from "../List/CoinList";
 
 interface UserCoinListProps {
 	/** An array of cryptocurrency IDs to fetch and display. */
