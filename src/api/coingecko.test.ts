@@ -62,17 +62,19 @@ const mockCryptoDataForDetail = {
 	},
 };
 
-const mockSearchData = [
-	{
-		id: "bitcoin",
-		name: "Bitcoin",
-		symbol: "btc",
-		market_cap_rank: 1,
-		thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
-		small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
-		large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
-	},
-];
+const mockSearchData = {
+	coins: [
+		{
+			id: "bitcoin",
+			name: "Bitcoin",
+			symbol: "btc",
+			market_cap_rank: 1,
+			thumb: "https://assets.coingecko.com/coins/images/1/thumb/bitcoin.png",
+			small: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png",
+			large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+		},
+	],
+};
 
 const mockHistoryData = {
 	prices: [
@@ -490,7 +492,7 @@ describe("CoinGecko API", () => {
 			await expect(getTrendingSearches()).rejects.toThrow(ApiError);
 			await expect(getTrendingSearches()).rejects.toHaveProperty(
 				"message",
-				"Failed to fetch trending searches",
+				"getTrendingSearches",
 			);
 		});
 

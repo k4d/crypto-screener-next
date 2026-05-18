@@ -251,7 +251,32 @@ history.prices.map(([timestamp, price]) => ({
 
 ---
 
-### 6. `getTrendingSearches()`
+### 6. `getCryptoOHLC(id, days, currency)`
+
+Получить OHLC (Open, High, Low, Close) данные криптовалюты.
+
+**Параметры:**
+
+| Имя        | Тип      | По умолчанию | Описание             |
+| ---------- | -------- | ------------ | -------------------- |
+| `id`       | `string` | —            | CoinGecko ID         |
+| `days`     | `number` | `30`         | Дней истории (1-365) |
+| `currency` | `string` | `"usd"`      | Валюта цен           |
+
+**Возвращает:** `Promise<CryptoOHLCResponse>` — Массив OHLC данных для графиков свечей
+
+**Ошибки:** `ApiError`, `ValidationError`
+
+**Пример:**
+
+```tsx
+// Компонент графика цен OHLC
+const ohlc = await getCryptoOHLC("bitcoin", 30, "usd");
+```
+
+---
+
+### 7. `getTrendingSearches()`
 
 Получить список трендовых криптовалют с CoinGecko.
 

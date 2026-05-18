@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { ZodType } from "zod";
 import { ZodError } from "zod";
 import type {
 	CryptoDetail,
@@ -82,7 +82,7 @@ function getHeaders(): HeadersInit {
  */
 async function handleResponse<T>(
 	response: Response,
-	schema: z.ZodSchema<T>, // Use the generic type T here
+	schema: ZodType<T>, // Use the generic type T here
 ): Promise<T> {
 	if (!response.ok) {
 		let errorPayload: { message?: string } = {};
@@ -97,7 +97,7 @@ async function handleResponse<T>(
 		// Throw ApiError with status and message
 		throw new ApiError(
 			response.status,
-			errorPayload?.message ?? response.statusText,
+			errorPayload.message ?? response.statusText,
 		);
 	}
 
@@ -121,6 +121,37 @@ async function handleResponse<T>(
 }
 
 /**
+ * Generic wrapper for fetching a URL, handling the response, and validating it against a Zod schema.
+ * It centralizes error logging, API error handling (ApiError), and Zod validation error handling (ValidationError).
+ *
+ * @param {string} url - The URL to fetch data from.
+ * @param {RequestInit} options - Fetch options, including headers, caching strategies (e.g., `next: { revalidate: ... }`).
+ * @param {ZodType<T>} schema - The Zod schema to validate the fetched data against.
+ * @param {string} context - A string describing the context of the fetch operation (e.g., function name), used for error logging.
+ * @returns {Promise<T>} A promise that resolves to the validated and parsed data.
+ * @throws {ApiError} If the network request or API call fails with an HTTP error.
+ * @throws {ValidationError} If the API response data does not conform to the provided Zod schema.
+ * @throws {Error} For any other unexpected errors during the process.
+ */
+async function fetchAndValidate<T>(
+	url: string,
+	options: RequestInit,
+	schema: ZodType<T>,
+	context: string,
+): Promise<T> {
+	try {
+		const response = await fetch(url, options);
+		return handleResponse(response, schema);
+	} catch (error) {
+		console.error(`${context} error:`, error);
+		if (error instanceof ApiError || error instanceof ValidationError) {
+			throw error;
+		}
+		throw new ApiError(500, context);
+	}
+}
+
+/**
  * Fetch list of cryptocurrencies with market data from CoinGecko.
  * @param currency - Currency to display prices in (default: "usd")
  * @param limit - Number of cryptocurrencies to fetch (default: 100)
@@ -137,22 +168,17 @@ export async function getCryptoList(
 	currency = "usd",
 	limit = 100,
 ): Promise<CryptoListResponse> {
-	const url = `${BASE_URL}/coins/markets?vs_currency=${currency}&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`;
+	const url = `${BASE_URL}/coins/markets?vs_currency=${encodeURIComponent(currency)}&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
 			next: { revalidate: 60 },
-		});
-
-		return handleResponse(response, CryptoListResponseSchema);
-	} catch (error) {
-		console.error("getCryptoList error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, "Failed to fetch cryptocurrency list");
-	}
+		},
+		CryptoListResponseSchema,
+		"getCryptoList",
+	);
 }
 
 /**
@@ -176,19 +202,16 @@ export async function searchCrypto(
 
 	const url = `${BASE_URL}/coins/search?query=${encodeURIComponent(query)}`;
 
-	try {
-		const response = await fetch(url, {
+	const data = await fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
-		});
+		},
+		CryptoSearchResultsSchema,
+		"searchCrypto",
+	);
 
-		return handleResponse(response, CryptoSearchResultsSchema);
-	} catch (error) {
-		console.error("searchCrypto error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, "Failed to search cryptocurrencies");
-	}
+	return data.coins;
 }
 
 /**
@@ -223,20 +246,15 @@ export async function getCryptosByIds(
 
 	const url = `${BASE_URL}/coins/markets?vs_currency=${encodeURIComponent(currency)}&ids=${encodeURIComponent(uniqueIds.join(","))}&order=market_cap_desc&sparkline=false`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
 			next: { revalidate: 300 },
-		});
-
-		return handleResponse(response, CryptoListResponseSchema);
-	} catch (error) {
-		console.error("getCryptosByIds error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, "Failed to fetch cryptocurrencies");
-	}
+		},
+		CryptoListResponseSchema,
+		"getCryptosByIds",
+	);
 }
 
 /**
@@ -254,20 +272,15 @@ export async function getCryptosByIds(
 export async function getCryptoById(id: string): Promise<CryptoDetail> {
 	const url = `${BASE_URL}/coins/${id}`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
 			next: { revalidate: 300 },
-		});
-
-		return handleResponse(response, CryptoDetailSchema);
-	} catch (error) {
-		console.error("getCryptoById error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, `Failed to fetch cryptocurrency: ${id}`);
-	}
+		},
+		CryptoDetailSchema,
+		`getCryptoById: ${id}`,
+	);
 }
 
 /**
@@ -291,20 +304,15 @@ export async function getCryptoHistory(
 ): Promise<CryptoHistory> {
 	const url = `${BASE_URL}/coins/${id}/market_chart?vs_currency=${currency}&days=${days}`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
 			next: { revalidate: 300 },
-		});
-
-		return handleResponse(response, CryptoHistorySchema);
-	} catch (error) {
-		console.error("getCryptoHistory error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, `Failed to fetch price history for: ${id}`);
-	}
+		},
+		CryptoHistorySchema,
+		`getCryptoHistory: ${id}`,
+	);
 }
 
 /**
@@ -323,23 +331,19 @@ export async function getCryptoHistory(
 export async function getCryptoOHLC(
 	id: string,
 	days = 30,
+	currency = "usd", // Добавлен параметр currency
 ): Promise<CryptoOHLCResponse> {
-	const url = `${BASE_URL}/coins/${id}/ohlc?vs_currency=usd&days=${days}`;
+	const url = `${BASE_URL}/coins/${id}/ohlc?vs_currency=${currency}&days=${days}`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
 			next: { revalidate: 300 },
-		});
-
-		return handleResponse(response, CryptoOHLCResponseSchema);
-	} catch (error) {
-		console.error("getCryptoOHLC error:", error);
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, `Failed to fetch OHLC data for: ${id}`);
-	}
+		},
+		CryptoOHLCResponseSchema,
+		`getCryptoOHLC: ${id}`,
+	);
 }
 
 /**
@@ -357,20 +361,13 @@ export async function getCryptoOHLC(
 export async function getTrendingSearches(): Promise<TrendingResponse> {
 	const url = `${BASE_URL}/search/trending`;
 
-	try {
-		const response = await fetch(url, {
+	return fetchAndValidate(
+		url,
+		{
 			headers: getHeaders(),
-			next: { revalidate: 600 }, // Cache for 10 minutes as per CoinGecko docs
-		});
-
-		// Use the updated TrendingResponseSchema for validation
-		return handleResponse(response, TrendingResponseSchema);
-	} catch (error) {
-		console.error("getTrendingSearches error:", error);
-		// Re-throw specific errors or a generic one
-		if (error instanceof ApiError || error instanceof ValidationError) {
-			throw error;
-		}
-		throw new ApiError(500, "Failed to fetch trending searches");
-	}
+			next: { revalidate: 600 },
+		},
+		TrendingResponseSchema,
+		"getTrendingSearches",
+	);
 }

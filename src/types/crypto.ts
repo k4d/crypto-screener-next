@@ -133,10 +133,12 @@ export const CryptoSearchResultSchema = z.object({
 });
 
 /**
- * Zod schema for cryptocurrency search results array.
- * Multiple search results from CoinGecko search endpoint.
+ * Zod schema for cryptocurrency search results response.
+ * Wraps the actual results array in a `coins` field as returned by the API.
  */
-export const CryptoSearchResultsSchema = z.array(CryptoSearchResultSchema);
+export const CryptoSearchResultsSchema = z.object({
+	coins: z.array(CryptoSearchResultSchema),
+});
 
 /**
  * Zod schema for cryptocurrency price history response.
