@@ -66,17 +66,6 @@ function cn(
 **Возвращает:**
 - `string` — Объединённые классы через пробел
 
----
-
-### mergeClasses()
-
-Алиас для `cn()` с полным именем для ясности.
-
-```tsx
-function mergeClasses(
-  ...classes: (string | undefined | null | false)[]
-): string
-```
 
 ---
 
